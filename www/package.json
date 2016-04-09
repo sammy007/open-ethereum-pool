@@ -38,6 +38,6 @@
     "ember-resolver": "^2.0.3",
     "loader.js": "^4.0.1",
     "ember-intl": "2.0.0",
-    "ember-cli-cookie": "^0.1.1"
+    "ember-cli-cookie": "^0.2.0"
   }
 }
