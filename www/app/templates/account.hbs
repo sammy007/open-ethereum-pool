@@ -1,0 +1,51 @@
+{{outlet 'error' }}
+<div class="jumbotron">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4 stats">
+        <div style="display: block;">
+          <i class="fa fa-cloud"></i> Immature Balance: <span>{{format-balance model.stats.immature}}</span><br>
+          <small>Preliminary balance awaiting blocks to mature.</small>
+        </div>
+        <div style="display: block;">
+          <i class="fa fa-bank"></i> Pending Balance: <span>{{format-balance model.stats.balance}}</span><br>
+          <small>Credited coins awaiting payout.</small>
+        </div>
+        <div style="display: block;"><i class="fa fa-money"></i> Total Paid: <span>{{format-balance model.stats.paid}}</span></div>
+      </div>
+      <div class="col-md-4 stats">
+        {{#if model.stats.lastShare}}
+        <div style="display: block;"><i class="fa fa-clock-o"></i>
+          Last Share Submitted: <span>{{format-relative (seconds-to-ms (string-to-int model.stats.lastShare))}}</span>
+        </div>
+        {{/if}}
+        <div style="display: block;"><i class="fa fa-gears"></i> Workers Online: <span>{{format-number model.workersOnline}}</span></div>
+        <div style="display: block;"><i class="fa fa-tachometer"></i> Hashrate (30m): <span>{{format-hashrate model.currentHashrate}}</span></div>
+        <div style="display: block;"><i class="fa fa-tachometer"></i> Hashrate (3h): <span>{{format-hashrate model.hashrate}}</span></div>
+      </div>
+      <div class="col-md-4 stats">
+        {{#if model.stats.blocksFound}}
+        <div style="display: block;"><i class="fa fa-tachometer"></i> Blocks Found: <span>{{format-number model.stats.blocksFound}}</span></div>
+        {{/if}}
+        <div style="display: block;"><i class="fa fa-paper-plane-o"></i> Total Payments: <span>{{format-number model.paymentsTotal}}</span></div>
+        <div style="display: block;">
+          <i class="fa fa-gears"></i> Your Round Share: <span>{{format-number roundPercent style='percent' maximumFractionDigits='6'}}</span><br/>
+          <small>Percent of your contribution to current round.</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <ul class="nav nav-tabs">
+    {{#active-li currentWhen='account.index' role='presentation'}}
+      {{#link-to 'account.index'}}Workers <span class="badge alert-danger">{{model.workersOffline}}</span>{{/link-to}}
+    {{/active-li}}
+    {{#active-li currentWhen='account.payouts' role='presentation'}}
+      {{#link-to 'account.payouts'}}Payouts{{/link-to}}
+    {{/active-li}}
+  </ul>
+</div>
+
+{{outlet}}

@@ -1,0 +1,46 @@
+<div class="jumbotron">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-5">
+        <h1 style="font-size: 24px">
+          <strong>Open Ethereum Pool</strong>
+        </h1>
+        <strong>Min. payout threshold: 0.5 Ether</strong>, Payouts run twice per day.<br/>
+        <span class="label label-success">PROP</span> Stable and profitable pool with regular payouts.
+      </div>
+      <div class="col-md-3 stats">
+        <div><i class="fa fa-users"></i> Miners Online: <span id="poolHashrate">{{format-number stats.model.minersTotal}}</span></div>
+        <div><i class="fa fa-tachometer"></i> Pool Hash Rate: <span id="poolHashrate">{{format-hashrate stats.model.hashrate}}</span></div>
+        <div><i class="fa fa-money"></i> Pool Fee: <span id="poolFee" class="label label-success">1%</span></div>
+      </div>
+      <div class="col-md-4 stats">
+        <div><i class="fa fa-unlock-alt"></i> Network Difficulty: <span>{{format-number stats.difficulty}}</span></div>
+        <div><i class="fa fa-bars"></i> Blockchain Height: <span>{{format-number stats.height}}</span></div>
+        {{#if stats.model.stats.lastBlockFound}}
+        <div><i class="fa fa-clock-o"></i> Last Block Found: <span>{{format-relative (seconds-to-ms stats.model.stats.lastBlockFound)}}</span></div>
+        {{/if}}
+        <div><i class="fa fa-clock-o"></i> Round Variance: <span>{{format-number stats.roundVariance style='percent'}}</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="stats">
+    <h4>Your Stats &amp; Payment History</h4>
+    <div class="input-group">
+      {{input value=cachedLogin class="form-control" placeholder="Enter Your Ethereum Address"}}
+      <span class="input-group-btn">
+        <button class="btn btn-primary" type="button" {{action 'lookup' cachedLogin}}>
+          <span style="display: inline;"><i class="fa fa-search"></i> Lookup</span>
+        </button>
+      </span>
+    </div>
+  </div>
+  <div>
+    <hr/>
+    <h4 class="note note-info text-center">
+      ethminer.exe -F http://example.net:8888/miner/&lt;address&gt;/&lt;worker&gt; -G
+    </h4>
+  </div>
+</div>

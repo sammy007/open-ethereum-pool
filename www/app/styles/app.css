@@ -1,0 +1,174 @@
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+  background: url('/bg.png');
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  background-color: #f5f5f5;
+}
+
+
+/* Custom page CSS
+-------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+
+body {
+  padding-top: 20px;
+  padding-bottom: 5px;
+}
+
+body > .container {
+  padding: 0px 15px 0;
+}
+.container .text-muted {
+  margin: 20px 0;
+}
+
+.footer > .container {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+.jumbotron {
+	margin: 0;
+	padding: 40px 0 15px 0;
+	margin-bottom: 15px;
+}
+
+code {
+  font-size: 80%;
+}
+
+.navbar-default {
+	background-color: #04191f;
+	border-color: #69102b;
+}
+.navbar-default .navbar-brand {
+	color: #dadada;
+}
+.navbar-default .navbar-brand:hover, .navbar-default .navbar-brand:focus {
+	color: #ffffff;
+}
+.navbar-default .navbar-text {
+	color: #dadada;
+}
+.navbar-default .navbar-nav > li > a {
+	color: #dadada;
+}
+.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+	color: #ffffff;
+}
+.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
+	color: #ffffff;
+	background-color: #0a6c9d;
+}
+.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
+	color: #ffffff;
+	background-color: #69102b;
+}
+.navbar-default .navbar-toggle {
+	border-color: #0a6c9d;
+}
+.navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
+	background-color: #0a6c9d;
+}
+.navbar-default .navbar-toggle .icon-bar {
+	background-color: #dadada;
+}
+.navbar-default .navbar-collapse,
+.navbar-default .navbar-form {
+	border-color: #dadada;
+}
+.navbar-default .navbar-link {
+	color: #dadada;
+}
+.navbar-default .navbar-link:hover {
+	color: #ffffff;
+}
+
+@media (max-width: 767px) {
+	.navbar-default .navbar-nav .open .dropdown-menu > li > a {
+		color: #dadada;
+	}
+	.navbar-default .navbar-nav .open .dropdown-menu > li > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+		color: #ffffff;
+	}
+	.navbar-default .navbar-nav .open .dropdown-menu > .active > a, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+		color: #ffffff;
+		background-color: #0a6c9d;
+	}
+}
+
+span.logo-1 {
+	font-weight: 700;
+	color: #1994b8;
+}
+
+span.logo-2 {
+	font-weight: 300;
+	color: #FFF;
+}
+
+span.logo-3 {
+	color: #FFF;
+	font-weight: 100;
+}
+
+.navbar-collapse {
+	font-size: 14px;
+	font-weight: 200;
+}
+
+.note {
+	margin: 0 0 20px 0;
+	padding: 15px 30px 15px 15px;
+	border-left: 5px solid #eee;
+	border-radius: 5px;
+}
+
+.note-info {
+	background-color: #E8F6FC;
+	border-color: #57b5e3;
+}
+
+.note-danger {
+	background-color: #ff9999;
+	border-color: #ff0000;
+}
+
+h4.note {
+	margin-top: 0;
+	font-weight: 300 !important;
+}
+
+/* Stats */
+.stats {
+	margin-bottom: 10px;
+	margin-top: 5px;
+}
+.stats:last-child{
+	width: auto;
+}
+.stats > h3 > i {
+	width: 21px;
+}
+.stats > div{
+	padding: 5px 0;
+}
+.stats > div > .fa {
+	width: 25px;
+}
+.stats > div > span:first-of-type{
+	font-weight: bold;
+}

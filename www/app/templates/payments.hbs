@@ -1,0 +1,33 @@
+<div class="jumbotron">
+  <div class="container">
+    <p class="lead">Pool always pay tx fees from it's own pocket for now.</p>
+    <strong>Total payments sent:</strong> <span class="label label-info">{{model.paymentsTotal}}</span>
+  </div>
+</div>
+<div class="container">
+  {{#if model.payments}}
+  <h4>Latest Payouts</h4>
+  <table class="table table-condensed table-striped">
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Amount</th>
+        <th>Address</th>
+        <th>Tx ID</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each model.payments as |tx|}}
+        <tr>
+          <td>{{format-date-locale tx.timestamp}}</td>
+          <td>{{format-number tx.formatAmount}}</td>
+          <td style="font-family: 'Inconsolata', monospace"><a href="https://etherchain.org/account/{{tx.address}}">{{tx.address}}</a></td>
+          <td style="font-family: 'Inconsolata', monospace"><a href="https://etherchain.org/tx/{{tx.tx}}">{{format-tx tx.tx}}</a></td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  {{else}}
+  <h3>No payouts yet</h3>
+  {{/if}}
+</div>
