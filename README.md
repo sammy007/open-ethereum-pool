@@ -254,6 +254,8 @@ Otherwise you will get errors on start because JSON can't contain comments actua
     "timeout": "10s",
     // Address with pool balance
     "address": "0x0",
+    // Let geth to determine gas and gasPrice
+    "autoGas": true,
     // Gas amount and price for payout tx
     "gas": "21000",
     "gasPrice": "50000000000",

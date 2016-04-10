@@ -167,13 +167,15 @@ func (r *RPCClient) SubmitBlock(params []string) (bool, error) {
 	return result, nil
 }
 
-func (r *RPCClient) SendTransaction(from, to, gas, gasPrice, value string) (string, error) {
+func (r *RPCClient) SendTransaction(from, to, gas, gasPrice, value string, autoGas bool) (string, error) {
 	params := map[string]string{
-		"from":     from,
-		"to":       to,
-		"gas":      gas,
-		"gasPrice": gasPrice,
-		"value":    value,
+		"from":  from,
+		"to":    to,
+		"value": value,
+	}
+	if !autoGas {
+		params["gas"] = gas
+		params["gasPrice"] = gasPrice
 	}
 	rpcResp, err := r.doPost(r.Url, "eth_sendTransaction", []interface{}{params})
 	var reply string

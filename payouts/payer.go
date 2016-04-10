@@ -19,6 +19,7 @@ type PayoutsConfig struct {
 	Address  string `json:"address"`
 	Gas      string `json:"gas"`
 	GasPrice string `json:"gasPrice"`
+	AutoGas  bool   `json:"autoGas"`
 	// In Shannon
 	Threshold int64 `json:"threshold"`
 }
@@ -96,7 +97,7 @@ func (u *PayoutsProcessor) process() {
 		// Gwei^2 = Wei
 		weiAmount := gweiAmount.Mul(gweiAmount, common.Shannon)
 		value := common.BigToHash(weiAmount).Hex()
-		txHash, err := u.rpc.SendTransaction(u.config.Address, login, u.config.GasHex(), u.config.GasPriceHex(), value)
+		txHash, err := u.rpc.SendTransaction(u.config.Address, login, u.config.GasHex(), u.config.GasPriceHex(), value, u.config.AutoGas)
 		if err != nil {
 			log.Printf("Failed to send payment: %v", err)
 			u.halt = true
