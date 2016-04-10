@@ -90,9 +90,13 @@ and add this setting after <code>location /</code>:
         proxy_pass http://api;
     }
 
+#### Layout Customization
+
 You can customize layout and other stuff using built-in web server with live reload:
 
     ember server --port 8082 --environment development
+
+**Don't use built-in web server in production**.
 
 #### Customization
 
