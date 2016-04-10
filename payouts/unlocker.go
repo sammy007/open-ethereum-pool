@@ -25,6 +25,8 @@ type UnlockerConfig struct {
 	Timeout       string  `json:"timeout"`
 }
 
+const minDepth = 16
+
 var constRewardInEther = new(big.Int).SetInt64(5)
 var constReward = new(big.Int).Mul(constRewardInEther, common.Ether)
 var uncleReward = new(big.Int).Div(constReward, new(big.Int).SetInt64(32))
@@ -37,11 +39,11 @@ type BlockUnlocker struct {
 }
 
 func NewBlockUnlocker(cfg *UnlockerConfig, backend *storage.RedisClient) *BlockUnlocker {
-	if cfg.Depth < 10 {
-		log.Fatalf("Block maturity depth can't be < 10, your depth is %v", cfg.Depth)
+	if cfg.Depth < minDepth*2 {
+		log.Fatalf("Block maturity depth can't be < %v, your depth is %v", minDepth*2, cfg.Depth)
 	}
-	if cfg.ImmatureDepth < 10 {
-		log.Fatalf("Immature depth can't be < 10, your depth is %v", cfg.ImmatureDepth)
+	if cfg.ImmatureDepth < minDepth {
+		log.Fatalf("Immature depth can't be < %v, your depth is %v", minDepth, cfg.ImmatureDepth)
 	}
 	u := &BlockUnlocker{config: cfg, backend: backend}
 	u.rpc = rpc.NewRPCClient("BlockUnlocker", cfg.Daemon, cfg.Timeout)
@@ -121,7 +123,7 @@ func (u *BlockUnlocker) unlockCandidates(candidates []*storage.BlockData) (*Unlo
 			/* Search for block that can include this one as uncle.
 			 * Also we are searching for a normal block with wrong height here by traversing 16 blocks back and forward.
 			 */
-			for i := int64(-16); i < 16; i++ {
+			for i := int64(minDepth * -1); i < minDepth; i++ {
 				nephewHeight := candidate.Height + i
 				nephewBlock, err := u.rpc.GetBlockByHeight(nephewHeight)
 				if err != nil {
