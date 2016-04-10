@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -108,10 +109,10 @@ func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
 func (s *ProxyServer) Start() {
 	log.Printf("Starting proxy on %v", s.config.Proxy.Listen)
 	r := mux.NewRouter()
-	r.Handle("/{login:0x[0-9a-f]{40}}/{id:[0-9a-zA-Z\\-\\_]{1,8}}", s)
-	r.Handle("/{login:0x[0-9a-f]{40}}", s)
-	r.Handle("/miner/{login:0x[0-9a-f]{40}}/{id:[0-9a-zA-Z\\-\\_]{1,8}}", s)
-	r.Handle("/miner/{login:0x[0-9a-f]{40}}", s)
+	r.Handle("/{login:0x[0-9a-fA-F]{40}}/{id:[0-9a-zA-Z\\-\\_]{1,8}}", s)
+	r.Handle("/{login:0x[0-9a-fA-F]{40}}", s)
+	r.Handle("/miner/{login:0x[0-9a-fA-F]{40}}/{id:[0-9a-zA-Z\\-\\_]{1,8}}", s)
+	r.Handle("/miner/{login:0x[0-9a-fA-F]{40}}", s)
 	srv := &http.Server{
 		Addr:           s.config.Proxy.Listen,
 		Handler:        r,
@@ -201,8 +202,9 @@ func (cs *Session) handleMessage(s *ProxyServer, r *http.Request, req *JSONRpcRe
 	}
 
 	vars := mux.Vars(r)
+	login := strings.ToLower(vars["login"])
 
-	if !s.policy.ApplyLoginPolicy(vars["login"], cs.ip) {
+	if !s.policy.ApplyLoginPolicy(login, cs.ip) {
 		errReply := &ErrorReply{Code: -1, Message: "You are blacklisted", close: true}
 		cs.sendError(req.Id, errReply)
 		return
@@ -211,7 +213,7 @@ func (cs *Session) handleMessage(s *ProxyServer, r *http.Request, req *JSONRpcRe
 	// Handle RPC methods
 	switch req.Method {
 	case "eth_getWork":
-		reply, errReply := s.handleGetWorkRPC(cs, vars["login"], vars["id"])
+		reply, errReply := s.handleGetWorkRPC(cs, login, vars["id"])
 		if errReply != nil {
 			r.Close = errReply.close
 			cs.sendError(req.Id, errReply)
@@ -228,7 +230,7 @@ func (cs *Session) handleMessage(s *ProxyServer, r *http.Request, req *JSONRpcRe
 				r.Close = true
 				break
 			}
-			reply, errReply := s.handleSubmitRPC(cs, vars["login"], vars["id"], params)
+			reply, errReply := s.handleSubmitRPC(cs, login, vars["id"], params)
 			if errReply != nil {
 				r.Close = errReply.close
 				err = cs.sendError(req.Id, errReply)
