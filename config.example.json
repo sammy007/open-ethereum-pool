@@ -17,6 +17,13 @@
 		"healthCheck": true,
 		"maxFails": 100,
 
+		"stratum": {
+			"enabled": true,
+			"listen": "0.0.0.0:8547",
+			"timeout": "120s",
+			"maxConn": 8192
+		},
+
 		"policy": {
 			"workers": 8,
 			"resetInterval": "60m",

@@ -14,6 +14,7 @@ var hasher = ethash.New()
 
 type Miner struct {
 	Id    string
+	Uuid  int64
 	Login string
 	IP    string
 }

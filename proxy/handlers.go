@@ -3,22 +3,51 @@ package proxy
 import (
 	"log"
 	"regexp"
+	"strings"
 
 	"../rpc"
 )
 
 var noncePattern *regexp.Regexp
+var addressPattern *regexp.Regexp
 
 func init() {
 	noncePattern, _ = regexp.Compile("^0x[0-9a-f]{16}$")
+	addressPattern, _ = regexp.Compile("^0x[0-9a-fA-F]{40}$")
 }
 
-func (s *ProxyServer) handleGetWorkRPC(cs *Session, login, id string) ([]string, *ErrorReply) {
+// Stratum
+func (s *ProxyServer) handleLoginRPC(cs *Session, params []string, id string) (bool, *ErrorReply) {
+	if len(params) == 0 {
+		return false, &ErrorReply{Code: -1, Message: "Invalid params"}
+	}
+
+	login := strings.ToLower(params[0])
+	if !addressPattern.MatchString(login) {
+		return false, &ErrorReply{Code: -1, Message: "Invalid login"}
+	}
+	cs.login = login
+	s.registerSession(cs)
+	return true, nil
+}
+
+func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 	t := s.currentBlockTemplate()
 	if t == nil || len(t.Header) == 0 || s.isSick() {
 		return nil, &ErrorReply{Code: -1, Message: "Work not ready"}
 	}
 	return []string{t.Header, t.Seed, s.diff}, nil
+}
+
+// Stratum
+func (s *ProxyServer) handleTCPSubmitRPC(cs *Session, id string, params []string) (bool, *ErrorReply) {
+	s.sessionsMu.RLock()
+	_, ok := s.sessions[cs.uuid]
+	s.sessionsMu.RUnlock()
+	if !ok {
+		return false, &ErrorReply{Code: -1, Message: "Unknown session"}
+	}
+	return s.handleSubmitRPC(cs, cs.login, id, params)
 }
 
 func (s *ProxyServer) handleSubmitRPC(cs *Session, login string, id string, params []string) (bool, *ErrorReply) {
@@ -27,13 +56,13 @@ func (s *ProxyServer) handleSubmitRPC(cs *Session, login string, id string, para
 	if len(params) != 3 {
 		s.policy.ApplyMalformedPolicy(cs.ip)
 		log.Printf("Malformed params from %s@%s", m.Login, m.IP)
-		return false, &ErrorReply{Code: -1, Message: "Malformed params", close: true}
+		return false, &ErrorReply{Code: -1, Message: "Malformed params"}
 	}
 
 	if !noncePattern.MatchString(params[0]) {
 		s.policy.ApplyMalformedPolicy(cs.ip)
 		log.Printf("Malformed nonce from %s@%s", m.Login, m.IP)
-		return false, &ErrorReply{Code: -1, Message: "Malformed nonce", close: true}
+		return false, &ErrorReply{Code: -1, Message: "Malformed nonce"}
 	}
 	t := s.currentBlockTemplate()
 	exist, validShare := m.processShare(s, t, params)
@@ -41,7 +70,7 @@ func (s *ProxyServer) handleSubmitRPC(cs *Session, login string, id string, para
 
 	if exist {
 		log.Printf("Duplicate share %s from %s@%s params: %v", params[0], m.Login, m.IP, params)
-		return false, &ErrorReply{Code: -1, Message: "Duplicate share", close: true}
+		return false, &ErrorReply{Code: -1, Message: "Duplicate share"}
 	}
 
 	if !validShare {

@@ -6,6 +6,16 @@ type JSONRpcReq struct {
 	Id     *json.RawMessage `json:"id"`
 	Method string           `json:"method"`
 	Params *json.RawMessage `json:"params"`
+
+	// Stratum
+	Worker string `json:"worker"`
+}
+
+// Stratum
+type JSONPushMessage struct {
+	Version string      `json:"jsonrpc"`
+	Method  string      `json:"method,omitempty"`
+	Result  interface{} `json:"result"`
 }
 
 type JSONRpcResp struct {
@@ -22,5 +32,4 @@ type SubmitReply struct {
 type ErrorReply struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
-	close   bool
 }

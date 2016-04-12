@@ -2,8 +2,9 @@ package util
 
 import (
 	"math/big"
-	"time"
+	"math/rand"
 	"strconv"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -41,4 +42,10 @@ func StringInSlice(a string, list []string) bool {
 		}
 	}
 	return false
+}
+
+func Random() int64 {
+	min := int64(100000000000000)
+	max := int64(999999999999999)
+	return rand.Int63n(max-min+1) + min
 }

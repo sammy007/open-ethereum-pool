@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -27,11 +28,22 @@ type ProxyServer struct {
 	policy             *policy.PolicyServer
 	hashrateExpiration time.Duration
 	failsCount         int64
+
+	// Stratum
+	sessionsMu sync.RWMutex
+	sessions   map[int64]*Session
+	timeout    time.Duration
 }
 
 type Session struct {
 	ip  string
 	enc *json.Encoder
+
+	// Stratum
+	sync.Mutex
+	conn  *net.TCPConn
+	uuid  int64
+	login string
 }
 
 func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
@@ -49,6 +61,12 @@ func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
 		log.Printf("Upstream: %s => %s", v.Name, v.Url)
 	}
 	log.Printf("Default upstream: %s => %s", proxy.rpc().Name, proxy.rpc().Url)
+
+	if cfg.Proxy.Stratum.Enabled {
+		proxy.sessions = make(map[int64]*Session)
+
+		go proxy.ListenTCP()
+	}
 
 	proxy.fetchBlockTemplate()
 
@@ -170,7 +188,6 @@ func (s *ProxyServer) handleClient(w http.ResponseWriter, r *http.Request, ip st
 	if r.ContentLength > s.config.Proxy.LimitBodySize {
 		log.Printf("Socket flood from %s", ip)
 		s.policy.ApplyMalformedPolicy(ip)
-		r.Close = true
 		http.Error(w, "Request too large", http.StatusExpectationFailed)
 		return
 	}
@@ -186,7 +203,6 @@ func (s *ProxyServer) handleClient(w http.ResponseWriter, r *http.Request, ip st
 		} else if err != nil {
 			log.Printf("Malformed request from %v: %v", ip, err)
 			s.policy.ApplyMalformedPolicy(ip)
-			r.Close = true
 			return
 		}
 		cs.handleMessage(s, r, &req)
@@ -205,7 +221,7 @@ func (cs *Session) handleMessage(s *ProxyServer, r *http.Request, req *JSONRpcRe
 	login := strings.ToLower(vars["login"])
 
 	if !s.policy.ApplyLoginPolicy(login, cs.ip) {
-		errReply := &ErrorReply{Code: -1, Message: "You are blacklisted", close: true}
+		errReply := &ErrorReply{Code: -1, Message: "You are blacklisted"}
 		cs.sendError(req.Id, errReply)
 		return
 	}
@@ -213,9 +229,8 @@ func (cs *Session) handleMessage(s *ProxyServer, r *http.Request, req *JSONRpcRe
 	// Handle RPC methods
 	switch req.Method {
 	case "eth_getWork":
-		reply, errReply := s.handleGetWorkRPC(cs, login, vars["id"])
+		reply, errReply := s.handleGetWorkRPC(cs)
 		if errReply != nil {
-			r.Close = errReply.close
 			cs.sendError(req.Id, errReply)
 			break
 		}
@@ -227,18 +242,15 @@ func (cs *Session) handleMessage(s *ProxyServer, r *http.Request, req *JSONRpcRe
 			if err != nil {
 				log.Printf("Unable to parse params from %v", cs.ip)
 				s.policy.ApplyMalformedPolicy(cs.ip)
-				r.Close = true
 				break
 			}
 			reply, errReply := s.handleSubmitRPC(cs, login, vars["id"], params)
 			if errReply != nil {
-				r.Close = errReply.close
 				err = cs.sendError(req.Id, errReply)
 				break
 			}
 			cs.sendResult(req.Id, &reply)
 		} else {
-			r.Close = true
 			errReply := &ErrorReply{Code: -1, Message: "Malformed request"}
 			cs.sendError(req.Id, errReply)
 		}
@@ -248,7 +260,6 @@ func (cs *Session) handleMessage(s *ProxyServer, r *http.Request, req *JSONRpcRe
 	case "eth_submitHashrate":
 		cs.sendResult(req.Id, true)
 	default:
-		r.Close = true
 		errReply := s.handleUnknownRPC(cs, req)
 		cs.sendError(req.Id, errReply)
 	}
