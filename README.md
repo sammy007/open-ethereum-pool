@@ -37,6 +37,8 @@ Dependencies:
 
 First of all you must install  [go-ethereum](https://github.com/ethereum/go-ethereum/wiki/Installation-Instructions-for-Ubuntu).
 
+I suggest to use Golang-1.6 from <code>deb http://ppa.launchpad.net/ubuntu-lxc/lxd-stable/ubuntu trusty main</code> PPA.
+
 Export GOPATH:
 
     export GOPATH=$HOME/go
