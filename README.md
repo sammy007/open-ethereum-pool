@@ -1,24 +1,27 @@
 # go-ethereum-pool
-## High Performance Ethereum Mining Pool
+## Open High Performance Ethereum Mining Pool
 
 ![Miner's stats page](https://15254b2dcaab7f5478ab-24461f391e20b7336331d5789078af53.ssl.cf1.rackcdn.com/ethereum.vanillaforums.com/editor/pe/cf77cki0pjpt.png)
 
 ### Features
 
 * Highly available mining endpoint module
+* Support for HTTP and Stratum mining
 * Payouts and block unlocking (maturity) module
 * Configurable payouts period and balance threshold
-* PROP payouts (miners are simply paid out when a block is found)
+* PROP payouts: the Proportional approach offers a proportional distribution of the reward when a block is found amongst all workers, based off of the number of shares they have each found
 * Detailed block stats with luck percentage and full reward
 * Failover geth instances: geth high availability built in
 * Strict policy module (banning strategies using ipset/iptables)
 * Designed for 100% distributed setup of all modules
 * Modern beautiful Ember.js frontend
 * Separate stats for workers: can highlight timed-out workers so miners can perform maintenance of rigs
-* JSON-API for stats, miners can use for rigs maintenance automation (rig rebooting for example )
-Also it's compatible with my *ether-proxy*  solo/pool proxy solution.
+* JSON-API for stats, miners can use for rigs maintenance automation (rig rebooting for example)
 
-*Written in Go it's a rocket highly concurrent and low RAM consuming piece of code*
+#### Proxies
+
+* [Ether-Proxy](https://github.com/sammy007/ether-proxy) HTTP proxy with web interface
+* [Stratum Proxy](https://github.com/Atrides/eth-proxy) for Ethereum
 
 ### Building on Linux
 
@@ -138,6 +141,7 @@ Otherwise you will get errors on start because JSON can't contain comments actua
     // Stratum mining endpoint
     "stratum": {
       "enabled": true,
+      // Bind stratum mining socket to this IP:PORT
       "listen": "0.0.0.0:8547",
       "timeout": "120s",
       "maxConn": 8192
@@ -184,13 +188,6 @@ Otherwise you will get errors on start because JSON can't contain comments actua
   // Provides JSON data for frontend which is static website
   "api": {
     "enabled": true,
-
-    /* If you are running API node in a distributed environment where this module
-      is reading data from redis writeable slave, enable this option.
-      Only redis writeable slave will work properly if you are distributing using redis slaves.
-      Don't distribute!
-    */
-    "purgeOnly": false,
     "listen": "0.0.0.0:8080",
     // Collect miners stats (hashrate, ...) in this interval
     "statsCollectInterval": "5s",
@@ -202,7 +199,14 @@ Otherwise you will get errors on start because JSON can't contain comments actua
     // Max number of payments to display in frontend
     "payments": 50,
     // Max numbers of blocks to display in frontend
-    "blocks": 50
+    "blocks": 50,
+
+    /* If you are running API node on a different server where this module
+      is reading data from redis writeable slave, you must run an api instance with this option enabled in order to purge hashrate stats from main redis node.
+      Only redis writeable slave will work properly if you are distributing using redis slaves.
+      Very advanced. Usually all modules should share same redis instance.
+    */
+    "purgeOnly": false
   },
 
   // Check health of each geth node in this interval
@@ -268,10 +272,10 @@ Otherwise you will get errors on start because JSON can't contain comments actua
     "address": "0x0",
     // Let geth to determine gas and gasPrice
     "autoGas": true,
-    // Gas amount and price for payout tx
+    // Gas amount and price for payout tx (advanced users only)
     "gas": "21000",
     "gasPrice": "50000000000",
-    // Seend payment only if miner's balance is >= 0.5 Ether
+    // Send payment only if miner's balance is >= 0.5 Ether
     "threshold": 500000000
   },
 }
