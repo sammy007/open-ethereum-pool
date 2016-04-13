@@ -135,6 +135,14 @@ Otherwise you will get errors on start because JSON can't contain comments actua
     */
     "behindReverseProxy": false,
 
+    // Stratum mining endpoint
+    "stratum": {
+      "enabled": true,
+      "listen": "0.0.0.0:8547",
+      "timeout": "120s",
+      "maxConn": 8192
+    },
+
     // Try to get new job from geth in this interval
     "blockRefreshInterval": "120ms",
     "stateUpdateInterval": "3s",
