@@ -28,6 +28,7 @@ func (s *ProxyServer) handleLoginRPC(cs *Session, params []string, id string) (b
 	}
 	cs.login = login
 	s.registerSession(cs)
+	log.Printf("Stratum miner connected %v@%v", login, cs.ip)
 	return true, nil
 }
 
