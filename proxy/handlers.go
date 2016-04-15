@@ -12,8 +12,8 @@ var noncePattern *regexp.Regexp
 var addressPattern *regexp.Regexp
 
 func init() {
-	noncePattern, _ = regexp.Compile("^0x[0-9a-f]{16}$")
-	addressPattern, _ = regexp.Compile("^0x[0-9a-fA-F]{40}$")
+	noncePattern = regexp.MustCompile("^0x[0-9a-f]{16}$")
+	addressPattern = regexp.MustCompile("^0x[0-9a-fA-F]{40}$")
 }
 
 // Stratum
