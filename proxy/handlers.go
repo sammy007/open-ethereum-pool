@@ -51,35 +51,37 @@ func (s *ProxyServer) handleTCPSubmitRPC(cs *Session, id string, params []string
 	return s.handleSubmitRPC(cs, cs.login, id, params)
 }
 
-func (s *ProxyServer) handleSubmitRPC(cs *Session, login string, id string, params []string) (bool, *ErrorReply) {
-	m := NewMiner(login, id, cs.ip)
+func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []string) (bool, *ErrorReply) {
+	if len(id) == 0 {
+		id = "0"
+	}
 
 	if len(params) != 3 {
 		s.policy.ApplyMalformedPolicy(cs.ip)
-		log.Printf("Malformed params from %s@%s", m.Login, m.IP)
+		log.Printf("Malformed params from %s@%s", login, cs.ip)
 		return false, &ErrorReply{Code: -1, Message: "Malformed params"}
 	}
 
 	if !noncePattern.MatchString(params[0]) {
 		s.policy.ApplyMalformedPolicy(cs.ip)
-		log.Printf("Malformed nonce from %s@%s", m.Login, m.IP)
+		log.Printf("Malformed nonce from %s@%s", login, cs.ip)
 		return false, &ErrorReply{Code: -1, Message: "Malformed nonce"}
 	}
 	t := s.currentBlockTemplate()
-	exist, validShare := m.processShare(s, t, params)
-	s.policy.ApplySharePolicy(m.IP, !exist && validShare)
+	exist, validShare := s.processShare(login, id, cs.ip, t, params)
+	s.policy.ApplySharePolicy(cs.ip, !exist && validShare)
 
 	if exist {
-		log.Printf("Duplicate share %s from %s@%s params: %v", params[0], m.Login, m.IP, params)
+		log.Printf("Duplicate share %s from %s@%s params: %v", params[0], login, cs.ip, params)
 		return false, &ErrorReply{Code: -1, Message: "Duplicate share"}
 	}
 
 	if !validShare {
-		log.Printf("Invalid share from %s@%s with %v nonce", m.Login, m.IP, params[0])
+		log.Printf("Invalid share from %s@%s with %v nonce", login, cs.ip, params[0])
 		return false, nil
 	}
 
-	log.Printf("Valid share from %s@%s", m.Login, m.IP)
+	log.Printf("Valid share from %s@%s", login, cs.ip)
 	return true, nil
 }
 
