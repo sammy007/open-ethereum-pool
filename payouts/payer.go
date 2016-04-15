@@ -35,10 +35,11 @@ func (self PayoutsConfig) GasPriceHex() string {
 }
 
 type PayoutsProcessor struct {
-	config  *PayoutsConfig
-	backend *storage.RedisClient
-	rpc     *rpc.RPCClient
-	halt    bool
+	config   *PayoutsConfig
+	backend  *storage.RedisClient
+	rpc      *rpc.RPCClient
+	halt     bool
+	lastFail error
 }
 
 func NewPayoutsProcessor(cfg *PayoutsConfig, backend *storage.RedisClient) *PayoutsProcessor {
@@ -70,7 +71,7 @@ func (u *PayoutsProcessor) Start() {
 
 func (u *PayoutsProcessor) process() {
 	if u.halt {
-		log.Println("Payments suspended due to last critical error")
+		log.Println("Payments suspended due to last critical error:", u.lastFail)
 		return
 	}
 	mustPay := 0
@@ -101,6 +102,7 @@ func (u *PayoutsProcessor) process() {
 		if err != nil {
 			log.Printf("Failed to send payment: %v", err)
 			u.halt = true
+			u.lastFail = err
 			break
 		}
 		minersPaid++
@@ -111,6 +113,7 @@ func (u *PayoutsProcessor) process() {
 		if err != nil {
 			log.Printf("DANGER: Failed to update balance for %v with %v. TX: %v. Error is: %v", login, amount, txHash, err)
 			u.halt = true
+			u.lastFail = err
 			return
 		}
 		// Wait for TX confirmation before further payouts

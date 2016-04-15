@@ -32,10 +32,11 @@ var constReward = new(big.Int).Mul(constRewardInEther, common.Ether)
 var uncleReward = new(big.Int).Div(constReward, new(big.Int).SetInt64(32))
 
 type BlockUnlocker struct {
-	config  *UnlockerConfig
-	backend *storage.RedisClient
-	rpc     *rpc.RPCClient
-	halt    bool
+	config   *UnlockerConfig
+	backend  *storage.RedisClient
+	rpc      *rpc.RPCClient
+	halt     bool
+	lastFail error
 }
 
 func NewBlockUnlocker(cfg *UnlockerConfig, backend *storage.RedisClient) *BlockUnlocker {
@@ -145,6 +146,7 @@ func (u *BlockUnlocker) unlockCandidates(candidates []*storage.BlockData) (*Unlo
 					rightHeight, err := strconv.ParseInt(strings.Replace(nephewBlock.Number, "0x", "", -1), 16, 64)
 					if err != nil {
 						u.halt = true
+						u.lastFail = err
 						log.Printf("Can't parse block number: %v", err)
 						return nil, err
 					}
@@ -175,6 +177,7 @@ func (u *BlockUnlocker) unlockCandidates(candidates []*storage.BlockData) (*Unlo
 						uncleHeight, err := strconv.ParseInt(strings.Replace(reply.Number, "0x", "", -1), 16, 64)
 						if err != nil {
 							u.halt = true
+							u.lastFail = err
 							log.Printf("Can't parse uncle block number: %v", err)
 							return nil, err
 						}
@@ -238,19 +241,21 @@ func (u *BlockUnlocker) handleCandidate(block *rpc.GetBlockReply, candidate *sto
 
 func (u *BlockUnlocker) unlockPendingBlocks() {
 	if u.halt {
-		log.Println("Unlocking suspended due to last critical error")
+		log.Println("Unlocking suspended due to last critical error:", u.lastFail)
 		return
 	}
 
 	current, err := u.rpc.GetPendingBlock()
 	if err != nil {
 		u.halt = true
+		u.lastFail = err
 		log.Printf("Unable to get current blockchain height from node: %v", err)
 		return
 	}
 	currentHeight, err := strconv.ParseInt(strings.Replace(current.Number, "0x", "", -1), 16, 64)
 	if err != nil {
 		u.halt = true
+		u.lastFail = err
 		log.Printf("Can't parse pending block number: %v", err)
 		return
 	}
@@ -258,6 +263,7 @@ func (u *BlockUnlocker) unlockPendingBlocks() {
 	candidates, err := u.backend.GetCandidates(currentHeight - u.config.ImmatureDepth)
 	if err != nil {
 		u.halt = true
+		u.lastFail = err
 		log.Printf("Failed to get block candidates from backend: %v", err)
 		return
 	}
@@ -265,6 +271,7 @@ func (u *BlockUnlocker) unlockPendingBlocks() {
 	result, err := u.unlockCandidates(candidates)
 	if err != nil {
 		u.halt = true
+		u.lastFail = err
 		log.Printf("Failed to unlock blocks: %v", err)
 		return
 	}
@@ -273,6 +280,7 @@ func (u *BlockUnlocker) unlockPendingBlocks() {
 	err = u.backend.WritePendingOrphans(result.orphanedBlocks)
 	if err != nil {
 		u.halt = true
+		u.lastFail = err
 		log.Printf("Failed to insert orphaned blocks into backend: %v", err)
 		return
 	} else {
@@ -287,12 +295,14 @@ func (u *BlockUnlocker) unlockPendingBlocks() {
 		revenue, minersProfit, poolProfit, roundRewards, err := u.calculateRewards(block)
 		if err != nil {
 			u.halt = true
+			u.lastFail = err
 			log.Printf("Failed to calculate rewards for round %v: %v", block.RoundKey(), err)
 			return
 		}
 		err = u.backend.WriteImmatureBlock(block, roundRewards)
 		if err != nil {
 			u.halt = true
+			u.lastFail = err
 			log.Printf("Failed to credit rewards for round %v: %v", block.RoundKey(), err)
 			return
 		}
@@ -324,19 +334,21 @@ func (u *BlockUnlocker) unlockPendingBlocks() {
 
 func (u *BlockUnlocker) unlockAndCreditMiners() {
 	if u.halt {
-		log.Println("Unlocking suspended due to last critical error")
+		log.Println("Unlocking suspended due to last critical error:", u.lastFail)
 		return
 	}
 
 	current, err := u.rpc.GetPendingBlock()
 	if err != nil {
 		u.halt = true
+		u.lastFail = err
 		log.Printf("Unable to get current blockchain height from node: %v", err)
 		return
 	}
 	currentHeight, err := strconv.ParseInt(strings.Replace(current.Number, "0x", "", -1), 16, 64)
 	if err != nil {
 		u.halt = true
+		u.lastFail = err
 		log.Printf("Can't parse pending block number: %v", err)
 		return
 	}
@@ -344,6 +356,7 @@ func (u *BlockUnlocker) unlockAndCreditMiners() {
 	immature, err := u.backend.GetImmatureBlocks(currentHeight - u.config.Depth)
 	if err != nil {
 		u.halt = true
+		u.lastFail = err
 		log.Printf("Failed to get block candidates from backend: %v", err)
 		return
 	}
@@ -351,6 +364,7 @@ func (u *BlockUnlocker) unlockAndCreditMiners() {
 	result, err := u.unlockCandidates(immature)
 	if err != nil {
 		u.halt = true
+		u.lastFail = err
 		log.Printf("Failed to unlock blocks: %v", err)
 		return
 	}
@@ -360,6 +374,7 @@ func (u *BlockUnlocker) unlockAndCreditMiners() {
 		err = u.backend.WriteOrphan(block)
 		if err != nil {
 			u.halt = true
+			u.lastFail = err
 			log.Printf("Failed to insert orphaned block into backend: %v", err)
 			return
 		}
@@ -374,12 +389,14 @@ func (u *BlockUnlocker) unlockAndCreditMiners() {
 		revenue, minersProfit, poolProfit, roundRewards, err := u.calculateRewards(block)
 		if err != nil {
 			u.halt = true
+			u.lastFail = err
 			log.Printf("Failed to calculate rewards for round %v: %v", block.RoundKey(), err)
 			return
 		}
 		err = u.backend.WriteMaturedBlock(block, roundRewards)
 		if err != nil {
 			u.halt = true
+			u.lastFail = err
 			log.Printf("Failed to credit rewards for round %v: %v", block.RoundKey(), err)
 			return
 		}
