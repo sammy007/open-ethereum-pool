@@ -81,6 +81,12 @@ Change <code>ApiUrl: '//example.net/'</code> to match your domain name.
 Configure nginx to serve API on <code>/api</code> subdirectory.
 Configure your nginx instance to serve <code>www/dist</code> as static website.
 
+### Running
+
+    ./ether-pool config.json
+
+You can use Ubuntu upstart, check for sample config in <code>upstart.conf</code>.
+
 #### Serving API using nginx
 
 Create an upstream for API:
