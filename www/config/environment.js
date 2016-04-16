@@ -61,7 +61,7 @@ module.exports = function(environment) {
   }
 
   if (environment === 'production') {
-    ENV.APP.API_URL = 'http://localhost:8080'
+
   }
 
   return ENV;
