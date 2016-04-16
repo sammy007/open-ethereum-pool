@@ -133,8 +133,8 @@ Otherwise you will get errors on start because JSON can't contain comments actua
   "proxy": {
     "enabled": true,
 
-    // Bind mining endpoint to this IP:PORT
-    "listen": "0.0.0.0:8546",
+    // Bind HTTP mining endpoint to this IP:PORT
+    "listen": "0.0.0.0:8888",
 
     // Allow only this header and body size of HTTP request from miners
     "limitHeadersSize": 1024,
@@ -150,7 +150,7 @@ Otherwise you will get errors on start because JSON can't contain comments actua
     "stratum": {
       "enabled": true,
       // Bind stratum mining socket to this IP:PORT
-      "listen": "0.0.0.0:8547",
+      "listen": "0.0.0.0:8008",
       "timeout": "120s",
       "maxConn": 8192
     },
