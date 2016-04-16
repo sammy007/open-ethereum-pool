@@ -4,7 +4,7 @@
   </div>
   <p class="lead">In order to mine on this pool you need to have an
     <a href="https://github.com/ethereum/webthree-umbrella/releases" rel="nofollow" target="_blank">ethminer</a> installation
-    pointed to<br/><code>http://example.net:8888/YOUR_ETH_ADDRESS/RIG_ID</code>
+    pointed to<br/><code>{{config.HttpHost}}:{{config.HttpPort}}/YOUR_ETH_ADDRESS/RIG_ID</code>
   </p>
   <dl class="dl-horizontal">
     <dt>YOUR_ETH_ADDRESS</dt>
@@ -22,14 +22,14 @@
   </dl>
   <p>
     <strong>Full example:</strong>
-    <code>ethminer -F http://example.net:8888/0xb85150eb365e7df0941f0cf08235f987ba91506a/myfarm -G --farm-recheck 200</code>.<br/>
+    <code>ethminer -F {{config.HttpHost}}:{{config.HttpPort}}/0xb85150eb365e7df0941f0cf08235f987ba91506a/myfarm -G --farm-recheck 200</code>.<br/>
     <span class="label label-info">Hint:</span> If you are compiling ethminer from latest source, please also use
       extra <code>--disable-submit-hashrate</code> option.
   </p>
 
   <h4>Stratum Mining with Stratum Proxy for Ethereum</h4>
   <p class="lead">Grab proxy from <a href="https://github.com/Atrides/eth-proxy" re="nofollow" target="_blank">eth-proxy GitHub repo</a>.</p>
-  <p class="lead">Edit <code>eth-proxy.conf</code> and specify our pool's <code>HOST: example.net</code>, <code>PORT: 8008</code> and your <code>WALLET</code>.</p>
+  <p class="lead">Edit <code>eth-proxy.conf</code> and specify our pool's <code>HOST: {{config.StratumHost}}</code>, <code>PORT: {{config.StratumPort}}</code> and your <code>WALLET</code>.</p>
 
   <h4>Mining with Ether-Proxy</h4>
   <p class="lead">Use stable (green) release of my <a href="https://github.com/sammy007/ether-proxy/releases" target="_blank">Ethereum Solo/Pool Mining Proxy</a>.</p>

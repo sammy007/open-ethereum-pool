@@ -5,13 +5,13 @@
         <h1 style="font-size: 24px">
           <strong>Open Ethereum Pool</strong>
         </h1>
-        <strong>Min. payout threshold: 0.5 Ether</strong>, Payouts run twice per day.<br/>
+        <strong>Min. payout threshold: {{config.PayoutThreshold}}</strong>, Payouts run twice per day.<br/>
         <span class="label label-success">PROP</span> Stable and profitable pool with regular payouts.
       </div>
       <div class="col-md-3 stats">
         <div><i class="fa fa-users"></i> Miners Online: <span id="poolHashrate">{{format-number stats.model.minersTotal}}</span></div>
         <div><i class="fa fa-tachometer"></i> Pool Hash Rate: <span id="poolHashrate">{{format-hashrate stats.model.hashrate}}</span></div>
-        <div><i class="fa fa-money"></i> Pool Fee: <span id="poolFee" class="label label-success">1%</span></div>
+        <div><i class="fa fa-money"></i> Pool Fee: <span id="poolFee" class="label label-success">{{config.PoolFee}}</span></div>
       </div>
       <div class="col-md-4 stats">
         <div><i class="fa fa-unlock-alt"></i> Network Difficulty: <span>{{format-number stats.difficulty}}</span></div>
@@ -40,7 +40,7 @@
   <div>
     <hr/>
     <h4 class="note note-info text-center">
-      ethminer.exe -F http://example.net:8888/&lt;address&gt;/&lt;worker&gt; -G
+      ethminer.exe -F {{config.HttpHost}}:{{config.HttpPort}}/&lt;address&gt;/&lt;worker&gt; -G
     </h4>
   </div>
 </div>

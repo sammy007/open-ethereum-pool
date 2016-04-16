@@ -14,9 +14,20 @@ module.exports = function(environment) {
     },
 
     APP: {
-      // Here you can pass flags/options to your application instance
-      // when it is created
-      ApiUrl: '//example.net/'
+      // API host and port
+      ApiUrl: '//example.net/',
+
+      // HTTP mining endpoint
+      HttpHost: 'http://example.net',
+      HttpPort: 8888,
+
+      // Stratum mining endpoint
+      StratumHost: 'example.net',
+      StratumPort: 8008,
+
+      // Fee and payout details
+      PoolFee: '1%',
+      PayoutThreshold: '0.5 Ether'
     },
 
     intl: {
@@ -26,6 +37,9 @@ module.exports = function(environment) {
   };
 
   if (environment === 'development') {
+    /* Override ApiUrl just for development, while you are customizing
+      frontend markup and css theme on your workstation.
+    */
     ENV.APP.ApiUrl = 'http://localhost:8080/'
     // ENV.APP.LOG_RESOLVER = true;
     // ENV.APP.LOG_ACTIVE_GENERATION = true;
