@@ -63,6 +63,12 @@ It's a little bit crazy to run production pool on this platform, but you can fol
 [geth building instructions](https://github.com/ethereum/go-ethereum/wiki/Installation-instructions-for-Windows) and compile pool this way.
 Use some cloud Redis provider or give a try to https://github.com/MSOpenTech/redis/releases.
 
+### Running Pool
+
+    ./ether-pool config.json
+
+You can use Ubuntu upstart, check for sample config in <code>upstart.conf</code>.
+
 ### Building Frontend
 
 Frontend is a single-page Ember.js application. It polls API of the pool
@@ -70,7 +76,7 @@ to render pool stats to miners.
 
     cd www
 
-Change <code>ApiUrl: '//example.net/'</code> to match your domain name.
+Change <code>ApiUrl: '//example.net/'</code> in <code>www/config/environment.js</code> to match your domain name. Also don't forget to adjust other options there.
 
     npm install -g ember-cli@2.4.3
     npm install -g bower
@@ -80,12 +86,6 @@ Change <code>ApiUrl: '//example.net/'</code> to match your domain name.
 
 Configure nginx to serve API on <code>/api</code> subdirectory.
 Configure your nginx instance to serve <code>www/dist</code> as static website.
-
-### Running
-
-    ./ether-pool config.json
-
-You can use Ubuntu upstart, check for sample config in <code>upstart.conf</code>.
 
 #### Serving API using nginx
 
@@ -101,15 +101,13 @@ and add this setting after <code>location /</code>:
         proxy_pass http://api;
     }
 
-#### Layout Customization
+#### Customization
 
 You can customize layout and other stuff using built-in web server with live reload:
 
     ember server --port 8082 --environment development
 
 **Don't use built-in web server in production**.
-
-#### Customization
 
 Check out <code>www/app/templates</code> directory and edit these templates
 in order to add your own branding and contacts.
