@@ -12,21 +12,12 @@
     </thead>
     <tbody>
       {{#each-in model.workers as |k v|}}
-        {{#if v.offline}}
-          <tr class="warning">
-            <td>{{k}}</td>
-            <td>{{format-hashrate v.hr}}</td>
-            <td>{{format-hashrate v.hr2}}</td>
-            <td>{{format-relative (seconds-to-ms v.lastBeat)}}</td>
-          </tr>
-        {{else}}
-          <tr class="success">
-            <td>{{k}}</td>
-            <td>{{format-hashrate v.hr}}</td>
-            <td>{{format-hashrate v.hr2}}</td>
-            <td>{{format-relative (seconds-to-ms v.lastBeat)}}</td>
-          </tr>
-        {{/if}}
+        <tr class="{{if v.offline "warning" "success"}}">
+          <td>{{k}}</td>
+          <td>{{format-hashrate v.hr}}</td>
+          <td>{{format-hashrate v.hr2}}</td>
+          <td>{{format-relative (seconds-to-ms v.lastBeat)}}</td>
+        </tr>
       {{/each-in}}
     </tbody>
   </table>
