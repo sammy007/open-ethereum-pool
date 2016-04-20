@@ -268,6 +268,11 @@ func (u *BlockUnlocker) unlockPendingBlocks() {
 		return
 	}
 
+	if len(candidates) == 0 {
+		log.Println("No block candidates to unlock")
+		return
+	}
+
 	result, err := u.unlockCandidates(candidates)
 	if err != nil {
 		u.halt = true
@@ -358,6 +363,11 @@ func (u *BlockUnlocker) unlockAndCreditMiners() {
 		u.halt = true
 		u.lastFail = err
 		log.Printf("Failed to get block candidates from backend: %v", err)
+		return
+	}
+
+	if len(immature) == 0 {
+		log.Println("No immature blocks to credit miners")
 		return
 	}
 
