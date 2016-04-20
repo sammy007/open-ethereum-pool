@@ -28,11 +28,6 @@ module.exports = function(environment) {
       // Fee and payout details
       PoolFee: '1%',
       PayoutThreshold: '0.5 Ether'
-    },
-
-    intl: {
-      defaultLocale: 'en-us',
-      locales: ['en-us']
     }
   };
 

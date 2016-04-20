@@ -37,7 +37,7 @@
     "ember-load-initializers": "^0.5.1",
     "ember-resolver": "^2.0.3",
     "loader.js": "^4.0.1",
-    "ember-intl": "2.0.0",
+    "ember-intl": "2.9.3",
     "ember-cli-cookie": "^0.2.0"
   }
 }
