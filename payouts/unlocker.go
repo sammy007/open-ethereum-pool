@@ -324,7 +324,7 @@ func (u *BlockUnlocker) unlockPendingBlocks() {
 		)
 		entries := []string{logEntry}
 		for login, reward := range roundRewards {
-			entries = append(entries, fmt.Sprintf("\tREWARD %v: %v : %v", block.RoundKey(), login, reward))
+			entries = append(entries, fmt.Sprintf("\tREWARD %v: %v: %v Shannon", block.RoundKey(), login, reward))
 		}
 		log.Println(strings.Join(entries, "\n"))
 	}
@@ -423,7 +423,7 @@ func (u *BlockUnlocker) unlockAndCreditMiners() {
 		)
 		entries := []string{logEntry}
 		for login, reward := range roundRewards {
-			entries = append(entries, fmt.Sprintf("\tREWARD %v: %v : %v", block.RoundKey(), login, reward))
+			entries = append(entries, fmt.Sprintf("\tREWARD %v: %v: %v Shannon", block.RoundKey(), login, reward))
 		}
 		log.Println(strings.Join(entries, "\n"))
 	}
