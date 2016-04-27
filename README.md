@@ -8,7 +8,6 @@
 * Support for HTTP and Stratum mining
 * Detailed block stats with luck percentage and full reward
 * Failover geth instances: geth high availability built in
-* Strict policy module (banning strategies using ipset/iptables)
 * Modern beautiful Ember.js frontend
 * Separate stats for workers: can highlight timed-out workers so miners can perform maintenance of rigs
 * JSON-API for stats, miners can use for rigs maintenance automation (rig rebooting for example)
