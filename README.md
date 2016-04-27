@@ -5,18 +5,15 @@
 
 ### Features
 
-* Highly available mining endpoint module
 * Support for HTTP and Stratum mining
-* Payouts and block unlocking (maturity) module
-* Configurable payouts period and balance threshold
-* PROP payouts: the Proportional approach offers a proportional distribution of the reward when a block is found amongst all workers, based off of the number of shares they have each found
 * Detailed block stats with luck percentage and full reward
 * Failover geth instances: geth high availability built in
 * Strict policy module (banning strategies using ipset/iptables)
-* Designed for 100% distributed setup of all modules
 * Modern beautiful Ember.js frontend
 * Separate stats for workers: can highlight timed-out workers so miners can perform maintenance of rigs
 * JSON-API for stats, miners can use for rigs maintenance automation (rig rebooting for example)
+
+**This pool is being further developed to provide an easy to use pool for Ethereum miners. A stable release of the pool is expected soon and we encourage testing and bug submissions.**
 
 #### Proxies
 
@@ -306,7 +303,11 @@ Don't run payouts and unlocker as part of mining node.
 
 ### Credits
 
-Made by sammy007.
+Made by sammy007. Licensed under GPLv3.
+
+#### Contributors
+
+[Alex Leverington](https://github.com/subtly)
 
 ### Donations
 
