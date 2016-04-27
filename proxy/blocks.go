@@ -15,6 +15,11 @@ import (
 
 const maxBacklog = 3
 
+type heightDiffPair struct {
+	diff   *big.Int
+	height uint64
+}
+
 type BlockTemplate struct {
 	sync.RWMutex
 	Header               string
@@ -24,7 +29,7 @@ type BlockTemplate struct {
 	Height               uint64
 	GetPendingBlockCache *rpc.GetBlockReplyPart
 	nonces               map[string]bool
-	headers              map[string]uint64
+	headers              map[string]heightDiffPair
 }
 
 func (t *BlockTemplate) submit(nonce string) bool {
@@ -80,13 +85,16 @@ func (s *ProxyServer) fetchBlockTemplate() {
 		Difficulty:           big.NewInt(diff),
 		GetPendingBlockCache: pendingReply,
 		nonces:               make(map[string]bool),
-		headers:              make(map[string]uint64),
+		headers:              make(map[string]heightDiffPair),
 	}
-	// Copy headers backlog and add current one
-	newTemplate.headers[reply[0]] = height
+	// Copy job backlog and add current one
+	newTemplate.headers[reply[0]] = heightDiffPair{
+		diff:   util.TargetHexToDiff(reply[2]),
+		height: height,
+	}
 	if t != nil {
 		for k, v := range t.headers {
-			if v >= height-maxBacklog {
+			if v.height >= height-maxBacklog {
 				newTemplate.headers[k] = v
 			}
 		}
