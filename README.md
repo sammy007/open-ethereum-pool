@@ -1,5 +1,4 @@
-# go-ethereum-pool
-## Open High Performance Ethereum Mining Pool
+## Open Source Ethereum Mining Pool
 
 ![Miner's stats page](https://15254b2dcaab7f5478ab-24461f391e20b7336331d5789078af53.ssl.cf1.rackcdn.com/ethereum.vanillaforums.com/editor/pe/cf77cki0pjpt.png)
 
