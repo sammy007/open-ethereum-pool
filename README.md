@@ -5,14 +5,14 @@
 
 ### Features
 
+**This pool is being further developed to provide an easy to use pool for Ethereum miners. A stable release of the pool is expected soon and we encourage testing and bug submissions.**
+
 * Support for HTTP and Stratum mining
 * Detailed block stats with luck percentage and full reward
 * Failover geth instances: geth high availability built in
 * Modern beautiful Ember.js frontend
 * Separate stats for workers: can highlight timed-out workers so miners can perform maintenance of rigs
-* JSON-API for stats, miners can use for rigs maintenance automation (rig rebooting for example)
-
-**This pool is being further developed to provide an easy to use pool for Ethereum miners. A stable release of the pool is expected soon and we encourage testing and bug submissions.**
+* JSON-API for stats
 
 #### Proxies
 
@@ -31,9 +31,9 @@ Dependencies:
 
 **I highly recommend to use Ubuntu 14.04 LTS.**
 
-First of all you must install  [go-ethereum](https://github.com/ethereum/go-ethereum/wiki/Installation-Instructions-for-Ubuntu).
+First install  [go-ethereum](https://github.com/ethereum/go-ethereum/wiki/Installation-Instructions-for-Ubuntu).
 
-I suggest to use Golang-1.6 from <code>deb http://ppa.launchpad.net/ubuntu-lxc/lxd-stable/ubuntu trusty main</code> PPA.
+I suggest installing Golang-1.6 from <code>deb http://ppa.launchpad.net/ubuntu-lxc/lxd-stable/ubuntu trusty main</code> PPA.
 
 Export GOPATH:
 
@@ -50,29 +50,28 @@ Compile:
 
     go build -o ether-pool main.go
 
-Install redis-server and all software you need too.
-Install nodejs, I suggest to use >= 4.x LTS version from https://github.com/nodesource/distributions or from your Linux distribution.
+Install redis-server.
+Install nodejs - I suggest using LTS version >= 4.x from https://github.com/nodesource/distributions or from your Linux distribution.
 
 ### Building on Windows
 
-It's a little bit crazy to run production pool on this platform, but you can follow
-[geth building instructions](https://github.com/ethereum/go-ethereum/wiki/Installation-instructions-for-Windows) and compile pool this way.
-Use some cloud Redis provider or give a try to https://github.com/MSOpenTech/redis/releases.
+Windows isn't supported however you can try following these instructions
+[geth building instructions](https://github.com/ethereum/go-ethereum/wiki/Installation-instructions-for-Windows).
+For redis it maybe possible to use https://github.com/MSOpenTech/redis/releases.
 
 ### Running Pool
 
     ./ether-pool config.json
 
-You can use Ubuntu upstart, check for sample config in <code>upstart.conf</code>.
+You can use Ubuntu upstart - check for sample config in <code>upstart.conf</code>.
 
 ### Building Frontend
 
-Frontend is a single-page Ember.js application. It polls API of the pool
-to render pool stats to miners.
+The frontend is a single-page Ember.js application that polls the pool API to render miner stats.
 
     cd www
 
-Change <code>ApiUrl: '//example.net/'</code> in <code>www/config/environment.js</code> to match your domain name. Also don't forget to adjust other options there.
+Change <code>ApiUrl: '//example.net/'</code> in <code>www/config/environment.js</code> to match your domain name. Also don't forget to adjust other options.
 
     npm install -g ember-cli@2.4.3
     npm install -g bower
@@ -81,7 +80,7 @@ Change <code>ApiUrl: '//example.net/'</code> in <code>www/config/environment.js<
     ./build.sh
 
 Configure nginx to serve API on <code>/api</code> subdirectory.
-Configure your nginx instance to serve <code>www/dist</code> as static website.
+Configure nginx to serve <code>www/dist</code> as static website.
 
 #### Serving API using nginx
 
@@ -99,25 +98,25 @@ and add this setting after <code>location /</code>:
 
 #### Customization
 
-You can customize layout and other stuff using built-in web server with live reload:
+You can customize the layout using built-in web server with live reload:
 
     ember server --port 8082 --environment development
 
 **Don't use built-in web server in production**.
 
 Check out <code>www/app/templates</code> directory and edit these templates
-in order to add your own branding and contacts.
+in order to customise the frontend.
 
 ### Configuration
 
 Configuration is actually simple, just read it twice and think twice before changing defaults.
 
-**Don't copy config directly from this manual, use example config from package,
-Otherwise you will get errors on start because JSON can't contain comments actually.**
+**Don't copy config directly from this manual. Use the example config from the package,
+otherwise you will get errors on start because of JSON comments.**
 
 ```javascript
 {
-  // Set to a number of CPU threads of your server
+  // Set to the number of CPU cores of your server
   "threads": 2,
   // Prefix for keys in redis store
   "coin": "eth",
@@ -134,7 +133,7 @@ Otherwise you will get errors on start because JSON can't contain comments actua
     "limitHeadersSize": 1024,
     "limitBodySize": 256,
 
-    /* Use it if you are behind CloudFlare (bad idea) or behind http-reverse
+    /* Set to true if you are behind CloudFlare (not recommended) or behind http-reverse
       proxy to enable IP detection from X-Forwarded-For header.
       Advanced users only. It's tricky to make it right and secure.
     */
@@ -244,7 +243,7 @@ Otherwise you will get errors on start because JSON can't contain comments actua
     "password": "secret"
   },
 
-  // This module periodically credits coins to miners
+  // This module periodically remits ether to miners
   "unlocker": {
     "enabled": false,
     // Pool fee percentage
@@ -261,7 +260,7 @@ Otherwise you will get errors on start because JSON can't contain comments actua
     "timeout": "10s"
   },
 
-  // Paying out miners using this module
+  // Pay out miners using this module
   "payouts": {
     "enabled": false,
     // Run payouts in this interval
@@ -284,8 +283,7 @@ Otherwise you will get errors on start because JSON can't contain comments actua
 ```
 
 If you are distributing your pool deployment to several servers or processes,
-create several configs and disable unneeded modules on each server.
-This is very advanced, better don't distribute to several servers until you really need it.
+create several configs and disable unneeded modules on each server. (Advanced users)
 
 I recommend this deployment strategy:
 
@@ -296,8 +294,8 @@ I recommend this deployment strategy:
 ### Notes
 
 Unlocking and payouts are sequential, 1st tx go, 2nd waiting for 1st to confirm and so on.
-You can disable that in code. Also, keep in mind that unlocking and payouts will be stopped in case of any backend or geth failure.
-You must restart module if you see such errors with *suspended* word, so I recommend to run unlocker and payouts in a separate processes.
+You can disable that in code. Also, keep in mind that *unlocking and payouts will be stopped in case of any backend or geth failure*.
+You must restart module if you see such errors with the word *suspended*; I recommend running unlocker and payouts in a separate processes.
 Don't run payouts and unlocker as part of mining node.
 
 ### Credits
@@ -310,6 +308,4 @@ Made by sammy007. Licensed under GPLv3.
 
 ### Donations
 
-* **ETH**: [0xb85150eb365e7df0941f0cf08235f987ba91506a](https://etherchain.org/account/0xb85150eb365e7df0941f0cf08235f987ba91506a)
-
-* **BTC**: [1PYqZATFuYAKS65dbzrGhkrvoN9au7WBj8](https://blockchain.info/address/1PYqZATFuYAKS65dbzrGhkrvoN9au7WBj8)
+Coming Soon: ethereum contract and p2sh script. Please contact subtly on gitter if you would like to donate.
