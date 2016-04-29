@@ -45,6 +45,7 @@ Install required packages:
     go get github.com/ethereum/ethash
     go get github.com/ethereum/go-ethereum/common
     go get github.com/gorilla/mux
+    go get gopkg.in/redis.v3
     go get github.com/yvasiyarov/gorelic
 
 Compile:
