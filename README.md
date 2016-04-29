@@ -236,7 +236,7 @@ otherwise you will get errors on start because of JSON comments.**
   "redis": {
     // Where your redis instance is listening for commands
     "endpoint": "127.0.0.1:6379",
-    "poolSize": 8,
+    "poolSize": 10,
     "database": 0,
     /* Generate and specify very strong password for in redis
       configuration file and specify it here.
