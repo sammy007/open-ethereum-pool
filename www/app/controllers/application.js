@@ -32,6 +32,12 @@ export default Ember.Controller.extend({
     }
   }),
 
+  hashrate: Ember.computed('difficulty', {
+    get() {
+      return this.getWithDefault('difficulty', 0) / config.APP.BlockTime;
+    }
+  }),
+
   immatureTotal: Ember.computed('model', {
     get() {
       return this.getWithDefault('model.immatureTotal', 0) + this.getWithDefault('model.candidatesTotal', 0);

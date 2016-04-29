@@ -15,6 +15,7 @@
       </div>
       <div class="col-md-4 stats">
         <div><i class="fa fa-unlock-alt"></i> Network Difficulty: <span>{{with-metric-prefix stats.difficulty}}</span></div>
+        <div><i class="fa fa-unlock-alt"></i> Network Hash Rate: <span>{{format-hashrate stats.hashrate}}</span></div>
         <div><i class="fa fa-bars"></i> Blockchain Height: <span>{{format-number stats.height}}</span></div>
         {{#if stats.model.stats.lastBlockFound}}
         <div><i class="fa fa-clock-o"></i> Last Block Found: <span>{{format-relative (seconds-to-ms stats.model.stats.lastBlockFound)}}</span></div>
