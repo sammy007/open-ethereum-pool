@@ -48,8 +48,10 @@ Install required packages:
     go get gopkg.in/redis.v3
     go get github.com/yvasiyarov/gorelic
 
-Compile:
+Clone & compile:
 
+    git clone https://github.com/sammy007/open-ethereum-pool.git
+    cd open-ethereum-pool
     go build -o ether-pool main.go
 
 Install redis-server.
