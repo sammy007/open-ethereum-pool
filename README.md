@@ -55,7 +55,6 @@ Clone & compile:
     go build -o ether-pool main.go
 
 Install redis-server.
-Install nodejs - I suggest using LTS version >= 4.x from https://github.com/nodesource/distributions or from your Linux distribution.
 
 ### Building on Windows
 
@@ -70,6 +69,8 @@ For redis it maybe possible to use https://github.com/MSOpenTech/redis/releases.
 You can use Ubuntu upstart - check for sample config in <code>upstart.conf</code>.
 
 ### Building Frontend
+
+Install nodejs. I suggest using LTS version >= 4.x from https://github.com/nodesource/distributions or from your Linux distribution.
 
 The frontend is a single-page Ember.js application that polls the pool API to render miner stats.
 
