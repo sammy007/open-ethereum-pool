@@ -241,11 +241,7 @@ otherwise you will get errors on start because of JSON comments.**
     "endpoint": "127.0.0.1:6379",
     "poolSize": 10,
     "database": 0,
-    /* Generate and specify very strong password for in redis
-      configuration file and specify it here.
-      This is done using the requirepass directive in the configuration file.
-      */
-    "password": "secret"
+    "password": ""
   },
 
   // This module periodically remits ether to miners
