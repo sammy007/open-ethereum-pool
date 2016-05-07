@@ -32,6 +32,10 @@
           <i class="fa fa-gears"></i> Your Round Share: <span>{{format-number roundPercent style='percent' maximumFractionDigits='6'}}</span><br/>
           <small>Percent of your contribution to current round.</small>
         </div>
+        <div style="display: block;">
+          <i class="fa fa-clock-o"></i>
+          Epoch Switch: <span>{{format-relative applicationController.nextEpoch units="hour"}}</span>
+        </div>
       </div>
     </div>
   </div>
