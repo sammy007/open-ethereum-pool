@@ -116,10 +116,6 @@ func (r *RPCClient) GetBlockByHash(hash string) (*GetBlockReply, error) {
 	return r.getBlockBy("eth_getBlockByHash", params)
 }
 
-func (r *RPCClient) getBlockByHeight(params []interface{}) (*GetBlockReply, error) {
-	return r.getBlockBy("eth_getBlockByNumber", params)
-}
-
 func (r *RPCClient) GetUncleByBlockNumberAndIndex(height int64, index int) (*GetBlockReply, error) {
 	params := []interface{}{fmt.Sprintf("0x%x", height), fmt.Sprintf("0x%x", index)}
 	return r.getBlockBy("eth_getUncleByBlockNumberAndIndex", params)
