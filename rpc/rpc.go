@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"sync"
@@ -106,7 +107,7 @@ func (r *RPCClient) GetPendingBlock() (*GetBlockReplyPart, error) {
 }
 
 func (r *RPCClient) GetBlockByHeight(height int64) (*GetBlockReply, error) {
-	params := []interface{}{height, true}
+	params := []interface{}{fmt.Sprintf("0x%x", height), true}
 	return r.getBlockBy("eth_getBlockByNumber", params)
 }
 
@@ -120,7 +121,7 @@ func (r *RPCClient) getBlockByHeight(params []interface{}) (*GetBlockReply, erro
 }
 
 func (r *RPCClient) GetUncleByBlockNumberAndIndex(height int64, index int) (*GetBlockReply, error) {
-	params := []interface{}{height, index}
+	params := []interface{}{fmt.Sprintf("0x%x", height), fmt.Sprintf("0x%x", index)}
 	return r.getBlockBy("eth_getUncleByBlockNumberAndIndex", params)
 }
 
