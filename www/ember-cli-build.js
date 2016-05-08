@@ -5,6 +5,9 @@ var Funnel = require('broccoli-funnel');
 module.exports = function(defaults) {
   var app = new EmberApp(defaults, {
     // Add options here
+    SRI: {
+      enabled: false
+    }
   });
 
   // Use `app.import` to add additional libraries to the generated
