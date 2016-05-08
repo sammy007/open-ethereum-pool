@@ -164,10 +164,10 @@ func (u *BlockUnlocker) unlockCandidates(candidates []*storage.BlockData) (*Unlo
 				for uncleIndex, uncleHash := range nephewBlock.Uncles {
 					reply, err := u.rpc.GetUncleByBlockNumberAndIndex(nephewHeight, uncleIndex)
 					if err != nil {
-						return nil, fmt.Errorf("Error while retrieving block %v from node: %v", uncleHash, err)
+						return nil, fmt.Errorf("Error while retrieving uncle of block %v from node: %v", uncleHash, err)
 					}
 					if reply == nil {
-						return nil, fmt.Errorf("Error while retrieving block %v from node, wrong node height", nephewHeight)
+						return nil, fmt.Errorf("Error while retrieving uncle of block %v from node", nephewHeight)
 					}
 
 					// Found uncle
