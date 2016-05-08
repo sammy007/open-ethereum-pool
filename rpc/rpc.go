@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 	"sync"
 	"time"
 )
@@ -63,6 +64,8 @@ type JSONRpcResp struct {
 	Result *json.RawMessage       `json:"result"`
 	Error  map[string]interface{} `json:"error"`
 }
+
+var zeroHash = regexp.MustCompile("^0?x?0+$")
 
 func NewRPCClient(name, url, timeout string) *RPCClient {
 	rpcClient := &RPCClient{Name: name, Url: url}
@@ -183,6 +186,14 @@ func (r *RPCClient) SendTransaction(from, to, gas, gasPrice, value string, autoG
 		return reply, errors.New(rpcResp.Error["message"].(string))
 	}
 	err = json.Unmarshal(*rpcResp.Result, &reply)
+
+	/* There is an inconsistence in a "standard". Geth returns error if it can't unlock signer account,
+	 * but Parity returns zero hash 0x000... if it can't send tx, so we must handle this case.
+	 * https://github.com/ethereum/wiki/wiki/JSON-RPC#returns-22
+	 */
+	if zeroHash.MatchString(reply) {
+		err = errors.New("transaction is not yet available")
+	}
 	return reply, err
 }
 
