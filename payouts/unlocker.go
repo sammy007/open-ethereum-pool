@@ -16,14 +16,15 @@ import (
 )
 
 type UnlockerConfig struct {
-	Enabled       bool    `json:"enabled"`
-	PoolFee       float64 `json:"poolFee"`
-	Donate        bool    `json:"donate"`
-	Depth         int64   `json:"depth"`
-	ImmatureDepth int64   `json:"immatureDepth"`
-	Interval      string  `json:"interval"`
-	Daemon        string  `json:"daemon"`
-	Timeout       string  `json:"timeout"`
+	Enabled        bool    `json:"enabled"`
+	PoolFee        float64 `json:"poolFee"`
+	PoolFeeAddress string  `json:"poolFeeAddress"`
+	Donate         bool    `json:"donate"`
+	Depth          int64   `json:"depth"`
+	ImmatureDepth  int64   `json:"immatureDepth"`
+	Interval       string  `json:"interval"`
+	Daemon         string  `json:"daemon"`
+	Timeout        string  `json:"timeout"`
 }
 
 const minDepth = 16
@@ -474,6 +475,13 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 		donationAmount := new(big.Rat).Quo(donation, shannon)
 		amount, _ := strconv.ParseInt(donationAmount.FloatString(0), 10, 64)
 		rewards[donationAccount] += amount
+	}
+
+	if len(u.config.PoolFeeAddress) != 0 {
+		shannon := new(big.Rat).SetInt(common.Shannon)
+		profitAmount := new(big.Rat).Quo(poolProfit, shannon)
+		amount, _ := strconv.ParseInt(profitAmount.FloatString(0), 10, 64)
+		rewards[u.config.PoolFeeAddress] += amount
 	}
 
 	return revenue, minersProfit, poolProfit, rewards, nil
