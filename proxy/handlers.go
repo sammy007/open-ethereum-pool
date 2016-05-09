@@ -6,14 +6,13 @@ import (
 	"strings"
 
 	"../rpc"
+	"../util"
 )
 
 var noncePattern *regexp.Regexp
-var addressPattern *regexp.Regexp
 
 func init() {
 	noncePattern = regexp.MustCompile("^0x[0-9a-f]{16}$")
-	addressPattern = regexp.MustCompile("^0x[0-9a-fA-F]{40}$")
 }
 
 // Stratum
@@ -23,7 +22,7 @@ func (s *ProxyServer) handleLoginRPC(cs *Session, params []string, id string) (b
 	}
 
 	login := strings.ToLower(params[0])
-	if !addressPattern.MatchString(login) {
+	if !util.IsValidHexAddress(login) {
 		return false, &ErrorReply{Code: -1, Message: "Invalid login"}
 	}
 	cs.login = login

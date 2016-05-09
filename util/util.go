@@ -3,6 +3,7 @@ package util
 import (
 	"math/big"
 	"math/rand"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -10,6 +11,19 @@ import (
 )
 
 var pow256 = common.BigPow(2, 256)
+var addressPattern = regexp.MustCompile("^0x[0-9a-fA-F]{40}$")
+var zeroHash = regexp.MustCompile("^0?x?0+$")
+
+func IsValidHexAddress(s string) bool {
+	if IsZeroHash(s) || !addressPattern.MatchString(s) {
+		return false
+	}
+	return true
+}
+
+func IsZeroHash(s string) bool {
+	return zeroHash.MatchString(s)
+}
 
 func MakeTimestamp() int64 {
 	return time.Now().UnixNano() / int64(time.Millisecond)
