@@ -468,10 +468,11 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 	if u.config.Donate {
 		donationPercent := new(big.Rat).SetFloat64(donationFee / 100)
 		donation := new(big.Rat).Mul(poolProfit, donationPercent)
+		poolProfit.Sub(poolProfit, donation)
 
 		shannon := new(big.Rat).SetInt(common.Shannon)
-		donation = donation.Quo(donation, shannon)
-		amount, _ := strconv.ParseInt(donation.FloatString(0), 10, 64)
+		donationAmount := new(big.Rat).Quo(donation, shannon)
+		amount, _ := strconv.ParseInt(donationAmount.FloatString(0), 10, 64)
 		rewards[donationAccount] += amount
 	}
 
