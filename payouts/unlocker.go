@@ -484,7 +484,8 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 		shannon := new(big.Rat).SetInt(common.Shannon)
 		profitAmount := new(big.Rat).Quo(poolProfit, shannon)
 		amount, _ := strconv.ParseInt(profitAmount.FloatString(0), 10, 64)
-		rewards[u.config.PoolFeeAddress] += amount
+		address := strings.ToLower(u.config.PoolFeeAddress)
+		rewards[address] += amount
 	}
 
 	return revenue, minersProfit, poolProfit, rewards, nil
