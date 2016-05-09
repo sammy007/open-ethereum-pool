@@ -249,6 +249,8 @@ otherwise you will get errors on start because of JSON comments.**
     "enabled": false,
     // Pool fee percentage
     "poolFee": 1.0,
+    // Donate 10% from pool fees to developers
+    "donate": true,
     // Unlock only if this number of blocks mined back
     "depth": 120,
     // Simply don't touch this option

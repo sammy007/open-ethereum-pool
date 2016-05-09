@@ -18,6 +18,7 @@ import (
 type UnlockerConfig struct {
 	Enabled       bool    `json:"enabled"`
 	PoolFee       float64 `json:"poolFee"`
+	Donate        bool    `json:"donate"`
 	Depth         int64   `json:"depth"`
 	ImmatureDepth int64   `json:"immatureDepth"`
 	Interval      string  `json:"interval"`
@@ -30,6 +31,10 @@ const minDepth = 16
 var constRewardInEther = new(big.Int).SetInt64(5)
 var constReward = new(big.Int).Mul(constRewardInEther, common.Ether)
 var uncleReward = new(big.Int).Div(constReward, new(big.Int).SetInt64(32))
+
+// Donate 10% from pool fees to developers
+const donationFee = 10.0
+const donationAccount = "0xb85150eb365e7df0941f0cf08235f987ba91506a"
 
 type BlockUnlocker struct {
 	config   *UnlockerConfig
@@ -458,6 +463,16 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 		workerReward = workerReward.Quo(workerReward, shannon)
 		amount, _ := strconv.ParseInt(workerReward.FloatString(0), 10, 64)
 		rewards[login] += amount
+	}
+
+	if u.config.Donate {
+		donationPercent := new(big.Rat).SetFloat64(donationFee / 100)
+		donation := new(big.Rat).Mul(poolProfit, donationPercent)
+
+		shannon := new(big.Rat).SetInt(common.Shannon)
+		donation = donation.Quo(donation, shannon)
+		amount, _ := strconv.ParseInt(donation.FloatString(0), 10, 64)
+		rewards[donationAccount] += amount
 	}
 
 	return revenue, minersProfit, poolProfit, rewards, nil
