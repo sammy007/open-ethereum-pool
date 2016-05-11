@@ -94,6 +94,10 @@ func (r *RedisClient) Check() (string, error) {
 	return r.client.Ping().Result()
 }
 
+func (r *RedisClient) BgSave() (string, error) {
+	return r.client.BgSave().Result()
+}
+
 // Always returns list of addresses. If Redis fails it will return empty list.
 func (r *RedisClient) GetBlacklist() ([]string, error) {
 	cmd := r.client.SMembers(r.formatKey("blacklist"))
@@ -316,8 +320,55 @@ func (r *RedisClient) GetBalance(login string) (int64, error) {
 	return cmd.Int64()
 }
 
-// Update balance after TX sent
-func (r *RedisClient) UpdateBalance(login, txHash string, amount int64) error {
+func (r *RedisClient) LockPayouts(login string, amount int64) error {
+	key := r.formatKey("payments", "lock")
+	result := r.client.SetNX(key, join(login, amount), 0).Val()
+	if !result {
+		return fmt.Errorf("Unable to acquire lock '%s'", key)
+	}
+	return nil
+}
+
+func (r *RedisClient) UnlockPayouts() error {
+	key := r.formatKey("payments", "lock")
+	_, err := r.client.Del(key).Result()
+	return err
+}
+
+func (r *RedisClient) IsPayoutsLocked() (bool, error) {
+	_, err := r.client.Get(r.formatKey("payments", "lock")).Result()
+	if err == redis.Nil {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	} else {
+		return true, nil
+	}
+}
+
+type PendingPayment struct {
+	Timestamp int64  `json:"timestamp"`
+	Amount    int64  `json:"amount"`
+	Address   string `json:"login"`
+}
+
+func (r *RedisClient) GetPendingPayments() []*PendingPayment {
+	raw := r.client.ZRevRangeWithScores(r.formatKey("payments", "pending"), 0, -1)
+	var result []*PendingPayment
+	for _, v := range raw.Val() {
+		// timestamp -> "address:amount"
+		payment := PendingPayment{}
+		payment.Timestamp = int64(v.Score)
+		fields := strings.Split(v.Member.(string), ":")
+		payment.Address = fields[0]
+		payment.Amount, _ = strconv.ParseInt(fields[1], 10, 64)
+		result = append(result, &payment)
+	}
+	return result
+}
+
+// Deduct miner's balance for payment
+func (r *RedisClient) UpdateBalance(login string, amount int64) error {
 	tx := r.client.Multi()
 	defer tx.Close()
 
@@ -328,8 +379,38 @@ func (r *RedisClient) UpdateBalance(login, txHash string, amount int64) error {
 		tx.HIncrBy(r.formatKey("miners", login), "paid", amount)
 		tx.HIncrBy(r.formatKey("finances"), "balance", (amount * -1))
 		tx.HIncrBy(r.formatKey("finances"), "paid", amount)
+		tx.ZAdd(r.formatKey("payments", "pending"), redis.Z{Score: float64(ts), Member: join(login, amount)})
+		return nil
+	})
+	return err
+}
+
+func (r *RedisClient) RollbackBalance(login string, amount int64) error {
+	tx := r.client.Multi()
+	defer tx.Close()
+
+	_, err := tx.Exec(func() error {
+		tx.HIncrBy(r.formatKey("miners", login), "balance", amount)
+		tx.HIncrBy(r.formatKey("miners", login), "paid", (amount * -1))
+		tx.HIncrBy(r.formatKey("finances"), "balance", amount)
+		tx.HIncrBy(r.formatKey("finances"), "paid", (amount * -1))
+		tx.ZRem(r.formatKey("payments", "pending"), join(login, amount))
+		return nil
+	})
+	return err
+}
+
+func (r *RedisClient) WritePayment(login, txHash string, amount int64) error {
+	tx := r.client.Multi()
+	defer tx.Close()
+
+	ts := util.MakeTimestamp() / 1000
+
+	_, err := tx.Exec(func() error {
 		tx.ZAdd(r.formatKey("payments", "all"), redis.Z{Score: float64(ts), Member: join(txHash, login, amount)})
 		tx.ZAdd(r.formatKey("payments", login), redis.Z{Score: float64(ts), Member: join(txHash, amount)})
+		tx.ZRem(r.formatKey("payments", "pending"), join(login, amount))
+		tx.Del(r.formatKey("payments", "lock"))
 		return nil
 	})
 	return err

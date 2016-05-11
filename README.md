@@ -247,6 +247,8 @@ otherwise you will get errors on start because of JSON comments.**
   // This module periodically remits ether to miners
   "unlocker": {
     "enabled": false,
+    // Require minimum number of peers on node
+    "requirePeers": 25,
     // Pool fee percentage
     "poolFee": 1.0,
     // Pool fees beneficiary address (use empty to disable fee withdrawals)
