@@ -629,7 +629,8 @@ func (r *RedisClient) CollectStats(smallWindow time.Duration, maxBlocks, maxPaym
 		return nil, err
 	}
 
-	stats["stats"], _ = cmds[2].(*redis.StringStringMapCmd).Result()
+	result, _ := cmds[2].(*redis.StringStringMapCmd).Result()
+	stats["stats"] = convertStringMap(result)
 	candidates := convertCandidateResults(cmds[3].(*redis.ZSliceCmd))
 	stats["candidates"] = candidates
 	stats["candidatesTotal"] = cmds[6].(*redis.IntCmd).Val()
