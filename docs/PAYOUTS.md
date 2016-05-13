@@ -122,6 +122,13 @@ ZADD "eth:payments:0xb85150eb365e7df0941f0cf08235f987ba91506a" 1462920526 0xe670
 ZREM "eth:payments:pending" "0xb85150eb365e7df0941f0cf08235f987ba91506a:25000000"
 ```
 
+### Update Internal Stats
+
+```
+HINCRBY "eth:finances" pending -25000000
+HINCRBY "eth:finances" paid 25000000
+```
+
 ### Unlock Payouts
 
 ```
