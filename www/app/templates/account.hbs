@@ -11,6 +11,11 @@
           <i class="fa fa-bank"></i> Pending Balance: <span>{{format-balance model.stats.balance}}</span><br>
           <small>Credited coins awaiting payout.</small>
         </div>
+        {{#if model.stats.pending}}
+        <div style="display: block;">
+          <i class="fa fa-clock-o"></i> Current Payment: <span>{{format-balance model.stats.pending}}</span><br>
+        </div>
+        {{/if}}
         <div style="display: block;"><i class="fa fa-money"></i> Total Paid: <span>{{format-balance model.stats.paid}}</span></div>
       </div>
       <div class="col-md-4 stats">

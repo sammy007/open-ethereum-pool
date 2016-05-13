@@ -550,7 +550,8 @@ func (r *RedisClient) GetMinerStats(login string, maxPayments int64) (map[string
 	if err != nil && err != redis.Nil {
 		return nil, err
 	} else {
-		stats["stats"], _ = cmds[0].(*redis.StringStringMapCmd).Result()
+		result, _ := cmds[0].(*redis.StringStringMapCmd).Result()
+		stats["stats"] = convertStringMap(result)
 		payments := convertPaymentsResults(cmds[1].(*redis.ZSliceCmd))
 		stats["payments"] = payments
 		stats["paymentsTotal"] = cmds[2].(*redis.IntCmd).Val()
@@ -559,6 +560,19 @@ func (r *RedisClient) GetMinerStats(login string, maxPayments int64) (map[string
 	}
 
 	return stats, nil
+}
+
+// Try to convert all numeric strings to int64
+func convertStringMap(m map[string]string) map[string]interface{} {
+	result := make(map[string]interface{})
+	var err error
+	for k, v := range m {
+		result[k], err = strconv.ParseInt(v, 10, 64)
+		if err != nil {
+			result[k] = v
+		}
+	}
+	return result
 }
 
 // WARNING: Must run it periodically to flush out of window hashrate entries
