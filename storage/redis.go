@@ -314,7 +314,9 @@ func (r *RedisClient) GetPayees() ([]string, error) {
 
 func (r *RedisClient) GetBalance(login string) (int64, error) {
 	cmd := r.client.HGet(r.formatKey("miners", login), "balance")
-	if cmd.Err() != nil {
+	if cmd.Err() == redis.Nil {
+		return 0, nil
+	} else if cmd.Err() != nil {
 		return 0, cmd.Err()
 	}
 	return cmd.Int64()
