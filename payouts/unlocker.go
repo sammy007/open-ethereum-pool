@@ -227,8 +227,7 @@ func (u *BlockUnlocker) unlockCandidates(candidates []*storage.BlockData) (*Unlo
 
 func (u *BlockUnlocker) handleCandidate(block *rpc.GetBlockReply, candidate *storage.BlockData) error {
 	// Initial 5 Ether static reward
-	reward := big.NewInt(0)
-	reward.Add(reward, constReward)
+	reward := new(big.Int).Set(constReward)
 
 	// Add TX fees
 	extraTxReward, err := u.getExtraRewardForTx(block)
@@ -446,49 +445,54 @@ func (u *BlockUnlocker) unlockAndCreditMiners() {
 }
 
 func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *big.Rat, *big.Rat, map[string]int64, error) {
-	rewards := make(map[string]int64)
 	revenue := new(big.Rat).SetInt(block.Reward)
-
-	feePercent := new(big.Rat).SetFloat64(u.config.PoolFee / 100)
-	poolProfit := new(big.Rat).Mul(revenue, feePercent)
-
-	minersProfit := new(big.Rat).Sub(revenue, poolProfit)
+	minersProfit, poolProfit := chargeFee(revenue, u.config.PoolFee)
 
 	shares, err := u.backend.GetRoundShares(uint64(block.Height), block.Nonce)
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
 
-	for login, n := range shares {
-		percent := big.NewRat(n, block.TotalShares)
-		workerReward := new(big.Rat).Mul(minersProfit, percent)
-
-		shannon := new(big.Rat).SetInt(common.Shannon)
-		workerReward = workerReward.Quo(workerReward, shannon)
-		amount, _ := strconv.ParseInt(workerReward.FloatString(0), 10, 64)
-		rewards[login] += amount
-	}
+	rewards := calculateRewardsForShares(shares, block.TotalShares, minersProfit)
 
 	if u.config.Donate {
-		donationPercent := new(big.Rat).SetFloat64(donationFee / 100)
-		donation := new(big.Rat).Mul(poolProfit, donationPercent)
-		poolProfit.Sub(poolProfit, donation)
-
-		shannon := new(big.Rat).SetInt(common.Shannon)
-		donationAmount := new(big.Rat).Quo(donation, shannon)
-		amount, _ := strconv.ParseInt(donationAmount.FloatString(0), 10, 64)
-		rewards[donationAccount] += amount
+		var donation = new(big.Rat)
+		poolProfit, donation = chargeFee(poolProfit, donationFee)
+		login := strings.ToLower(donationAccount)
+		rewards[login] += weiToShannonInt64(donation)
 	}
 
 	if len(u.config.PoolFeeAddress) != 0 {
-		shannon := new(big.Rat).SetInt(common.Shannon)
-		profitAmount := new(big.Rat).Quo(poolProfit, shannon)
-		amount, _ := strconv.ParseInt(profitAmount.FloatString(0), 10, 64)
 		address := strings.ToLower(u.config.PoolFeeAddress)
-		rewards[address] += amount
+		rewards[address] += weiToShannonInt64(poolProfit)
 	}
 
 	return revenue, minersProfit, poolProfit, rewards, nil
+}
+
+func calculateRewardsForShares(shares map[string]int64, total int64, reward *big.Rat) map[string]int64 {
+	rewards := make(map[string]int64)
+
+	for login, n := range shares {
+		percent := big.NewRat(n, total)
+		workerReward := new(big.Rat).Mul(reward, percent)
+		rewards[login] += weiToShannonInt64(workerReward)
+	}
+	return rewards
+}
+
+// Returns new value after fee deduction and fee value.
+func chargeFee(value *big.Rat, fee float64) (*big.Rat, *big.Rat) {
+	feePercent := new(big.Rat).SetFloat64(fee / 100)
+	feeValue := new(big.Rat).Mul(value, feePercent)
+	return new(big.Rat).Sub(value, feeValue), feeValue
+}
+
+func weiToShannonInt64(wei *big.Rat) int64 {
+	shannon := new(big.Rat).SetInt(common.Shannon)
+	inShannon := new(big.Rat).Quo(wei, shannon)
+	value, _ := strconv.ParseInt(inShannon.FloatString(0), 10, 64)
+	return value
 }
 
 func getUncleReward(uHeight, height int64) *big.Int {
