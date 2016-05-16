@@ -296,15 +296,24 @@ func (r *RedisClient) GetRoundShares(height uint64, nonce string) (map[string]in
 }
 
 func (r *RedisClient) GetPayees() ([]string, error) {
+	payees := make(map[string]struct{})
 	var result []string
-	payees := make(map[string]bool)
-	cmd := r.client.Keys(r.formatKey("miners", "*"))
-	if cmd.Err() != nil {
-		return nil, cmd.Err()
-	}
-	for _, worker := range cmd.Val() {
-		login := strings.Split(worker, ":")[2]
-		payees[login] = true
+	var c int64
+
+	for {
+		var keys []string
+		var err error
+		c, keys, err = r.client.Scan(c, r.formatKey("miners", "*"), 10).Result()
+		if err != nil {
+			return nil, err
+		}
+		for _, row := range keys {
+			login := strings.Split(row, ":")[2]
+			payees[login] = struct{}{}
+		}
+		if c == 0 {
+			break
+		}
 	}
 	for login, _ := range payees {
 		result = append(result, login)

@@ -3,6 +3,7 @@ package storage
 import (
 	"gopkg.in/redis.v3"
 	"os"
+	"strconv"
 	"testing"
 )
 
@@ -16,6 +17,28 @@ func TestMain(m *testing.M) {
 	c := m.Run()
 	reset()
 	os.Exit(c)
+}
+
+func TestGetPayees(t *testing.T) {
+	reset()
+
+	n := 256
+	for i := 0; i < n; i++ {
+		r.client.HSet(r.formatKey("miners", strconv.Itoa(i)), "balance", strconv.Itoa(i))
+	}
+
+	var payees []string
+	payees, _ = r.GetPayees()
+	if len(payees) != n {
+		t.Error("Must return all payees")
+	}
+	m := make(map[string]struct{})
+	for _, v := range payees {
+		m[v] = struct{}{}
+	}
+	if len(m) != n {
+		t.Error("Must be unique list")
+	}
 }
 
 func TestGetBalance(t *testing.T) {
