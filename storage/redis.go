@@ -303,7 +303,7 @@ func (r *RedisClient) GetPayees() ([]string, error) {
 	for {
 		var keys []string
 		var err error
-		c, keys, err = r.client.Scan(c, r.formatKey("miners", "*"), 10).Result()
+		c, keys, err = r.client.Scan(c, r.formatKey("miners", "*"), 100).Result()
 		if err != nil {
 			return nil, err
 		}
@@ -601,7 +601,7 @@ func (r *RedisClient) FlushStaleStats(largeWindow time.Duration) (int64, error) 
 	for {
 		var keys []string
 		var err error
-		c, keys, err = r.client.Scan(c, r.formatKey("hashrate", "*"), 10).Result()
+		c, keys, err = r.client.Scan(c, r.formatKey("hashrate", "*"), 100).Result()
 		if err != nil {
 			return total, err
 		}
