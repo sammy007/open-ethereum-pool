@@ -108,7 +108,7 @@ func (u *PayoutsProcessor) process() {
 	totalAmount := big.NewInt(0)
 	payees, err := u.backend.GetPayees()
 	if err != nil {
-		log.Printf("Error while retrieving payees from backend: %v", err)
+		log.Println("Error while retrieving payees from backend:", err)
 		return
 	}
 
@@ -138,14 +138,14 @@ func (u *PayoutsProcessor) process() {
 		if err != nil {
 			u.halt = true
 			u.lastFail = err
-			return
+			break
 		}
 		if poolBalance.Cmp(amountInWei) < 0 {
 			err := fmt.Errorf("Not enough balance for payment, need %s Wei, pool has %s Wei",
 				amountInWei.String(), poolBalance.String())
 			u.halt = true
 			u.lastFail = err
-			return
+			break
 		}
 
 		// Lock payments for current payout
@@ -154,7 +154,7 @@ func (u *PayoutsProcessor) process() {
 			log.Printf("Failed to lock payment for %s: %v", login, err)
 			u.halt = true
 			u.lastFail = err
-			return
+			break
 		}
 		log.Printf("Locked payment for %s, %v Shannon", login, amount)
 
@@ -164,7 +164,7 @@ func (u *PayoutsProcessor) process() {
 			log.Printf("Failed to update balance for %s, %v Shannon: %v", login, amount, err)
 			u.halt = true
 			u.lastFail = err
-			return
+			break
 		}
 
 		value := common.BigToHash(amountInWei).Hex()
@@ -174,7 +174,7 @@ func (u *PayoutsProcessor) process() {
 				login, amount, err, login)
 			u.halt = true
 			u.lastFail = err
-			return
+			break
 		}
 
 		// Log transaction hash
@@ -183,7 +183,7 @@ func (u *PayoutsProcessor) process() {
 			log.Printf("Failed to log payment data for %s, %v Shannon, tx: %s: %v", login, amount, txHash, err)
 			u.halt = true
 			u.lastFail = err
-			return
+			break
 		}
 
 		minersPaid++
@@ -204,7 +204,12 @@ func (u *PayoutsProcessor) process() {
 		}
 		log.Printf("Payout tx for %s confirmed: %s", login, txHash)
 	}
-	log.Printf("Paid total %v Shannon to %v of %v payees", totalAmount, minersPaid, mustPay)
+
+	if mustPay > 0 {
+		log.Printf("Paid total %v Shannon to %v of %v payees", totalAmount, minersPaid, mustPay)
+	} else {
+		log.Println("No payees that have reached payout threshold")
+	}
 
 	// Save redis state to disk
 	if minersPaid > 0 {
