@@ -597,12 +597,25 @@ func (r *RedisClient) FlushStaleStats(largeWindow time.Duration) (int64, error) 
 	}
 	total += n
 
-	keys, err := r.client.Keys(r.formatKey("hashrate", "*")).Result()
-	if err != nil {
-		return total, err
+	var c int64
+	miners := make(map[string]struct{})
+
+	for {
+		var keys []string
+		var err error
+		c, keys, err = r.client.Scan(c, r.formatKey("hashrate", "*"), 10).Result()
+		if err != nil {
+			return total, err
+		}
+		for _, row := range keys {
+			login := strings.Split(row, ":")[2]
+			miners[login] = struct{}{}
+		}
+		if c == 0 {
+			break
+		}
 	}
-	for _, worker := range keys {
-		login := strings.Split(worker, ":")[2]
+	for login, _ := range miners {
 		n, err = r.client.ZRemRangeByScore(r.formatKey("hashrate", login), "-inf", max).Result()
 		if err != nil {
 			return total, err
