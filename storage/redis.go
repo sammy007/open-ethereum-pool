@@ -590,12 +590,10 @@ func convertStringMap(m map[string]string) map[string]interface{} {
 func (r *RedisClient) FlushStaleStats(largeWindow time.Duration) (int64, error) {
 	now := util.MakeTimestamp() / 1000
 	max := fmt.Sprint("(", now-int64(largeWindow/time.Second))
-	total := int64(0)
-	n, err := r.client.ZRemRangeByScore(r.formatKey("hashrate"), "-inf", max).Result()
+	total, err := r.client.ZRemRangeByScore(r.formatKey("hashrate"), "-inf", max).Result()
 	if err != nil {
 		return total, err
 	}
-	total += n
 
 	var c int64
 	miners := make(map[string]struct{})
@@ -609,18 +607,18 @@ func (r *RedisClient) FlushStaleStats(largeWindow time.Duration) (int64, error) 
 		}
 		for _, row := range keys {
 			login := strings.Split(row, ":")[2]
-			miners[login] = struct{}{}
+			if _, ok := miners[login]; !ok {
+				n, err := r.client.ZRemRangeByScore(r.formatKey("hashrate", login), "-inf", max).Result()
+				if err != nil {
+					return total, err
+				}
+				miners[login] = struct{}{}
+				total += n
+			}
 		}
 		if c == 0 {
 			break
 		}
-	}
-	for login, _ := range miners {
-		n, err = r.client.ZRemRangeByScore(r.formatKey("hashrate", login), "-inf", max).Result()
-		if err != nil {
-			return total, err
-		}
-		total += n
 	}
 	return total, nil
 }
