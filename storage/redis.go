@@ -587,9 +587,9 @@ func convertStringMap(m map[string]string) map[string]interface{} {
 }
 
 // WARNING: Must run it periodically to flush out of window hashrate entries
-func (r *RedisClient) FlushStaleStats(largeWindow time.Duration) (int64, error) {
+func (r *RedisClient) FlushStaleStats(window, largeWindow time.Duration) (int64, error) {
 	now := util.MakeTimestamp() / 1000
-	max := fmt.Sprint("(", now-int64(largeWindow/time.Second))
+	max := fmt.Sprint("(", now-int64(window/time.Second))
 	total, err := r.client.ZRemRangeByScore(r.formatKey("hashrate"), "-inf", max).Result()
 	if err != nil {
 		return total, err
@@ -597,6 +597,7 @@ func (r *RedisClient) FlushStaleStats(largeWindow time.Duration) (int64, error) 
 
 	var c int64
 	miners := make(map[string]struct{})
+	max = fmt.Sprint("(", now-int64(largeWindow/time.Second))
 
 	for {
 		var keys []string
