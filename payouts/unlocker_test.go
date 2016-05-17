@@ -1,6 +1,8 @@
 package payouts
 
 import (
+	"../rpc"
+	"../storage"
 	"math/big"
 	"os"
 	"testing"
@@ -80,5 +82,31 @@ func TestGetUncleReward(t *testing.T) {
 		if expectedRewards[i] != rewards[i] {
 			t.Errorf("Incorrect uncle reward for %v, expected %v vs %v", i, expectedRewards[i], reward)
 		}
+	}
+}
+
+func TestMatchCandidate(t *testing.T) {
+	gethBlock := &rpc.GetBlockReply{Hash: "0x12345A", Nonce: "0x1A"}
+	parityBlock := &rpc.GetBlockReply{Hash: "0x12345A", SealFields: []string{"0x0A", "0x1A"}}
+	candidate := &storage.BlockData{Nonce: "0x1a"}
+	orphan := &storage.BlockData{Nonce: "0x1abc"}
+
+	if !matchCandidate(gethBlock, candidate) {
+		t.Error("Must match with nonce")
+	}
+	if !matchCandidate(parityBlock, candidate) {
+		t.Error("Must match with seal fields")
+	}
+	if matchCandidate(gethBlock, orphan) {
+		t.Error("Must not match with orphan with nonce")
+	}
+	if matchCandidate(parityBlock, orphan) {
+		t.Error("Must not match orphan with seal fields")
+	}
+
+	block := &rpc.GetBlockReply{Hash: "0x12345A"}
+	immature := &storage.BlockData{Hash: "0x12345a", Nonce: "0x0"}
+	if !matchCandidate(block, immature) {
+		t.Error("Must match with hash")
 	}
 }

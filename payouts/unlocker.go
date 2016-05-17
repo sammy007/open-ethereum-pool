@@ -116,7 +116,7 @@ func (u *BlockUnlocker) unlockCandidates(candidates []*storage.BlockData) (*Unlo
 			return nil, fmt.Errorf("Error while retrieving block %v from node, wrong node height", candidate.Height)
 		}
 
-		if block.Nonce == candidate.Nonce {
+		if matchCandidate(block, candidate) {
 			blocksUnlocked++
 			err = u.handleCandidate(block, candidate)
 			if err != nil {
@@ -144,7 +144,7 @@ func (u *BlockUnlocker) unlockCandidates(candidates []*storage.BlockData) (*Unlo
 				}
 
 				// Check incorrect block height
-				if candidate.Nonce == nephewBlock.Nonce {
+				if matchCandidate(nephewBlock, candidate) {
 					orphan = false
 					blocksUnlocked++
 					err = u.handleCandidate(nephewBlock, candidate)
@@ -179,7 +179,7 @@ func (u *BlockUnlocker) unlockCandidates(candidates []*storage.BlockData) (*Unlo
 					}
 
 					// Found uncle
-					if reply.Nonce == candidate.Nonce {
+					if matchCandidate(reply, candidate) {
 						orphan = false
 						unclesUnlocked++
 						uncleHeight, err := strconv.ParseInt(strings.Replace(reply.Number, "0x", "", -1), 16, 64)
@@ -222,6 +222,24 @@ func (u *BlockUnlocker) unlockCandidates(candidates []*storage.BlockData) (*Unlo
 		blocks:         blocksUnlocked,
 		uncles:         unclesUnlocked,
 	}, nil
+}
+
+func matchCandidate(block *rpc.GetBlockReply, candidate *storage.BlockData) bool {
+	// Just compare hash if block is unlocked as immature
+	if len(candidate.Hash) > 0 && strings.EqualFold(candidate.Hash, block.Hash) {
+		return true
+	}
+	// Geth-style candidate matching
+	if len(block.Nonce) > 0 {
+		return strings.EqualFold(block.Nonce, candidate.Nonce)
+	}
+	/* Compare nonce and mixDigest of the candidate
+	 * Parity's EIP: https://github.com/ethereum/EIPs/issues/95
+	 */
+	if len(block.SealFields) == 2 {
+		return strings.EqualFold(candidate.Nonce, block.SealFields[1])
+	}
+	return false
 }
 
 func (u *BlockUnlocker) handleCandidate(block *rpc.GetBlockReply, candidate *storage.BlockData) error {

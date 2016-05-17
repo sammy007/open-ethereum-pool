@@ -47,6 +47,8 @@ type GetBlockReply struct {
 	Timestamp        string   `json:"timestamp"`
 	Transactions     []Tx     `json:"transactions"`
 	Uncles           []string `json:"uncles"`
+	// https://github.com/ethereum/EIPs/issues/95
+	SealFields []string `json:"sealFields"`
 }
 
 type GetBlockReplyPart struct {
