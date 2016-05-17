@@ -284,7 +284,9 @@ otherwise you will get errors on start because of JSON comments.**
     "gas": "21000",
     "gasPrice": "50000000000",
     // Send payment only if miner's balance is >= 0.5 Ether
-    "threshold": 500000000
+    "threshold": 500000000,
+    // Perform BGSAVE on Redis after successful payouts session
+    "bgsave": false
   }
 }
 ```

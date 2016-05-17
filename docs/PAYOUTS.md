@@ -32,7 +32,7 @@ If transaction submission was successful, we have a TX hash:
 
 And so on. Repeat for every account.
 
-After payout session, payment module will perform `BGSAVE` (background saving) on Redis.
+After payout session, payment module will perform `BGSAVE` (background saving) on Redis if you have enabled `bgsave` option.
 
 ## Resolving Failed Payments (automatic)
 

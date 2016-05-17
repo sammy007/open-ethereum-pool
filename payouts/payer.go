@@ -26,6 +26,7 @@ type PayoutsConfig struct {
 	AutoGas      bool   `json:"autoGas"`
 	// In Shannon
 	Threshold int64 `json:"threshold"`
+	BgSave    bool  `json:"bgsave"`
 }
 
 func (self PayoutsConfig) GasHex() string {
@@ -212,7 +213,7 @@ func (u *PayoutsProcessor) process() {
 	}
 
 	// Save redis state to disk
-	if minersPaid > 0 {
+	if minersPaid > 0 && u.config.BgSave {
 		u.bgSave()
 	}
 }
@@ -283,7 +284,9 @@ func (self PayoutsProcessor) resolvePayouts() {
 		log.Println("No pending payments to resolve")
 	}
 
-	self.bgSave()
+	if self.config.BgSave {
+		self.bgSave()
+	}
 	log.Println("Payouts unlocked")
 }
 
