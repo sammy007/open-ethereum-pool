@@ -23,6 +23,7 @@ type ApiConfig struct {
 	Payments             int64  `json:"payments"`
 	Blocks               int64  `json:"blocks"`
 	PurgeOnly            bool   `json:"purgeOnly"`
+	PurgeInterval        string `json:"purgeInterval"`
 }
 
 type ApiServer struct {
@@ -63,6 +64,10 @@ func (s *ApiServer) Start() {
 	statsTimer := time.NewTimer(statsIntv)
 	log.Printf("Set stats collect interval to %v", statsIntv)
 
+	purgeIntv, _ := time.ParseDuration(s.config.PurgeInterval)
+	purgeTimer := time.NewTimer(purgeIntv)
+	log.Printf("Set purge interval to %v", purgeIntv)
+
 	// Running only to flush stale data
 	if s.config.PurgeOnly {
 		s.purgeStale()
@@ -75,12 +80,13 @@ func (s *ApiServer) Start() {
 		for {
 			select {
 			case <-statsTimer.C:
-				if s.config.PurgeOnly {
-					s.purgeStale()
-				} else {
+				if !s.config.PurgeOnly {
 					s.collectStats()
 				}
 				statsTimer.Reset(statsIntv)
+			case <-purgeTimer.C:
+				s.purgeStale()
+				purgeTimer.Reset(purgeIntv)
 			}
 		}
 	}()

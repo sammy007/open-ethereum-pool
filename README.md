@@ -197,7 +197,8 @@ otherwise you will get errors on start because of JSON comments.**
     "listen": "0.0.0.0:8080",
     // Collect miners stats (hashrate, ...) in this interval
     "statsCollectInterval": "5s",
-
+    // Purge stale stats interval
+    "purgeInterval": "10m",
     // Fast hashrate estimation window for each miner from it's shares
     "hashrateWindow": "30m",
     // Long and precise hashrate from shares, 3h is cool, keep it
