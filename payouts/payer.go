@@ -10,6 +10,7 @@ import (
 
 	"../rpc"
 	"../storage"
+	"../util"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -63,7 +64,7 @@ func (u *PayoutsProcessor) Start() {
 		return
 	}
 
-	intv, _ := time.ParseDuration(u.config.Interval)
+	intv := util.MustParseDuration(u.config.Interval)
 	timer := time.NewTimer(intv)
 	log.Printf("Set payouts interval to %v", intv)
 

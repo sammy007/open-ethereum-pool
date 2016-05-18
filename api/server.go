@@ -42,8 +42,8 @@ type Entry struct {
 }
 
 func NewApiServer(cfg *ApiConfig, backend *storage.RedisClient) *ApiServer {
-	hashrateWindow, _ := time.ParseDuration(cfg.HashrateWindow)
-	hashrateLargeWindow, _ := time.ParseDuration(cfg.HashrateLargeWindow)
+	hashrateWindow := util.MustParseDuration(cfg.HashrateWindow)
+	hashrateLargeWindow := util.MustParseDuration(cfg.HashrateLargeWindow)
 	return &ApiServer{
 		config:              cfg,
 		backend:             backend,
@@ -60,11 +60,11 @@ func (s *ApiServer) Start() {
 		log.Printf("Starting API on %v", s.config.Listen)
 	}
 
-	statsIntv, _ := time.ParseDuration(s.config.StatsCollectInterval)
+	statsIntv := util.MustParseDuration(s.config.StatsCollectInterval)
 	statsTimer := time.NewTimer(statsIntv)
 	log.Printf("Set stats collect interval to %v", statsIntv)
 
-	purgeIntv, _ := time.ParseDuration(s.config.PurgeInterval)
+	purgeIntv := util.MustParseDuration(s.config.PurgeInterval)
 	purgeTimer := time.NewTimer(purgeIntv)
 	log.Printf("Set purge interval to %v", purgeIntv)
 

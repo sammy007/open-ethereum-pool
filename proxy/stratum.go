@@ -17,7 +17,7 @@ const (
 )
 
 func (s *ProxyServer) ListenTCP() {
-	timeout, _ := time.ParseDuration(s.config.Proxy.Stratum.Timeout)
+	timeout := util.MustParseDuration(s.config.Proxy.Stratum.Timeout)
 	s.timeout = timeout
 
 	addr, err := net.ResolveTCPAddr("tcp", s.config.Proxy.Stratum.Listen)

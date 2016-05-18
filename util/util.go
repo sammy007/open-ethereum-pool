@@ -68,3 +68,11 @@ func Random() int64 {
 	max := int64(999999999999999)
 	return rand.Int63n(max-min+1) + min
 }
+
+func MustParseDuration(s string) time.Duration {
+	value, err := time.ParseDuration(s)
+	if err != nil {
+		panic("util: Can't parse duration `" + s + "`: " + err.Error())
+	}
+	return value
+}

@@ -66,21 +66,21 @@ type PolicyServer struct {
 
 func Start(cfg *Config, storage *storage.RedisClient) *PolicyServer {
 	s := &PolicyServer{config: cfg, startedAt: util.MakeTimestamp()}
-	grace, _ := time.ParseDuration(cfg.Limits.Grace)
+	grace := util.MustParseDuration(cfg.Limits.Grace)
 	s.grace = int64(grace / time.Millisecond)
 	s.banChannel = make(chan string, 64)
 	s.stats = make(map[string]*Stats)
 	s.storage = storage
 	s.refreshState()
 
-	timeout, _ := time.ParseDuration(s.config.ResetInterval)
+	timeout := util.MustParseDuration(s.config.ResetInterval)
 	s.timeout = int64(timeout / time.Millisecond)
 
-	resetIntv, _ := time.ParseDuration(s.config.ResetInterval)
+	resetIntv := util.MustParseDuration(s.config.ResetInterval)
 	resetTimer := time.NewTimer(resetIntv)
 	log.Printf("Set policy stats reset every %v", resetIntv)
 
-	refreshIntv, _ := time.ParseDuration(s.config.RefreshInterval)
+	refreshIntv := util.MustParseDuration(s.config.RefreshInterval)
 	refreshTimer := time.NewTimer(refreshIntv)
 	log.Printf("Set policy state refresh every %v", refreshIntv)
 

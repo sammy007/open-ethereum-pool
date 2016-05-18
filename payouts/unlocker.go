@@ -62,7 +62,7 @@ func NewBlockUnlocker(cfg *UnlockerConfig, backend *storage.RedisClient) *BlockU
 
 func (u *BlockUnlocker) Start() {
 	log.Println("Starting block unlocker")
-	intv, _ := time.ParseDuration(u.config.Interval)
+	intv := util.MustParseDuration(u.config.Interval)
 	timer := time.NewTimer(intv)
 	log.Printf("Set block unlock interval to %v", intv)
 

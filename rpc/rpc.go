@@ -12,7 +12,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 
@@ -74,7 +73,7 @@ type JSONRpcResp struct {
 
 func NewRPCClient(name, url, timeout string) *RPCClient {
 	rpcClient := &RPCClient{Name: name, Url: url}
-	timeoutIntv, _ := time.ParseDuration(timeout)
+	timeoutIntv := util.MustParseDuration(timeout)
 	rpcClient.client = &http.Client{
 		Timeout: timeoutIntv,
 	}
