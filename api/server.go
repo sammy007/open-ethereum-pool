@@ -68,11 +68,10 @@ func (s *ApiServer) Start() {
 	purgeTimer := time.NewTimer(purgeIntv)
 	log.Printf("Set purge interval to %v", purgeIntv)
 
-	// Running only to flush stale data
 	if s.config.PurgeOnly {
 		s.purgeStale()
 	} else {
-		// Immediately collect stats
+		s.purgeStale()
 		s.collectStats()
 	}
 
@@ -118,11 +117,12 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *ApiServer) purgeStale() {
+	start := time.Now()
 	total, err := s.backend.FlushStaleStats(s.hashrateWindow, s.hashrateLargeWindow)
 	if err != nil {
 		log.Printf("Failed to purge stale data from backend: ", err)
 	} else {
-		log.Printf("Purged stale stats from backend, %v shares affected", total)
+		log.Printf("Purged stale stats from backend, %v shares affected, elapsed time %v", total, time.Since(start))
 	}
 }
 
