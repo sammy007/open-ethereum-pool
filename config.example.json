@@ -12,7 +12,7 @@
 		"blockRefreshInterval": "120ms",
 		"stateUpdateInterval": "3s",
 		"difficulty": 2000000000,
-		"hashrateExpiration": "30m",
+		"hashrateExpiration": "3h",
 
 		"healthCheck": true,
 		"maxFails": 100,
