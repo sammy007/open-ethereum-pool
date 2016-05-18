@@ -159,14 +159,14 @@ otherwise you will get errors on start because of JSON comments.**
     // Require this share difficulty from miners
     "difficulty": 2000000000,
 
-    "hashrateExpiration": "30m",
-
     /* Reply error to miner instead of job if redis is unavailable.
-    Should save electricity to miners if pool is sick and they didn't set up failovers.
+      Should save electricity to miners if pool is sick and they didn't set up failovers.
     */
     "healthCheck": true,
     // Mark pool sick after this number of redis failures.
     "maxFails": 100,
+    // TTL for workers stats, usually should be equal to large hashrate window from API section
+    "hashrateExpiration": "3h",
 
     "policy": {
       "workers": 8,
