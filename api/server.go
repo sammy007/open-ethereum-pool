@@ -34,6 +34,7 @@ type ApiServer struct {
 	stats               atomic.Value
 	miners              map[string]*Entry
 	minersMu            sync.RWMutex
+	statsIntv           time.Duration
 }
 
 type Entry struct {
@@ -60,9 +61,9 @@ func (s *ApiServer) Start() {
 		log.Printf("Starting API on %v", s.config.Listen)
 	}
 
-	statsIntv := util.MustParseDuration(s.config.StatsCollectInterval)
-	statsTimer := time.NewTimer(statsIntv)
-	log.Printf("Set stats collect interval to %v", statsIntv)
+	s.statsIntv = util.MustParseDuration(s.config.StatsCollectInterval)
+	statsTimer := time.NewTimer(s.statsIntv)
+	log.Printf("Set stats collect interval to %v", s.statsIntv)
 
 	purgeIntv := util.MustParseDuration(s.config.PurgeInterval)
 	purgeTimer := time.NewTimer(purgeIntv)
@@ -82,7 +83,7 @@ func (s *ApiServer) Start() {
 				if !s.config.PurgeOnly {
 					s.collectStats()
 				}
-				statsTimer.Reset(statsIntv)
+				statsTimer.Reset(s.statsIntv)
 			case <-purgeTimer.C:
 				s.purgeStale()
 				purgeTimer.Reset(purgeIntv)
@@ -248,8 +249,9 @@ func (s *ApiServer) AccountIndex(w http.ResponseWriter, r *http.Request) {
 
 	entry, ok := s.miners[login]
 	now := util.MakeTimestamp()
+	cacheIntv := int64(s.statsIntv / time.Millisecond)
 	// Refresh stats if stale
-	if !ok || entry.updatedAt < now-5000 {
+	if !ok || entry.updatedAt < now-cacheIntv {
 		stats, err := s.backend.CollectWorkersStats(s.hashrateWindow, s.hashrateLargeWindow, login)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
