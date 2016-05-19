@@ -36,6 +36,12 @@
 				"invalidPercent": 30,
 				"checkThreshold": 30,
 				"malformedLimit": 5
+			},
+			"limits": {
+				"enabled": false,
+				"limit": 30,
+				"grace": "5m",
+				"limitJump": 10
 			}
 		}
 	},

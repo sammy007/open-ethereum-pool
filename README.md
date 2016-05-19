@@ -187,6 +187,15 @@ otherwise you will get errors on start because of JSON comments.**
         "checkThreshold": 30,
         // Bad miner after this number of malformed requests
         "malformedLimit": 5
+      },
+      // Connection rate limit
+      "limits": {
+        "enabled": false,
+        // Number of initial connections
+        "limit": 30,
+        "grace": "5m",
+        // Increase allowed number of connections on each valid share
+        "limitJump": 10
       }
     }
   },
