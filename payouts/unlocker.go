@@ -90,13 +90,11 @@ type UnlockResult struct {
 	blocks         int
 }
 
-/* FIXME: Geth does not provide consistent state when you need both new height and new job,
+/* Geth does not provide consistent state when you need both new height and new job,
  * so in redis I am logging just what I have in a pool state on the moment when block found.
  * Having very likely incorrect height in database results in a weird block unlocking scheme,
- * when I have to check what the hell we actually found and traversing all the blocks with height-N and htight+N
- * to make sure we will find it. We can't rely on block height here, it's just a reference point.
- * You can say I can search with block hash, but we don't know block hash of submitted block until we actually found
- * it traversing all the blocks around our height.
+ * when I have to check what the hell we actually found and traversing all the blocks with height-N and height+N
+ * to make sure we will find it. We can't rely on round height here, it's just a reference point.
  * ISSUE: https://github.com/ethereum/go-ethereum/issues/2333
  */
 func (u *BlockUnlocker) unlockCandidates(candidates []*storage.BlockData) (*UnlockResult, error) {
@@ -104,73 +102,65 @@ func (u *BlockUnlocker) unlockCandidates(candidates []*storage.BlockData) (*Unlo
 
 	// Data row is: "height:nonce:powHash:mixDigest:timestamp:diff:totalShares"
 	for _, candidate := range candidates {
-		// Temporarily mark as lost
 		orphan := true
 
 		/* Search for a normal block with wrong height here by traversing 16 blocks back and forward.
 		 * Also we are searching for a block that can include this one as uncle.
 		 */
 		for i := int64(minDepth * -1); i < minDepth; i++ {
-			nephewHeight := candidate.Height + i
-			nephewBlock, err := u.rpc.GetBlockByHeight(nephewHeight)
+			height := candidate.Height + i
+			block, err := u.rpc.GetBlockByHeight(height)
 			if err != nil {
-				log.Printf("Error while retrieving block %v from node: %v", nephewHeight, err)
+				log.Printf("Error while retrieving block %v from node: %v", height, err)
 				return nil, err
 			}
-			if nephewBlock == nil {
-				return nil, fmt.Errorf("Error while retrieving block %v from node, wrong node height", nephewHeight)
+			if block == nil {
+				return nil, fmt.Errorf("Error while retrieving block %v from node, wrong node height", height)
 			}
 
-			if matchCandidate(nephewBlock, candidate) {
+			if matchCandidate(block, candidate) {
 				orphan = false
 				result.blocks++
 
-				err = u.handleCandidate(nephewBlock, candidate)
+				err = u.handleBlock(block, candidate)
 				if err != nil {
 					u.halt = true
 					u.lastFail = err
 					return nil, err
 				}
 				result.maturedBlocks = append(result.maturedBlocks, candidate)
-				log.Printf("Mature block %v with %v tx, hash: %v", candidate.Height, len(nephewBlock.Transactions), candidate.Hash[0:10])
+				log.Printf("Mature block %v with %v tx, hash: %v", candidate.Height, len(block.Transactions), candidate.Hash[0:10])
 				break
 			}
 
-			if len(nephewBlock.Uncles) == 0 {
+			if len(block.Uncles) == 0 {
 				continue
 			}
 
 			// Trying to find uncle in current block during our forward check
-			for uncleIndex, uncleHash := range nephewBlock.Uncles {
-				reply, err := u.rpc.GetUncleByBlockNumberAndIndex(nephewHeight, uncleIndex)
+			for uncleIndex, uncleHash := range block.Uncles {
+				uncle, err := u.rpc.GetUncleByBlockNumberAndIndex(height, uncleIndex)
 				if err != nil {
 					return nil, fmt.Errorf("Error while retrieving uncle of block %v from node: %v", uncleHash, err)
 				}
-				if reply == nil {
-					return nil, fmt.Errorf("Error while retrieving uncle of block %v from node", nephewHeight)
+				if uncle == nil {
+					return nil, fmt.Errorf("Error while retrieving uncle of block %v from node", height)
 				}
 
 				// Found uncle
-				if matchCandidate(reply, candidate) {
+				if matchCandidate(uncle, candidate) {
 					orphan = false
 					result.uncles++
 
-					uncleHeight, err := strconv.ParseInt(strings.Replace(reply.Number, "0x", "", -1), 16, 64)
+					err := handleUncle(height, uncle, candidate)
 					if err != nil {
 						u.halt = true
 						u.lastFail = err
-						log.Printf("Can't parse uncle block number: %v", err)
 						return nil, err
 					}
-					reward := getUncleReward(uncleHeight, nephewHeight)
-					candidate.Height = nephewHeight
-					candidate.UncleHeight = uncleHeight
-					candidate.Orphan = false
-					candidate.Hash = reply.Hash
-					candidate.Reward = reward
 					result.maturedBlocks = append(result.maturedBlocks, candidate)
-					log.Printf("Mature uncle %v/%v/%v of reward %v with hash: %v", candidate.Height, uncleHeight,
-						uncleIndex, util.FormatReward(reward), reply.Hash[0:10])
+					log.Printf("Mature uncle %v/%v of reward %v with hash: %v", candidate.Height, candidate.UncleHeight,
+						util.FormatReward(candidate.Reward), uncle.Hash[0:10])
 					break
 				}
 			}
@@ -208,7 +198,7 @@ func matchCandidate(block *rpc.GetBlockReply, candidate *storage.BlockData) bool
 	return false
 }
 
-func (u *BlockUnlocker) handleCandidate(block *rpc.GetBlockReply, candidate *storage.BlockData) error {
+func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage.BlockData) error {
 	// Initial 5 Ether static reward
 	reward := new(big.Int).Set(constReward)
 
@@ -231,6 +221,20 @@ func (u *BlockUnlocker) handleCandidate(block *rpc.GetBlockReply, candidate *sto
 
 	candidate.Orphan = false
 	candidate.Hash = block.Hash
+	candidate.Reward = reward
+	return nil
+}
+
+func handleUncle(height int64, uncle *rpc.GetBlockReply, candidate *storage.BlockData) error {
+	uncleHeight, err := strconv.ParseInt(strings.Replace(uncle.Number, "0x", "", -1), 16, 64)
+	if err != nil {
+		return err
+	}
+	reward := getUncleReward(uncleHeight, height)
+	candidate.Height = height
+	candidate.UncleHeight = uncleHeight
+	candidate.Orphan = false
+	candidate.Hash = uncle.Hash
 	candidate.Reward = reward
 	return nil
 }
