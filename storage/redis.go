@@ -31,6 +31,7 @@ type BlockData struct {
 	Difficulty     string   `json:"difficulty"`
 	TotalShares    int64    `json:"shares"`
 	Uncle          bool     `json:"uncle"`
+	UncleHeight    int64    `json:"uncleHeight"`
 	Orphan         bool     `json:"orphan"`
 	Hash           string   `json:"hash"`
 	Nonce          string   `json:"-"`
@@ -39,6 +40,7 @@ type BlockData struct {
 	Reward         *big.Int `json:"-"`
 	ImmatureReward string   `json:"-"`
 	RewardString   string   `json:"reward"`
+	RoundHeight    int64    `json:"-"`
 	candidateKey   string   `json:"-"`
 	immatureKey    string   `json:"-"`
 }
@@ -57,11 +59,11 @@ func (b *BlockData) serializeHash() string {
 }
 
 func (b *BlockData) RoundKey() string {
-	return join(b.Height, b.Hash)
+	return join(b.RoundHeight, b.Hash)
 }
 
 func (b *BlockData) key() string {
-	return join(b.Uncle, b.Orphan, b.Nonce, b.serializeHash(), b.Timestamp, b.Difficulty, b.TotalShares, b.Reward)
+	return join(b.UncleHeight, b.Orphan, b.Nonce, b.serializeHash(), b.Timestamp, b.Difficulty, b.TotalShares, b.Reward)
 }
 
 type Miner struct {
@@ -195,8 +197,8 @@ func (r *RedisClient) WriteBlock(login, id string, params []string, diff, roundD
 		tx.HDel(r.formatKey("stats"), "roundShares")
 		tx.ZIncrBy(r.formatKey("finders"), 1, login)
 		tx.HIncrBy(r.formatKey("miners", login), "blocksFound", 1)
-		tx.Rename(r.formatKey("shares", "roundCurrent"), r.formatKey("shares", formatRound(height), params[0]))
-		tx.HGetAllMap(r.formatKey("shares", formatRound(height), params[0]))
+		tx.Rename(r.formatKey("shares", "roundCurrent"), r.formatRound(int64(height), params[0]))
+		tx.HGetAllMap(r.formatRound(int64(height), params[0]))
 		return nil
 	})
 	if err != nil {
@@ -227,8 +229,8 @@ func (r *RedisClient) formatKey(args ...interface{}) string {
 	return join(r.prefix, join(args...))
 }
 
-func formatRound(height uint64) string {
-	return "round" + strconv.FormatUint(height, 10)
+func (r *RedisClient) formatRound(height int64, nonce string) string {
+	return r.formatKey("shares", "round"+strconv.FormatInt(height, 10), nonce)
 }
 
 func join(args ...interface{}) string {
@@ -281,9 +283,9 @@ func (r *RedisClient) GetImmatureBlocks(maxHeight int64) ([]*BlockData, error) {
 	return convertBlockResults(cmd), nil
 }
 
-func (r *RedisClient) GetRoundShares(height uint64, nonce string) (map[string]int64, error) {
+func (r *RedisClient) GetRoundShares(height int64, nonce string) (map[string]int64, error) {
 	result := make(map[string]int64)
-	cmd := r.client.HGetAllMap(r.formatKey("shares", formatRound(height), nonce))
+	cmd := r.client.HGetAllMap(r.formatRound(height, nonce))
 	if cmd.Err() != nil {
 		return nil, cmd.Err()
 	}
@@ -441,7 +443,7 @@ func (r *RedisClient) WriteImmatureBlock(block *BlockData, roundRewards map[stri
 		for login, amount := range roundRewards {
 			total += amount
 			tx.HIncrBy(r.formatKey("miners", login), "immature", amount)
-			tx.HSetNX(r.formatKey("credits:immature", block.Height, block.Hash), login, strconv.FormatInt(amount, 10))
+			tx.HSetNX(r.formatKey("credits", "immature", block.Height, block.Hash), login, strconv.FormatInt(amount, 10))
 		}
 		tx.HIncrBy(r.formatKey("finances"), "immature", total)
 		return nil
@@ -450,7 +452,7 @@ func (r *RedisClient) WriteImmatureBlock(block *BlockData, roundRewards map[stri
 }
 
 func (r *RedisClient) WriteMaturedBlock(block *BlockData, roundRewards map[string]int64) error {
-	creditKey := r.formatKey("credits:immature", block.Height, block.Hash)
+	creditKey := r.formatKey("credits", "immature", block.RoundHeight, block.Hash)
 	tx, err := r.client.Watch(creditKey)
 	// Must decrement immatures using existing log entry
 	immatureCredits := tx.HGetAllMap(creditKey)
@@ -494,9 +496,9 @@ func (r *RedisClient) WriteMaturedBlock(block *BlockData, roundRewards map[strin
 }
 
 func (r *RedisClient) WriteOrphan(block *BlockData) error {
-	creditKey := r.formatKey("credits:immature", block.Height, block.Hash)
+	creditKey := r.formatKey("credits", "immature", block.RoundHeight, block.Hash)
 	tx, err := r.client.Watch(creditKey)
-	// Much decrement immatures using existing log entry
+	// Must decrement immatures using existing log entry
 	immatureCredits := tx.HGetAllMap(creditKey)
 	if err != nil {
 		return err
@@ -534,12 +536,13 @@ func (r *RedisClient) WritePendingOrphans(blocks []*BlockData) error {
 }
 
 func (r *RedisClient) writeImmatureBlock(tx *redis.Multi, block *BlockData) {
+	tx.Rename(r.formatRound(block.RoundHeight, block.Nonce), r.formatRound(block.Height, block.Nonce))
 	tx.ZRem(r.formatKey("blocks", "candidates"), block.candidateKey)
 	tx.ZAdd(r.formatKey("blocks", "immature"), redis.Z{Score: float64(block.Height), Member: block.key()})
 }
 
 func (r *RedisClient) writeMaturedBlock(tx *redis.Multi, block *BlockData) {
-	tx.Del(r.formatKey("shares", formatRound(uint64(block.Height)), block.Nonce))
+	tx.Del(r.formatRound(block.RoundHeight, block.Nonce))
 	tx.ZRem(r.formatKey("blocks", "immature"), block.immatureKey)
 	tx.ZAdd(r.formatKey("blocks", "matured"), redis.Z{Score: float64(block.Height), Member: block.key()})
 }
@@ -747,6 +750,7 @@ func convertCandidateResults(raw *redis.ZSliceCmd) []*BlockData {
 		// "nonce:powHash:mixDigest:timestamp:diff:totalShares"
 		block := BlockData{}
 		block.Height = int64(v.Score)
+		block.RoundHeight = block.Height
 		fields := strings.Split(v.Member.(string), ":")
 		block.Nonce = fields[0]
 		block.PowHash = fields[1]
@@ -763,11 +767,13 @@ func convertCandidateResults(raw *redis.ZSliceCmd) []*BlockData {
 func convertBlockResults(raw *redis.ZSliceCmd) []*BlockData {
 	var result []*BlockData
 	for _, v := range raw.Val() {
-		// "uncle:orphan:nonce:blockHash:timestamp:diff:totalShares:rewardInWei"
+		// "uncleHeight:orphan:nonce:blockHash:timestamp:diff:totalShares:rewardInWei"
 		block := BlockData{}
 		block.Height = int64(v.Score)
+		block.RoundHeight = block.Height
 		fields := strings.Split(v.Member.(string), ":")
-		block.Uncle, _ = strconv.ParseBool(fields[0])
+		block.UncleHeight, _ = strconv.ParseInt(fields[0], 10, 64)
+		block.Uncle = block.UncleHeight > 0
 		block.Orphan, _ = strconv.ParseBool(fields[1])
 		block.Nonce = fields[2]
 		block.Hash = fields[3]

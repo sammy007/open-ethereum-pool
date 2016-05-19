@@ -100,128 +100,94 @@ type UnlockResult struct {
  * ISSUE: https://github.com/ethereum/go-ethereum/issues/2333
  */
 func (u *BlockUnlocker) unlockCandidates(candidates []*storage.BlockData) (*UnlockResult, error) {
-	var maturedBlocks []*storage.BlockData
-	var orphanedBlocks []*storage.BlockData
-	blocksUnlocked := 0
-	unclesUnlocked := 0
-	orphans := 0
+	result := &UnlockResult{}
 
 	// Data row is: "height:nonce:powHash:mixDigest:timestamp:diff:totalShares"
 	for _, candidate := range candidates {
-		block, err := u.rpc.GetBlockByHeight(candidate.Height)
-		if err != nil {
-			return nil, fmt.Errorf("Error while retrieving block %v from node: %v", candidate.Height, err)
-		}
-		if block == nil {
-			return nil, fmt.Errorf("Error while retrieving block %v from node, wrong node height", candidate.Height)
-		}
+		// Temporarily mark as lost
+		orphan := true
 
-		if matchCandidate(block, candidate) {
-			blocksUnlocked++
-			err = u.handleCandidate(block, candidate)
+		/* Search for a normal block with wrong height here by traversing 16 blocks back and forward.
+		 * Also we are searching for a block that can include this one as uncle.
+		 */
+		for i := int64(minDepth * -1); i < minDepth; i++ {
+			nephewHeight := candidate.Height + i
+			nephewBlock, err := u.rpc.GetBlockByHeight(nephewHeight)
 			if err != nil {
+				log.Printf("Error while retrieving block %v from node: %v", nephewHeight, err)
 				return nil, err
 			}
-			maturedBlocks = append(maturedBlocks, candidate)
-			log.Printf("Mature block %v with %v tx, hash: %v", candidate.Height, len(block.Transactions), block.Hash[0:8])
-		} else {
-			// Temporarily mark as lost
-			orphan := true
-			log.Printf("Probably uncle block %v with nonce: %v", candidate.Height, candidate.Nonce)
+			if nephewBlock == nil {
+				return nil, fmt.Errorf("Error while retrieving block %v from node, wrong node height", nephewHeight)
+			}
 
-			/* Search for block that can include this one as uncle.
-			 * Also we are searching for a normal block with wrong height here by traversing 16 blocks back and forward.
-			 */
-			for i := int64(minDepth * -1); i < minDepth; i++ {
-				nephewHeight := candidate.Height + i
-				nephewBlock, err := u.rpc.GetBlockByHeight(nephewHeight)
+			if matchCandidate(nephewBlock, candidate) {
+				orphan = false
+				result.blocks++
+
+				err = u.handleCandidate(nephewBlock, candidate)
 				if err != nil {
-					log.Printf("Error while retrieving block %v from node: %v", nephewHeight, err)
+					u.halt = true
+					u.lastFail = err
 					return nil, err
 				}
-				if nephewBlock == nil {
-					return nil, fmt.Errorf("Error while retrieving block %v from node, wrong node height", nephewHeight)
+				result.maturedBlocks = append(result.maturedBlocks, candidate)
+				log.Printf("Mature block %v with %v tx, hash: %v", candidate.Height, len(nephewBlock.Transactions), candidate.Hash[0:10])
+				break
+			}
+
+			if len(nephewBlock.Uncles) == 0 {
+				continue
+			}
+
+			// Trying to find uncle in current block during our forward check
+			for uncleIndex, uncleHash := range nephewBlock.Uncles {
+				reply, err := u.rpc.GetUncleByBlockNumberAndIndex(nephewHeight, uncleIndex)
+				if err != nil {
+					return nil, fmt.Errorf("Error while retrieving uncle of block %v from node: %v", uncleHash, err)
+				}
+				if reply == nil {
+					return nil, fmt.Errorf("Error while retrieving uncle of block %v from node", nephewHeight)
 				}
 
-				// Check incorrect block height
-				if matchCandidate(nephewBlock, candidate) {
+				// Found uncle
+				if matchCandidate(reply, candidate) {
 					orphan = false
-					blocksUnlocked++
-					err = u.handleCandidate(nephewBlock, candidate)
-					if err != nil {
-						return nil, err
-					}
-					rightHeight, err := strconv.ParseInt(strings.Replace(nephewBlock.Number, "0x", "", -1), 16, 64)
+					result.uncles++
+
+					uncleHeight, err := strconv.ParseInt(strings.Replace(reply.Number, "0x", "", -1), 16, 64)
 					if err != nil {
 						u.halt = true
 						u.lastFail = err
-						log.Printf("Can't parse block number: %v", err)
+						log.Printf("Can't parse uncle block number: %v", err)
 						return nil, err
 					}
-					log.Printf("Block %v has incorrect height, correct height is %v", candidate.Height, rightHeight)
-					maturedBlocks = append(maturedBlocks, candidate)
-					log.Printf("Mature block %v with %v tx, hash: %v", candidate.Height, len(block.Transactions), block.Hash[0:8])
-					break
-				}
-
-				if len(nephewBlock.Uncles) == 0 {
-					continue
-				}
-
-				// Trying to find uncle in current block during our forward check
-				for uncleIndex, uncleHash := range nephewBlock.Uncles {
-					reply, err := u.rpc.GetUncleByBlockNumberAndIndex(nephewHeight, uncleIndex)
-					if err != nil {
-						return nil, fmt.Errorf("Error while retrieving uncle of block %v from node: %v", uncleHash, err)
-					}
-					if reply == nil {
-						return nil, fmt.Errorf("Error while retrieving uncle of block %v from node", nephewHeight)
-					}
-
-					// Found uncle
-					if matchCandidate(reply, candidate) {
-						orphan = false
-						unclesUnlocked++
-						uncleHeight, err := strconv.ParseInt(strings.Replace(reply.Number, "0x", "", -1), 16, 64)
-						if err != nil {
-							u.halt = true
-							u.lastFail = err
-							log.Printf("Can't parse uncle block number: %v", err)
-							return nil, err
-						}
-						reward := getUncleReward(uncleHeight, nephewHeight)
-						candidate.Uncle = true
-						candidate.Orphan = false
-						candidate.Hash = reply.Hash
-						candidate.Reward = reward
-						maturedBlocks = append(maturedBlocks, candidate)
-						log.Printf("Mature uncle block %v/%v of reward %v with hash: %v", candidate.Height, nephewHeight, util.FormatReward(reward), reply.Hash[0:8])
-						break
-					}
-				}
-
-				if !orphan {
+					reward := getUncleReward(uncleHeight, nephewHeight)
+					candidate.Height = nephewHeight
+					candidate.UncleHeight = uncleHeight
+					candidate.Orphan = false
+					candidate.Hash = reply.Hash
+					candidate.Reward = reward
+					result.maturedBlocks = append(result.maturedBlocks, candidate)
+					log.Printf("Mature uncle %v/%v/%v of reward %v with hash: %v", candidate.Height, uncleHeight,
+						uncleIndex, util.FormatReward(reward), reply.Hash[0:10])
 					break
 				}
 			}
-
-			// Block is lost, we didn't find any valid block or uncle matching our data in a blockchain
-			if orphan {
-				orphans++
-				candidate.Uncle = false
-				candidate.Orphan = true
-				orphanedBlocks = append(orphanedBlocks, candidate)
-				log.Printf("Rejected block %v", candidate)
+			// Found block or uncle
+			if !orphan {
+				break
 			}
 		}
+		// Block is lost, we didn't find any valid block or uncle matching our data in a blockchain
+		if orphan {
+			result.orphans++
+			candidate.Orphan = true
+			result.orphanedBlocks = append(result.orphanedBlocks, candidate)
+			log.Printf("Orphaned block %v:%v", candidate.RoundHeight, candidate.Nonce)
+		}
 	}
-	return &UnlockResult{
-		maturedBlocks:  maturedBlocks,
-		orphanedBlocks: orphanedBlocks,
-		orphans:        orphans,
-		blocks:         blocksUnlocked,
-		uncles:         unclesUnlocked,
-	}, nil
+	return result, nil
 }
 
 func matchCandidate(block *rpc.GetBlockReply, candidate *storage.BlockData) bool {
@@ -246,6 +212,12 @@ func (u *BlockUnlocker) handleCandidate(block *rpc.GetBlockReply, candidate *sto
 	// Initial 5 Ether static reward
 	reward := new(big.Int).Set(constReward)
 
+	correctHeight, err := strconv.ParseInt(strings.Replace(block.Number, "0x", "", -1), 16, 64)
+	if err != nil {
+		return err
+	}
+	candidate.Height = correctHeight
+
 	// Add TX fees
 	extraTxReward, err := u.getExtraRewardForTx(block)
 	if err != nil {
@@ -257,7 +229,6 @@ func (u *BlockUnlocker) handleCandidate(block *rpc.GetBlockReply, candidate *sto
 	rewardForUncles := big.NewInt(0).Mul(uncleReward, big.NewInt(int64(len(block.Uncles))))
 	reward.Add(reward, rewardForUncles)
 
-	candidate.Uncle = false
 	candidate.Orphan = false
 	candidate.Hash = block.Hash
 	candidate.Reward = reward
@@ -465,7 +436,7 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 	revenue := new(big.Rat).SetInt(block.Reward)
 	minersProfit, poolProfit := chargeFee(revenue, u.config.PoolFee)
 
-	shares, err := u.backend.GetRoundShares(uint64(block.Height), block.Nonce)
+	shares, err := u.backend.GetRoundShares(block.RoundHeight, block.Nonce)
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
