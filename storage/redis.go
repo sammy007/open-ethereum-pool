@@ -536,7 +536,10 @@ func (r *RedisClient) WritePendingOrphans(blocks []*BlockData) error {
 }
 
 func (r *RedisClient) writeImmatureBlock(tx *redis.Multi, block *BlockData) {
-	tx.Rename(r.formatRound(block.RoundHeight, block.Nonce), r.formatRound(block.Height, block.Nonce))
+	// Redis 2.8.x returns "ERR source and destination objects are the same"
+	if block.Height != block.RoundHeight {
+		tx.Rename(r.formatRound(block.RoundHeight, block.Nonce), r.formatRound(block.Height, block.Nonce))
+	}
 	tx.ZRem(r.formatKey("blocks", "candidates"), block.candidateKey)
 	tx.ZAdd(r.formatKey("blocks", "immature"), redis.Z{Score: float64(block.Height), Member: block.key()})
 }
