@@ -257,11 +257,9 @@ otherwise you will get errors on start because of JSON comments.**
   // This module periodically remits ether to miners
   "unlocker": {
     "enabled": false,
-    // Require minimum number of peers on node
-    "requirePeers": 25,
     // Pool fee percentage
     "poolFee": 1.0,
-    // Pool fees beneficiary address (use empty to disable fee withdrawals)
+    // Pool fees beneficiary address (leave it blank to disable fee withdrawals)
     "poolFeeAddress": "",
     // Donate 10% from pool fees to developers
     "donate": true,
@@ -280,6 +278,8 @@ otherwise you will get errors on start because of JSON comments.**
   // Pay out miners using this module
   "payouts": {
     "enabled": false,
+    // Require minimum number of peers on node
+    "requirePeers": 25,
     // Run payouts in this interval
     "interval": "12h",
     // Geth instance node rpc endpoint for payouts processing

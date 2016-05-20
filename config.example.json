@@ -82,6 +82,7 @@
 	"unlocker": {
 		"enabled": false,
 		"poolFee": 1.0,
+		"poolFeeAddress": "",
 		"donate": true,
 		"depth": 120,
 		"immatureDepth": 20,
