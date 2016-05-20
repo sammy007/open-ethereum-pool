@@ -72,7 +72,7 @@ func (s *ProxyServer) handleTCPClient(conn *net.TCPConn, uuid int64, ip string) 
 		data, isPrefix, err := connbuff.ReadLine()
 		if isPrefix {
 			log.Printf("Socket flood detected from %s", ip)
-			// TODO: Ban client
+			s.policy.BanClient(ip)
 			return err
 		} else if err == io.EOF {
 			log.Printf("Client %s disconnected", ip)

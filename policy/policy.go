@@ -177,6 +177,11 @@ func (s *PolicyServer) Get(ip string) *Stats {
 	return x
 }
 
+func (s *PolicyServer) BanClient(ip string) {
+	x := s.Get(ip)
+	s.forceBan(x, ip)
+}
+
 func (s *PolicyServer) ApplyLimitPolicy(ip string) bool {
 	if !s.config.Limits.Enabled {
 		return true
