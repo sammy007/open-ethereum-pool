@@ -21,8 +21,8 @@
         <tr>
           <td>{{format-date-locale tx.timestamp}}</td>
           <td>{{format-number tx.formatAmount}}</td>
-          <td style="font-family: 'Inconsolata', monospace"><a href="https://etherchain.org/account/{{tx.address}}">{{tx.address}}</a></td>
-          <td style="font-family: 'Inconsolata', monospace"><a href="https://etherchain.org/tx/{{tx.tx}}">{{format-tx tx.tx}}</a></td>
+          <td style="font-family: 'Inconsolata', monospace"><a href="https://etherscan.io/address/{{tx.address}}">{{tx.address}}</a></td>
+          <td style="font-family: 'Inconsolata', monospace"><a href="https://etherscan.io/tx/{{tx.tx}}">{{format-tx tx.tx}}</a></td>
         </tr>
       {{/each}}
     </tbody>
