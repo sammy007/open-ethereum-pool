@@ -211,7 +211,6 @@ func (cs *Session) handleMessage(s *ProxyServer, r *http.Request, req *JSONRpcRe
 	if req.Id == nil {
 		log.Printf("Missing RPC id from %s", cs.ip)
 		s.policy.ApplyMalformedPolicy(cs.ip)
-		r.Close = true
 		return
 	}
 
@@ -249,6 +248,7 @@ func (cs *Session) handleMessage(s *ProxyServer, r *http.Request, req *JSONRpcRe
 			}
 			cs.sendResult(req.Id, &reply)
 		} else {
+			s.policy.ApplyMalformedPolicy(cs.ip)
 			errReply := &ErrorReply{Code: -1, Message: "Malformed request"}
 			cs.sendError(req.Id, errReply)
 		}
