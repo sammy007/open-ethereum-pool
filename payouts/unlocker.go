@@ -29,8 +29,7 @@ type UnlockerConfig struct {
 
 const minDepth = 16
 
-var constRewardInEther = new(big.Int).SetInt64(5)
-var constReward = new(big.Int).Mul(constRewardInEther, common.Ether)
+var constReward = common.Big("5000000000000000000")
 var uncleReward = new(big.Int).Div(constReward, new(big.Int).SetInt64(32))
 
 // Donate 10% from pool fees to developers
