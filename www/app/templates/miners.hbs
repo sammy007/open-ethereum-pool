@@ -18,7 +18,7 @@
     <tbody>
       {{#each model.miners as |m|}}
       <tr class="{{if m.offline "warning"}}">
-        <td style="font-family: 'Inconsolata', monospace">{{#link-to 'account' m.login}}{{m.login}}{{/link-to}}</td>
+        <td>{{#link-to 'account' m.login class='hash'}}{{m.login}}{{/link-to}}</td>
         <td>{{format-hashrate m.hr}}</td>
         <td>{{format-date-locale m.lastBeat}}</td>
       </tr>
