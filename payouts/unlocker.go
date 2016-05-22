@@ -189,9 +189,7 @@ func matchCandidate(block *rpc.GetBlockReply, candidate *storage.BlockData) bool
 	if len(block.Nonce) > 0 {
 		return strings.EqualFold(block.Nonce, candidate.Nonce)
 	}
-	/* Compare nonce and mixDigest of the candidate
-	 * Parity's EIP: https://github.com/ethereum/EIPs/issues/95
-	 */
+	// Parity's EIP: https://github.com/ethereum/EIPs/issues/95
 	if len(block.SealFields) == 2 {
 		return strings.EqualFold(candidate.Nonce, block.SealFields[1])
 	}
