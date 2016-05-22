@@ -19,6 +19,31 @@ func TestMain(m *testing.M) {
 	os.Exit(c)
 }
 
+func TestWriteShareCheckExist(t *testing.T) {
+	reset()
+
+	exist, _ := r.WriteShare("x", "x", []string{"0x0", "0x0", "0x0"}, 10, 1008, 0)
+	if exist {
+		t.Error("PoW must not exist")
+	}
+	exist, _ = r.WriteShare("x", "x", []string{"0x0", "0x1", "0x0"}, 10, 1008, 0)
+	if exist {
+		t.Error("PoW must not exist")
+	}
+	exist, _ = r.WriteShare("x", "x", []string{"0x0", "0x0", "0x1"}, 100, 1010, 0)
+	if exist {
+		t.Error("PoW must not exist")
+	}
+	exist, _ = r.WriteShare("x", "x", []string{"0x0", "0x0", "0x1"}, 100, 1016, 0)
+	if !exist {
+		t.Error("PoW must exist")
+	}
+	exist, _ = r.WriteShare("x", "x", []string{"0x0", "0x0", "0x1"}, 100, 1025, 0)
+	if exist {
+		t.Error("PoW must not exist")
+	}
+}
+
 func TestGetPayees(t *testing.T) {
 	reset()
 

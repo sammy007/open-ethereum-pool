@@ -32,17 +32,6 @@ type BlockTemplate struct {
 	headers              map[string]heightDiffPair
 }
 
-func (t *BlockTemplate) submit(nonce string) bool {
-	t.Lock()
-	defer t.Unlock()
-	_, exist := t.nonces[nonce]
-	if exist {
-		return true
-	}
-	t.nonces[nonce] = true
-	return false
-}
-
 type Block struct {
 	difficulty  *big.Int
 	hashNoNonce common.Hash
@@ -84,7 +73,6 @@ func (s *ProxyServer) fetchBlockTemplate() {
 		Height:               height,
 		Difficulty:           big.NewInt(diff),
 		GetPendingBlockCache: pendingReply,
-		nonces:               make(map[string]bool),
 		headers:              make(map[string]heightDiffPair),
 	}
 	// Copy job backlog and add current one
@@ -100,7 +88,7 @@ func (s *ProxyServer) fetchBlockTemplate() {
 		}
 	}
 	s.blockTemplate.Store(&newTemplate)
-	log.Printf("New block to mine on %s at height: %d / %s", rpc.Name, height, reply[0][0:10])
+	log.Printf("New block to mine on %s at height %d / %s", rpc.Name, height, reply[0][0:10])
 
 	// Stratum
 	if s.config.Proxy.Stratum.Enabled {

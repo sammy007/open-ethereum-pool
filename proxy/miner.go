@@ -13,12 +13,10 @@ import (
 var hasher = ethash.New()
 
 func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, params []string) (bool, bool) {
-	paramsOrig := params[:]
-
 	nonceHex := params[0]
 	hashNoNonce := params[1]
+	mixDigest := params[2]
 	nonce, _ := strconv.ParseUint(strings.Replace(nonceHex, "0x", "", -1), 16, 64)
-	mixDigest := strings.ToLower(params[2])
 	shareDiff := s.config.Proxy.Difficulty
 
 	h, ok := t.headers[hashNoNonce]
@@ -47,32 +45,27 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 		return false, false
 	}
 
-	// In-Ram check for duplicate share
-	if t.submit(params[0]) {
-		return true, false
-	}
-
 	if hasher.Verify(block) {
-		_, err := s.rpc().SubmitBlock(paramsOrig)
+		_, err := s.rpc().SubmitBlock(params)
 		if err != nil {
-			log.Printf("Block submission failure on height: %v for %v: %v", h.height, t.Header, err)
+			log.Printf("Block submission failure at height %v for %v: %v", h.height, t.Header, err)
 		} else {
 			s.fetchBlockTemplate()
-			err = s.backend.WriteBlock(login, id, shareDiff, h.diff.Int64(), h.height, nonceHex, hashNoNonce, mixDigest, s.hashrateExpiration)
+			err := s.backend.WriteBlock(login, id, params, shareDiff, h.diff.Int64(), h.height, s.hashrateExpiration)
 			if err != nil {
-				log.Printf("Failed to insert block candidate into backend: %v", err)
+				log.Println("Failed to insert block candidate into backend:", err)
 			} else {
 				log.Printf("Inserted block %v to backend", h.height)
 			}
-			log.Printf("Block with nonce: %v found by miner %v@%v at height: %d", nonceHex, login, ip, h.height)
+			log.Printf("Block found by miner %v@%v at height %d", login, ip, h.height)
 		}
 	} else {
-		exist, err := s.backend.WriteShare(login, id, nonceHex, mixDigest, h.height, shareDiff, s.hashrateExpiration)
+		exist, err := s.backend.WriteShare(login, id, params, shareDiff, h.height, s.hashrateExpiration)
 		if exist {
 			return true, false
 		}
 		if err != nil {
-			log.Printf("Failed to insert share data into backend: %v", err)
+			log.Println("Failed to insert share data into backend:", err)
 		}
 	}
 	return false, true

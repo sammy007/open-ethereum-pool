@@ -157,24 +157,24 @@ func (r *RedisClient) GetNodeStates() ([]map[string]interface{}, error) {
 	return v, nil
 }
 
-func (r *RedisClient) WriteShare(login, id, nonce, mixDigest string, height uint64, diff int64, window time.Duration) (bool, error) {
-	// Sweep PoW backlog for previous blocks
+func (r *RedisClient) WriteShare(login, id string, params []string, diff int64, height uint64, window time.Duration) (bool, error) {
+	// Sweep PoW backlog for previous blocks, we have 3 templates back in RAM
 	r.client.ZRemRangeByScore(r.formatKey("pow"), "-inf", fmt.Sprint("(", height-8))
-	cmd := r.client.ZAdd(r.formatKey("pow"), redis.Z{Score: float64(height), Member: join(nonce, mixDigest)})
-	if cmd.Err() != nil {
-		return false, cmd.Err()
+	val, err := r.client.ZAdd(r.formatKey("pow"), redis.Z{Score: float64(height), Member: strings.Join(params, ":")}).Result()
+	if err != nil {
+		return false, err
 	}
-	// Duplicate nonce
-	if cmd.Val() == 0 {
-		return true, nil
+	// Duplicate share, (nonce, powHash, mixDigest) pair exist
+	if val == 0 {
+		return true, err
 	}
 	tx := r.client.Multi()
 	defer tx.Close()
 
-	ms := time.Now().UnixNano() / 1000000
+	ms := util.MakeTimestamp()
 	ts := ms / 1000
 
-	_, err := tx.Exec(func() error {
+	_, err = tx.Exec(func() error {
 		r.writeShare(tx, ms, ts, login, id, diff, window)
 		tx.HIncrBy(r.formatKey("stats"), "roundShares", diff)
 		return nil
@@ -182,7 +182,7 @@ func (r *RedisClient) WriteShare(login, id, nonce, mixDigest string, height uint
 	return false, err
 }
 
-func (r *RedisClient) WriteBlock(login, id string, diff, roundDiff int64, height uint64, nonce, powHash, mixDigest string, window time.Duration) error {
+func (r *RedisClient) WriteBlock(login, id string, params []string, diff, roundDiff int64, height uint64, window time.Duration) error {
 	tx := r.client.Multi()
 	defer tx.Close()
 
@@ -195,8 +195,8 @@ func (r *RedisClient) WriteBlock(login, id string, diff, roundDiff int64, height
 		tx.HDel(r.formatKey("stats"), "roundShares")
 		tx.ZIncrBy(r.formatKey("finders"), 1, login)
 		tx.HIncrBy(r.formatKey("miners", login), "blocksFound", 1)
-		tx.Rename(r.formatKey("shares", "roundCurrent"), r.formatKey("shares", formatRound(height), nonce))
-		tx.HGetAllMap(r.formatKey("shares", formatRound(height), nonce))
+		tx.Rename(r.formatKey("shares", "roundCurrent"), r.formatKey("shares", formatRound(height), params[0]))
+		tx.HGetAllMap(r.formatKey("shares", formatRound(height), params[0]))
 		return nil
 	})
 	if err != nil {
@@ -208,7 +208,7 @@ func (r *RedisClient) WriteBlock(login, id string, diff, roundDiff int64, height
 			n, _ := strconv.ParseInt(v, 10, 64)
 			totalShares += n
 		}
-		hashHex := join(nonce, powHash, mixDigest)
+		hashHex := strings.Join(params, ":")
 		s := join(hashHex, ts, roundDiff, totalShares)
 		cmd := r.client.ZAdd(r.formatKey("blocks", "candidates"), redis.Z{Score: float64(height), Member: s})
 		return cmd.Err()
