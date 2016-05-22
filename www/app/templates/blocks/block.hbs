@@ -1,5 +1,11 @@
 <tr>
-  <td><a href="https://etherscan.io/block/{{block.height}}">{{format-number block.height}}</a></td>
+  <td>
+    {{#if block.uncle}}
+      <a href="https://etherscan.io/uncle/{{block.uncleHeight}}">{{format-number block.uncleHeight}}</a>
+    {{else}}
+      <a href="https://etherscan.io/block/{{block.height}}">{{format-number block.height}}</a>
+    {{/if}}
+  </td>
   <td>
     {{#if block.uncle}}
       <a style="font-family: 'Inconsolata', monospace" href="https://etherscan.io/uncle/{{block.hash}}">{{block.hash}}</a>
