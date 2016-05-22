@@ -21,8 +21,12 @@
         <tr>
           <td>{{format-date-locale tx.timestamp}}</td>
           <td>{{format-number tx.formatAmount}}</td>
-          <td style="font-family: 'Inconsolata', monospace"><a href="https://etherscan.io/address/{{tx.address}}">{{tx.address}}</a></td>
-          <td style="font-family: 'Inconsolata', monospace"><a href="https://etherscan.io/tx/{{tx.tx}}">{{format-tx tx.tx}}</a></td>
+          <td style="font-family: 'Inconsolata', monospace">
+            <a href="https://etherscan.io/address/{{tx.address}}" rel="nofollow" target="_blank">{{tx.address}}</a>
+          </td>
+          <td style="font-family: 'Inconsolata', monospace">
+            <a href="https://etherscan.io/tx/{{tx.tx}}" rel="nofollow" target="_blank">{{format-tx tx.tx}}</a>
+          </td>
         </tr>
       {{/each}}
     </tbody>

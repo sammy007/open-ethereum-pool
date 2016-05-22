@@ -13,7 +13,9 @@
       {{#each model.payments as |tx|}}
         <tr>
           <td>{{format-date-locale tx.timestamp}}</td>
-          <td style="font-family: 'Inconsolata', monospace"><a href="https://etherscan.io/tx/{{tx.tx}}">{{tx.tx}}</a></td>
+          <td style="font-family: 'Inconsolata', monospace">
+            <a href="https://etherscan.io/tx/{{tx.tx}}" rel="nofollow" target="_blank">{{tx.tx}}</a>
+          </td>
           <td>{{format-balance tx.amount}}</td>
         </tr>
       {{/each}}
