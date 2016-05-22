@@ -550,6 +550,10 @@ func (r *RedisClient) writeMaturedBlock(tx *redis.Multi, block *BlockData) {
 	tx.ZAdd(r.formatKey("blocks", "matured"), redis.Z{Score: float64(block.Height), Member: block.key()})
 }
 
+func (r *RedisClient) IsMinerExists(login string) (bool, error) {
+	return r.client.Exists(r.formatKey("miners", login)).Result()
+}
+
 func (r *RedisClient) GetMinerStats(login string, maxPayments int64) (map[string]interface{}, error) {
 	stats := make(map[string]interface{})
 
