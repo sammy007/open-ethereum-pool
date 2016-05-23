@@ -312,10 +312,11 @@ I recommend this deployment strategy:
 
 ### Notes
 
-Unlocking and payouts are sequential, 1st tx go, 2nd waiting for 1st to confirm and so on.
-You can disable that in code. Also, keep in mind that *unlocking and payouts will be stopped in case of any backend or geth failure*.
-You must restart module if you see such errors with the word *suspended*; I recommend running unlocker and payouts in a separate processes.
-Don't run payouts and unlocker as part of mining node.
+* Unlocking and payouts are sequential, 1st tx go, 2nd waiting for 1st to confirm and so on. You can disable that in code. Carefully read `docs/PAYOUTS.md`.
+* Also, keep in mind that **unlocking and payouts will halt in case of backend or node RPC errors**. In that case check everything and restart.
+* You must restart module if you see errors with the word *suspended*.
+* Don't run payouts and unlocker modules as part of mining node. Create separate configs for both, launch independently and make sure you have a single instance of each module running.
+* If `poolFeeAddress` is not specified all pool profit will remain on coinbase address. If it specified, make sure to periodically send some dust back required for payments.
 
 ### Credits
 
