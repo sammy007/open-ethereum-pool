@@ -2,7 +2,7 @@
 
 Geth version: `geth version` or commit hash if `develop`
 
-Redis version `redis-server --version`
+Redis version: `redis-server --version`
 
 OS & Version: Linux/OSX
 
