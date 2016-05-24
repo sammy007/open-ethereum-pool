@@ -200,10 +200,10 @@ func (s *ProxyServer) broadcastNewJobs() {
 	}
 	reply := []string{t.Header, t.Seed, s.diff}
 
-	count := 0
 	s.sessionsMu.RLock()
-	count = len(s.sessions)
-	s.sessionsMu.RUnlock()
+	defer s.sessionsMu.RUnlock()
+
+	count := len(s.sessions)
 	log.Printf("Broadcasting new job to %v stratum miners", count)
 
 	start := time.Now()
@@ -213,6 +213,7 @@ func (s *ProxyServer) broadcastNewJobs() {
 	for _, m := range s.sessions {
 		n++
 		bcast <- n
+
 		go func(session *Session) {
 			err := session.pushNewJob(&reply)
 			<-bcast
