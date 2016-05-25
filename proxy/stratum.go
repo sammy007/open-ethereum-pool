@@ -219,6 +219,8 @@ func (s *ProxyServer) broadcastNewJobs() {
 			if err != nil {
 				log.Printf("Job transmit error to %v@%v: %v", cs.login, cs.ip, err)
 				s.removeSession(cs)
+			} else {
+				s.setDeadline(cs.conn)
 			}
 		}(m)
 	}
