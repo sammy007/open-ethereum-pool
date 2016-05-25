@@ -166,7 +166,9 @@ func (s *ProxyServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ip := s.remoteAddr(r)
-	s.handleClient(w, r, ip)
+	if !s.policy.IsBanned(ip) {
+		s.handleClient(w, r, ip)
+	}
 }
 
 func (s *ProxyServer) remoteAddr(r *http.Request) string {

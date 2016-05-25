@@ -42,8 +42,8 @@ func (s *ProxyServer) ListenTCP() {
 		conn.SetKeepAlive(true)
 
 		ip, _, _ := net.SplitHostPort(conn.RemoteAddr().String())
-		ok := s.policy.ApplyLimitPolicy(ip)
-		if !ok {
+
+		if s.policy.IsBanned(ip) || !s.policy.ApplyLimitPolicy(ip) {
 			conn.Close()
 			continue
 		}

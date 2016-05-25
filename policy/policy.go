@@ -182,6 +182,11 @@ func (s *PolicyServer) BanClient(ip string) {
 	s.forceBan(x, ip)
 }
 
+func (s *PolicyServer) IsBanned(ip string) bool {
+	x := s.Get(ip)
+	return atomic.LoadInt32(&x.Banned) > 0
+}
+
 func (s *PolicyServer) ApplyLimitPolicy(ip string) bool {
 	if !s.config.Limits.Enabled {
 		return true
@@ -261,6 +266,8 @@ func (s *PolicyServer) forceBan(x *Stats, ip string) {
 	if atomic.CompareAndSwapInt32(&x.Banned, 0, 1) {
 		if len(s.config.Banning.IPSet) > 0 {
 			s.banChannel <- ip
+		} else {
+			log.Println("Banned peer", ip)
 		}
 	}
 }
