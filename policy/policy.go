@@ -202,12 +202,14 @@ func (s *PolicyServer) ApplyLoginPolicy(addy, ip string) bool {
 	return true
 }
 
-func (s *PolicyServer) ApplyMalformedPolicy(ip string) {
+func (s *PolicyServer) ApplyMalformedPolicy(ip string) bool {
 	x := s.Get(ip)
 	n := x.incrMalformed()
 	if n >= s.config.Banning.MalformedLimit {
 		s.forceBan(x, ip)
+		return false
 	}
+	return true
 }
 
 func (s *PolicyServer) ApplySharePolicy(ip string, validShare bool) bool {
