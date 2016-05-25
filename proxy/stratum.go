@@ -48,35 +48,34 @@ func (s *ProxyServer) ListenTCP() {
 			continue
 		}
 		n += 1
-		uuid := util.Random()
+		cs := &Session{conn: conn, ip: ip}
 
 		accept <- n
-		go func() {
-			err = s.handleTCPClient(conn, uuid, ip)
+		go func(cs *Session) {
+			err = s.handleTCPClient(cs)
 			if err != nil {
-				s.removeSession(uuid)
+				s.removeSession(cs)
 				conn.Close()
 			}
 			<-accept
-		}()
+		}(cs)
 	}
 }
 
-func (s *ProxyServer) handleTCPClient(conn *net.TCPConn, uuid int64, ip string) error {
-	cs := &Session{conn: conn, ip: ip, uuid: uuid}
-	cs.enc = json.NewEncoder(conn)
-	connbuff := bufio.NewReaderSize(conn, MaxReqSize)
-	s.setDeadline(conn)
+func (s *ProxyServer) handleTCPClient(cs *Session) error {
+	cs.enc = json.NewEncoder(cs.conn)
+	connbuff := bufio.NewReaderSize(cs.conn, MaxReqSize)
+	s.setDeadline(cs.conn)
 
 	for {
 		data, isPrefix, err := connbuff.ReadLine()
 		if isPrefix {
-			log.Printf("Socket flood detected from %s", ip)
-			s.policy.BanClient(ip)
+			log.Printf("Socket flood detected from %s", cs.ip)
+			s.policy.BanClient(cs.ip)
 			return err
 		} else if err == io.EOF {
-			log.Printf("Client %s disconnected", ip)
-			s.removeSession(uuid)
+			log.Printf("Client %s disconnected", cs.ip)
+			s.removeSession(cs)
 			break
 		} else if err != nil {
 			log.Printf("Error reading from socket: %v", err)
@@ -87,11 +86,11 @@ func (s *ProxyServer) handleTCPClient(conn *net.TCPConn, uuid int64, ip string) 
 			var req JSONRpcReq
 			err = json.Unmarshal(data, &req)
 			if err != nil {
-				s.policy.ApplyMalformedPolicy(ip)
-				log.Printf("Malformed request from %s: %v", ip, err)
+				s.policy.ApplyMalformedPolicy(cs.ip)
+				log.Printf("Malformed request from %s: %v", cs.ip, err)
 				return err
 			}
-			s.setDeadline(conn)
+			s.setDeadline(cs.conn)
 			err = cs.handleTCPMessage(s, &req)
 			if err != nil {
 				return err
@@ -181,16 +180,16 @@ func (self *ProxyServer) setDeadline(conn *net.TCPConn) {
 	conn.SetDeadline(time.Now().Add(self.timeout))
 }
 
-func (s *ProxyServer) registerSession(session *Session) {
+func (s *ProxyServer) registerSession(cs *Session) {
 	s.sessionsMu.Lock()
 	defer s.sessionsMu.Unlock()
-	s.sessions[session.uuid] = session
+	s.sessions[cs] = struct{}{}
 }
 
-func (s *ProxyServer) removeSession(id int64) {
+func (s *ProxyServer) removeSession(cs *Session) {
 	s.sessionsMu.Lock()
 	defer s.sessionsMu.Unlock()
-	delete(s.sessions, id)
+	delete(s.sessions, cs)
 }
 
 func (s *ProxyServer) broadcastNewJobs() {
@@ -210,16 +209,16 @@ func (s *ProxyServer) broadcastNewJobs() {
 	bcast := make(chan int, 1024)
 	n := 0
 
-	for _, m := range s.sessions {
+	for m, _ := range s.sessions {
 		n++
 		bcast <- n
 
-		go func(session *Session) {
-			err := session.pushNewJob(&reply)
+		go func(cs *Session) {
+			err := cs.pushNewJob(&reply)
 			<-bcast
 			if err != nil {
-				log.Printf("Job transmit error to %v@%v: %v", session.login, session.ip, err)
-				s.removeSession(session.uuid)
+				log.Printf("Job transmit error to %v@%v: %v", cs.login, cs.ip, err)
+				s.removeSession(cs)
 			}
 		}(m)
 	}

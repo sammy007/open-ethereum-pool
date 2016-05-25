@@ -43,8 +43,9 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 // Stratum
 func (s *ProxyServer) handleTCPSubmitRPC(cs *Session, id string, params []string) (bool, *ErrorReply) {
 	s.sessionsMu.RLock()
-	_, ok := s.sessions[cs.uuid]
+	_, ok := s.sessions[cs]
 	s.sessionsMu.RUnlock()
+
 	if !ok {
 		return false, &ErrorReply{Code: -1, Message: "Unknown session"}
 	}

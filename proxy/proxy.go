@@ -31,7 +31,7 @@ type ProxyServer struct {
 
 	// Stratum
 	sessionsMu sync.RWMutex
-	sessions   map[int64]*Session
+	sessions   map[*Session]struct{}
 	timeout    time.Duration
 }
 
@@ -42,7 +42,6 @@ type Session struct {
 	// Stratum
 	sync.Mutex
 	conn  *net.TCPConn
-	uuid  int64
 	login string
 }
 
@@ -63,8 +62,7 @@ func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
 	log.Printf("Default upstream: %s => %s", proxy.rpc().Name, proxy.rpc().Url)
 
 	if cfg.Proxy.Stratum.Enabled {
-		proxy.sessions = make(map[int64]*Session)
-
+		proxy.sessions = make(map[*Session]struct{})
 		go proxy.ListenTCP()
 	}
 
