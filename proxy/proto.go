@@ -14,7 +14,6 @@ type JSONRpcReq struct {
 // Stratum
 type JSONPushMessage struct {
 	Version string      `json:"jsonrpc"`
-	Method  string      `json:"method,omitempty"`
 	Result  interface{} `json:"result"`
 }
 
