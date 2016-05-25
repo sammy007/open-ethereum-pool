@@ -238,11 +238,6 @@ func (s *PolicyServer) ApplySharePolicy(ip string, validShare bool) bool {
 	x.resetShares()
 	x.Unlock()
 
-	if invalidShares == 0 {
-		return true
-	}
-
-	// Can be +Inf or value, previous check prevents NaN
 	ratio := invalidShares / validShares
 
 	if ratio >= s.config.Banning.InvalidPercent/100.0 {
