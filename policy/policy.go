@@ -130,6 +130,8 @@ func (s *PolicyServer) resetStats() {
 			atomic.StoreInt64(&m.BannedAt, 0)
 			if atomic.CompareAndSwapInt32(&m.Banned, 1, 0) {
 				log.Printf("Ban dropped for %v", key)
+				delete(s.stats, key)
+				total++
 			}
 		}
 		if now-lastBeat >= s.timeout {
