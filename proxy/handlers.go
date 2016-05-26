@@ -70,7 +70,7 @@ func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []st
 	}
 	t := s.currentBlockTemplate()
 	exist, validShare := s.processShare(login, id, cs.ip, t, params)
-	s.policy.ApplySharePolicy(cs.ip, !exist && validShare)
+	ok := s.policy.ApplySharePolicy(cs.ip, !exist && validShare)
 
 	if exist {
 		log.Printf("Duplicate share from %s@%s %v", login, cs.ip, params)
@@ -79,6 +79,10 @@ func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []st
 
 	if !validShare {
 		log.Printf("Invalid share from %s@%s", login, cs.ip)
+		// Bad shares limit reached, return error and close
+		if !ok {
+			return false, &ErrorReply{Code: -1, Message: "Invalid share"}
+		}
 		return false, nil
 	}
 
