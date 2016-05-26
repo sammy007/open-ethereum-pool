@@ -221,9 +221,6 @@ func (s *PolicyServer) ApplyMalformedPolicy(ip string) bool {
 
 func (s *PolicyServer) ApplySharePolicy(ip string, validShare bool) bool {
 	x := s.Get(ip)
-	if validShare && s.config.Limits.Enabled {
-		s.Get(ip).incrLimit(s.config.Limits.LimitJump)
-	}
 	x.Lock()
 
 	if validShare {
