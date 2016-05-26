@@ -12,6 +12,7 @@ import (
 // Allow only lowercase hexadecimal with 0x prefix
 var noncePattern = regexp.MustCompile("^0x[0-9a-f]{16}$")
 var hashPattern = regexp.MustCompile("^0x[0-9a-f]{64}$")
+var workerPattern = regexp.MustCompile("^[0-9a-zA-Z-_]{1,8}$")
 
 // Stratum
 func (s *ProxyServer) handleLoginRPC(cs *Session, params []string, id string) (bool, *ErrorReply) {
@@ -49,14 +50,13 @@ func (s *ProxyServer) handleTCPSubmitRPC(cs *Session, id string, params []string
 	if !ok {
 		return false, &ErrorReply{Code: 25, Message: "Not subscribed"}
 	}
+	if !workerPattern.MatchString(id) {
+		id = "0"
+	}
 	return s.handleSubmitRPC(cs, cs.login, id, params)
 }
 
 func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []string) (bool, *ErrorReply) {
-	if len(id) == 0 {
-		id = "0"
-	}
-
 	if len(params) != 3 {
 		s.policy.ApplyMalformedPolicy(cs.ip)
 		log.Printf("Malformed params from %s@%s %v", login, cs.ip, params)
