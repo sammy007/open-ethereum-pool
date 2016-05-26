@@ -87,7 +87,7 @@ func (s *ProxyServer) handleTCPClient(cs *Session) error {
 			err = json.Unmarshal(data, &req)
 			if err != nil {
 				s.policy.ApplyMalformedPolicy(cs.ip)
-				log.Printf("Malformed request from %s: %v", cs.ip, err)
+				log.Printf("Malformed stratum request from %s: %v", cs.ip, err)
 				return err
 			}
 			s.setDeadline(cs.conn)
@@ -101,51 +101,44 @@ func (s *ProxyServer) handleTCPClient(cs *Session) error {
 }
 
 func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
-	var err error
-
 	// Handle RPC methods
 	switch req.Method {
 	case "eth_submitLogin":
 		var params []string
-		err = json.Unmarshal(*req.Params, &params)
+		err := json.Unmarshal(*req.Params, &params)
 		if err != nil {
-			log.Println("Malformed stratum request params")
-			break
+			log.Println("Malformed stratum request params from", cs.ip)
+			return err
 		}
 		reply, errReply := s.handleLoginRPC(cs, params, req.Worker)
 		if errReply != nil {
-			err = cs.sendTCPError(req.Id, errReply)
-			break
+			return cs.sendTCPError(req.Id, errReply)
 		}
-		err = cs.sendTCPResult(req.Id, reply)
+		return cs.sendTCPResult(req.Id, reply)
 	case "eth_getWork":
 		reply, errReply := s.handleGetWorkRPC(cs)
 		if errReply != nil {
-			err = cs.sendTCPError(req.Id, errReply)
-			break
+			return cs.sendTCPError(req.Id, errReply)
 		}
-		err = cs.sendTCPResult(req.Id, &reply)
+		return cs.sendTCPResult(req.Id, &reply)
 	case "eth_submitWork":
 		var params []string
-		err = json.Unmarshal(*req.Params, &params)
+		err := json.Unmarshal(*req.Params, &params)
 		if err != nil {
-			log.Println("Malformed stratum request params")
-			break
+			log.Println("Malformed stratum request params from", cs.ip)
+			return err
 		}
 		reply, errReply := s.handleTCPSubmitRPC(cs, req.Worker, params)
 		if errReply != nil {
-			err = cs.sendTCPError(req.Id, errReply)
-			break
+			return cs.sendTCPError(req.Id, errReply)
 		}
-		err = cs.sendTCPResult(req.Id, &reply)
+		return cs.sendTCPResult(req.Id, &reply)
 	case "eth_submitHashrate":
-		cs.sendTCPResult(req.Id, true)
+		return cs.sendTCPResult(req.Id, true)
 	default:
 		errReply := s.handleUnknownRPC(cs, req.Method)
-		err = cs.sendTCPError(req.Id, errReply)
+		return cs.sendTCPError(req.Id, errReply)
 	}
-
-	return err
 }
 
 func (cs *Session) sendTCPResult(id *json.RawMessage, result interface{}) error {
@@ -171,9 +164,9 @@ func (cs *Session) sendTCPError(id *json.RawMessage, reply *ErrorReply) error {
 	message := JSONRpcResp{Id: id, Version: "2.0", Error: reply}
 	err := cs.enc.Encode(&message)
 	if err != nil {
-		return errors.New(reply.Message)
+		return err
 	}
-	return err
+	return errors.New(reply.Message)
 }
 
 func (self *ProxyServer) setDeadline(conn *net.TCPConn) {
