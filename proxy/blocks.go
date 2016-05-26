@@ -82,7 +82,7 @@ func (s *ProxyServer) fetchBlockTemplate() {
 	}
 	if t != nil {
 		for k, v := range t.headers {
-			if v.height >= height-maxBacklog {
+			if v.height > height-maxBacklog {
 				newTemplate.headers[k] = v
 			}
 		}
