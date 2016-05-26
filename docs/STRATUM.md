@@ -74,6 +74,21 @@ Exceptions:
 { "id": 10, "result": null, "error": { code: 0, message: "Work not ready" } }
 ```
 
+## New Job Notification
+
+Server sends job to peers if new job is available:
+
+```javascript
+{
+  "jsonrpc": "2.0",
+  "result": [
+      "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+      "0x5eed00000000000000000000000000005eed0000000000000000000000000000",
+      "0xd1ff1c01710000000000000000000000d1ff1c01710000000000000000000000"
+    ]
+}
+```
+
 ## Share Submission
 
 Request looks like:
