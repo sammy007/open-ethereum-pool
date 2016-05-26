@@ -95,7 +95,8 @@ func (s *ProxyServer) handleGetBlockByNumberRPC() *rpc.GetBlockReplyPart {
 	return reply
 }
 
-func (s *ProxyServer) handleUnknownRPC(cs *Session, req interface{}) *ErrorReply {
-	log.Printf("Unknown RPC request: %+v", req)
+func (s *ProxyServer) handleUnknownRPC(cs *Session, m string) *ErrorReply {
+	log.Printf("Unknown request method %s from %s", m, cs.ip)
+	s.policy.ApplyMalformedPolicy(cs.ip)
 	return &ErrorReply{Code: -1, Message: "Invalid method"}
 }
