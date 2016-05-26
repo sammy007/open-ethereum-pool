@@ -118,3 +118,11 @@ Pool MAY return exception on invalid share submission usually followed by tempor
 { "id": 1, "jsonrpc": "2.0", "result": null, "error": { code: 25, message: "Not subscribed" } }
 { "id": 1, "jsonrpc": "2.0", "result": null, "error": { code: -1, message: "Malformed PoW result" } }
 ```
+
+## Submit Hashrate
+
+`eth_submitHashrate` is a nonsense method. Pool ignores it and the reply is always:
+
+```javascript
+{ "id": 1, "jsonrpc": "2.0", "result": true }
+```
