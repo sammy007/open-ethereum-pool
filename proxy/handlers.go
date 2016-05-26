@@ -35,7 +35,7 @@ func (s *ProxyServer) handleLoginRPC(cs *Session, params []string, id string) (b
 func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 	t := s.currentBlockTemplate()
 	if t == nil || len(t.Header) == 0 || s.isSick() {
-		return nil, &ErrorReply{Code: -1, Message: "Work not ready"}
+		return nil, &ErrorReply{Code: 0, Message: "Work not ready"}
 	}
 	return []string{t.Header, t.Seed, s.diff}, nil
 }
@@ -47,7 +47,7 @@ func (s *ProxyServer) handleTCPSubmitRPC(cs *Session, id string, params []string
 	s.sessionsMu.RUnlock()
 
 	if !ok {
-		return false, &ErrorReply{Code: -1, Message: "Unknown session"}
+		return false, &ErrorReply{Code: 25, Message: "Not subscribed"}
 	}
 	return s.handleSubmitRPC(cs, cs.login, id, params)
 }
@@ -60,7 +60,7 @@ func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []st
 	if len(params) != 3 {
 		s.policy.ApplyMalformedPolicy(cs.ip)
 		log.Printf("Malformed params from %s@%s %v", login, cs.ip, params)
-		return false, &ErrorReply{Code: -1, Message: "Malformed params"}
+		return false, &ErrorReply{Code: -1, Message: "Invalid params"}
 	}
 
 	if !noncePattern.MatchString(params[0]) || !hashPattern.MatchString(params[1]) || !hashPattern.MatchString(params[2]) {
@@ -74,14 +74,14 @@ func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []st
 
 	if exist {
 		log.Printf("Duplicate share from %s@%s %v", login, cs.ip, params)
-		return false, &ErrorReply{Code: -1, Message: "Duplicate share"}
+		return false, &ErrorReply{Code: 22, Message: "Duplicate share"}
 	}
 
 	if !validShare {
 		log.Printf("Invalid share from %s@%s", login, cs.ip)
 		// Bad shares limit reached, return error and close
 		if !ok {
-			return false, &ErrorReply{Code: -1, Message: "Invalid share"}
+			return false, &ErrorReply{Code: 23, Message: "Invalid share"}
 		}
 		return false, nil
 	}
@@ -105,5 +105,5 @@ func (s *ProxyServer) handleGetBlockByNumberRPC() *rpc.GetBlockReplyPart {
 func (s *ProxyServer) handleUnknownRPC(cs *Session, m string) *ErrorReply {
 	log.Printf("Unknown request method %s from %s", m, cs.ip)
 	s.policy.ApplyMalformedPolicy(cs.ip)
-	return &ErrorReply{Code: -1, Message: "Invalid method"}
+	return &ErrorReply{Code: -3, Message: "Method not found"}
 }
