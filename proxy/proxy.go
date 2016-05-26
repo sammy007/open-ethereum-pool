@@ -217,6 +217,11 @@ func (cs *Session) handleMessage(s *ProxyServer, r *http.Request, req *JSONRpcRe
 	vars := mux.Vars(r)
 	login := strings.ToLower(vars["login"])
 
+	if !util.IsValidHexAddress(login) {
+		errReply := &ErrorReply{Code: -1, Message: "Invalid login"}
+		cs.sendError(req.Id, errReply)
+		return
+	}
 	if !s.policy.ApplyLoginPolicy(login, cs.ip) {
 		errReply := &ErrorReply{Code: -1, Message: "You are blacklisted"}
 		cs.sendError(req.Id, errReply)
