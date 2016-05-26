@@ -50,13 +50,13 @@ func (s *ProxyServer) handleTCPSubmitRPC(cs *Session, id string, params []string
 	if !ok {
 		return false, &ErrorReply{Code: 25, Message: "Not subscribed"}
 	}
-	if !workerPattern.MatchString(id) {
-		id = "0"
-	}
 	return s.handleSubmitRPC(cs, cs.login, id, params)
 }
 
 func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []string) (bool, *ErrorReply) {
+	if !workerPattern.MatchString(id) {
+		id = "0"
+	}
 	if len(params) != 3 {
 		s.policy.ApplyMalformedPolicy(cs.ip)
 		log.Printf("Malformed params from %s@%s %v", login, cs.ip, params)
