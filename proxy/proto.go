@@ -6,8 +6,10 @@ type JSONRpcReq struct {
 	Id     *json.RawMessage `json:"id"`
 	Method string           `json:"method"`
 	Params *json.RawMessage `json:"params"`
+}
 
-	// Stratum
+type StratumReq struct {
+	JSONRpcReq
 	Worker string `json:"worker"`
 }
 

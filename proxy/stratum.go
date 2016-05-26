@@ -83,7 +83,7 @@ func (s *ProxyServer) handleTCPClient(cs *Session) error {
 		}
 
 		if len(data) > 1 {
-			var req JSONRpcReq
+			var req StratumReq
 			err = json.Unmarshal(data, &req)
 			if err != nil {
 				s.policy.ApplyMalformedPolicy(cs.ip)
@@ -100,7 +100,7 @@ func (s *ProxyServer) handleTCPClient(cs *Session) error {
 	return nil
 }
 
-func (cs *Session) handleTCPMessage(s *ProxyServer, req *JSONRpcReq) error {
+func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 	var err error
 
 	// Handle RPC methods
