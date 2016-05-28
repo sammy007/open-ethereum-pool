@@ -41,8 +41,8 @@ type BlockData struct {
 	ImmatureReward string   `json:"-"`
 	RewardString   string   `json:"reward"`
 	RoundHeight    int64    `json:"-"`
-	candidateKey   string   `json:"-"`
-	immatureKey    string   `json:"-"`
+	candidateKey   string
+	immatureKey    string
 }
 
 func (b *BlockData) RewardInShannon() int64 {

@@ -121,7 +121,7 @@ func (s *ApiServer) purgeStale() {
 	start := time.Now()
 	total, err := s.backend.FlushStaleStats(s.hashrateWindow, s.hashrateLargeWindow)
 	if err != nil {
-		log.Printf("Failed to purge stale data from backend: ", err)
+		log.Println("Failed to purge stale data from backend:", err)
 	} else {
 		log.Printf("Purged stale stats from backend, %v shares affected, elapsed time %v", total, time.Since(start))
 	}
