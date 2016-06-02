@@ -15,6 +15,8 @@ type StratumReq struct {
 
 // Stratum
 type JSONPushMessage struct {
+	// FIXME: Temporarily add ID for Claymore compliance
+	Id      int64       `json:"id"`
 	Version string      `json:"jsonrpc"`
 	Result  interface{} `json:"result"`
 }
