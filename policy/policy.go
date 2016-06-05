@@ -52,7 +52,7 @@ type Stats struct {
 
 type PolicyServer struct {
 	sync.RWMutex
-	statsMu    sync.RWMutex
+	statsMu    sync.Mutex
 	config     *Config
 	stats      map[string]*Stats
 	banChannel chan string
@@ -167,16 +167,17 @@ func (s *PolicyServer) NewStats() *Stats {
 }
 
 func (s *PolicyServer) Get(ip string) *Stats {
-	s.statsMu.RLock()
-	defer s.statsMu.RUnlock()
+	s.statsMu.Lock()
+	defer s.statsMu.Unlock()
 
-	if x, ok := s.stats[ip]; ok {
+	if x, ok := s.stats[ip]; !ok {
+		x = s.NewStats()
+		s.stats[ip] = x
+		return x
+	} else {
 		x.heartbeat()
 		return x
 	}
-	x := s.NewStats()
-	s.stats[ip] = x
-	return x
 }
 
 func (s *PolicyServer) BanClient(ip string) {
