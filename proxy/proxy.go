@@ -249,7 +249,7 @@ func (cs *Session) handleMessage(s *ProxyServer, r *http.Request, req *JSONRpcRe
 			}
 			reply, errReply := s.handleSubmitRPC(cs, login, vars["id"], params)
 			if errReply != nil {
-				err = cs.sendError(req.Id, errReply)
+				cs.sendError(req.Id, errReply)
 				break
 			}
 			cs.sendResult(req.Id, &reply)

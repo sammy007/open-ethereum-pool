@@ -212,6 +212,9 @@ func (r *RPCClient) GetPeerCount() (int64, error) {
 		return 0, errors.New(rpcResp.Error["message"].(string))
 	}
 	err = json.Unmarshal(*rpcResp.Result, &reply)
+	if err != nil {
+		return 0, err
+	}
 	return strconv.ParseInt(strings.Replace(reply, "0x", "", -1), 16, 64)
 }
 
