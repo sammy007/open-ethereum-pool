@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"strings"
@@ -10,8 +9,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"../storage"
-	"../util"
+	"github.com/gorilla/mux"
+
+	"github.com/sammy007/open-ethereum-pool/storage"
+	"github.com/sammy007/open-ethereum-pool/util"
 )
 
 type ApiConfig struct {

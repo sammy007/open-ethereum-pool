@@ -1,11 +1,12 @@
 package payouts
 
 import (
-	"../rpc"
-	"../storage"
 	"math/big"
 	"os"
 	"testing"
+
+	"github.com/sammy007/open-ethereum-pool/rpc"
+	"github.com/sammy007/open-ethereum-pool/storage"
 )
 
 func TestMain(m *testing.M) {

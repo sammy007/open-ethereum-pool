@@ -1,10 +1,11 @@
 package storage
 
 import (
-	"gopkg.in/redis.v3"
 	"os"
 	"strconv"
 	"testing"
+
+	"gopkg.in/redis.v3"
 )
 
 var r *RedisClient
