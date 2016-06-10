@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"math/big"
 	"net/http"
 	"strconv"
@@ -84,35 +83,29 @@ func NewRPCClient(name, url, timeout string) *RPCClient {
 
 func (r *RPCClient) GetWork() ([]string, error) {
 	rpcResp, err := r.doPost(r.Url, "eth_getWork", []string{})
-	var reply []string
 	if err != nil {
-		return reply, err
+		return nil, err
 	}
-	if rpcResp.Error != nil {
-		return reply, errors.New(rpcResp.Error["message"].(string))
-	}
-
+	var reply []string
 	err = json.Unmarshal(*rpcResp.Result, &reply)
-	// Handle empty result, daemon is catching up (geth bug!!!)
-	if len(reply) != 3 || len(reply[0]) == 0 {
-		return reply, errors.New("Daemon is not ready")
+	// Handle empty result, daemon is catching up (early geth bug and parity bug!!!)
+	if err == nil && (len(reply) != 3 || len(reply[0]) == 0) {
+		return nil, errors.New("Daemon is not ready")
 	}
 	return reply, err
 }
 
 func (r *RPCClient) GetPendingBlock() (*GetBlockReplyPart, error) {
 	rpcResp, err := r.doPost(r.Url, "eth_getBlockByNumber", []interface{}{"pending", false})
-	var reply *GetBlockReplyPart
 	if err != nil {
-		return reply, err
-	}
-	if rpcResp.Error != nil {
-		return reply, errors.New(rpcResp.Error["message"].(string))
+		return nil, err
 	}
 	if rpcResp.Result != nil {
+		var reply *GetBlockReplyPart
 		err = json.Unmarshal(*rpcResp.Result, &reply)
+		return reply, err
 	}
-	return reply, err
+	return nil, nil
 }
 
 func (r *RPCClient) GetBlockByHeight(height int64) (*GetBlockReply, error) {
@@ -132,58 +125,49 @@ func (r *RPCClient) GetUncleByBlockNumberAndIndex(height int64, index int) (*Get
 
 func (r *RPCClient) getBlockBy(method string, params []interface{}) (*GetBlockReply, error) {
 	rpcResp, err := r.doPost(r.Url, method, params)
-	var reply *GetBlockReply
 	if err != nil {
-		return reply, err
-	}
-	if rpcResp.Error != nil {
-		return reply, errors.New(rpcResp.Error["message"].(string))
+		return nil, err
 	}
 	if rpcResp.Result != nil {
+		var reply *GetBlockReply
 		err = json.Unmarshal(*rpcResp.Result, &reply)
+		return reply, err
 	}
-	return reply, err
+	return nil, nil
 }
 
 func (r *RPCClient) GetTxReceipt(hash string) (*TxReceipt, error) {
 	rpcResp, err := r.doPost(r.Url, "eth_getTransactionReceipt", []string{hash})
-	var reply *TxReceipt
 	if err != nil {
 		return nil, err
 	}
-	if rpcResp.Error != nil {
-		return nil, errors.New(rpcResp.Error["message"].(string))
-	}
 	if rpcResp.Result != nil {
+		var reply *TxReceipt
 		err = json.Unmarshal(*rpcResp.Result, &reply)
+		return reply, err
 	}
-	return reply, err
+	return nil, nil
 }
 
 func (r *RPCClient) SubmitBlock(params []string) (bool, error) {
 	rpcResp, err := r.doPost(r.Url, "eth_submitWork", params)
-	var result bool
 	if err != nil {
 		return false, err
 	}
-	err = json.Unmarshal(*rpcResp.Result, &result)
-	if !result {
-		return false, errors.New("Block not accepted, result=false")
-	}
-	return result, nil
+	var reply bool
+	err = json.Unmarshal(*rpcResp.Result, &reply)
+	return reply, err
 }
 
 func (r *RPCClient) GetBalance(address string) (*big.Int, error) {
 	rpcResp, err := r.doPost(r.Url, "eth_getBalance", []string{address, "latest"})
-	var reply string
 	if err != nil {
 		return nil, err
 	}
-	if rpcResp.Error != nil {
-		return nil, errors.New(rpcResp.Error["message"].(string))
-	}
-	if rpcResp.Result != nil {
-		err = json.Unmarshal(*rpcResp.Result, &reply)
+	var reply string
+	err = json.Unmarshal(*rpcResp.Result, &reply)
+	if err != nil {
+		return nil, err
 	}
 	return common.String2Big(reply), err
 }
@@ -195,22 +179,16 @@ func (r *RPCClient) Sign(from string, s string) (string, error) {
 	if err != nil {
 		return reply, err
 	}
-	if rpcResp.Error != nil {
-		return reply, errors.New(rpcResp.Error["message"].(string))
-	}
 	err = json.Unmarshal(*rpcResp.Result, &reply)
 	return reply, err
 }
 
 func (r *RPCClient) GetPeerCount() (int64, error) {
 	rpcResp, err := r.doPost(r.Url, "net_peerCount", nil)
-	var reply string
 	if err != nil {
 		return 0, err
 	}
-	if rpcResp.Error != nil {
-		return 0, errors.New(rpcResp.Error["message"].(string))
-	}
+	var reply string
 	err = json.Unmarshal(*rpcResp.Result, &reply)
 	if err != nil {
 		return 0, err
@@ -233,12 +211,10 @@ func (r *RPCClient) SendTransaction(from, to, gas, gasPrice, value string, autoG
 	if err != nil {
 		return reply, err
 	}
-	if rpcResp.Error != nil {
-		fmt.Println(rpcResp.Error)
-		return reply, errors.New(rpcResp.Error["message"].(string))
-	}
 	err = json.Unmarshal(*rpcResp.Result, &reply)
-
+	if err != nil {
+		return reply, err
+	}
 	/* There is an inconsistence in a "standard". Geth returns error if it can't unlock signer account,
 	 * but Parity returns zero hash 0x000... if it can't send tx, so we must handle this case.
 	 * https://github.com/ethereum/wiki/wiki/JSON-RPC#returns-22
@@ -249,7 +225,7 @@ func (r *RPCClient) SendTransaction(from, to, gas, gasPrice, value string, autoG
 	return reply, err
 }
 
-func (r *RPCClient) doPost(url string, method string, params interface{}) (JSONRpcResp, error) {
+func (r *RPCClient) doPost(url string, method string, params interface{}) (*JSONRpcResp, error) {
 	jsonReq := map[string]interface{}{"jsonrpc": "2.0", "method": method, "params": params, "id": 0}
 	data, _ := json.Marshal(jsonReq)
 
@@ -259,19 +235,21 @@ func (r *RPCClient) doPost(url string, method string, params interface{}) (JSONR
 	req.Header.Set("Accept", "application/json")
 
 	resp, err := r.client.Do(req)
-	var rpcResp JSONRpcResp
-
 	if err != nil {
 		r.markSick()
-		return rpcResp, err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
-	err = json.Unmarshal(body, &rpcResp)
-
+	var rpcResp *JSONRpcResp
+	err = json.NewDecoder(resp.Body).Decode(&rpcResp)
+	if err != nil {
+		r.markSick()
+		return nil, err
+	}
 	if rpcResp.Error != nil {
 		r.markSick()
+		return nil, errors.New(rpcResp.Error["message"].(string))
 	}
 	return rpcResp, err
 }
