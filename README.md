@@ -212,6 +212,8 @@ otherwise you will get errors on start because of JSON comments.**
     "hashrateWindow": "30m",
     // Long and precise hashrate from shares, 3h is cool, keep it
     "hashrateLargeWindow": "3h",
+    // Collect stats for shares/diff ratio for this number of blocks
+    "luckWindow": [64, 128, 256],
     // Max number of payments to display in frontend
     "payments": 50,
     // Max numbers of blocks to display in frontend

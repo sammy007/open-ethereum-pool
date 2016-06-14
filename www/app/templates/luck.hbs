@@ -1,0 +1,20 @@
+<table class="table table-condensed table-striped">
+  <thead>
+    <tr>
+      <th>Blocks</th>
+      <th>Shares/Diff</th>
+      <th>Uncle Rate</th>
+      <th>Orphan Rate</th>
+    </tr>
+  </thead>
+  <tbody>
+  {{#each-in model.luck as |total row|}}
+  <tr>
+    <td>{{total}}</td>
+    <td>{{format-number row.luck style='percent'}}</td>
+    <td>{{format-number row.uncleRate style='percent'}}</td>
+    <td>{{format-number row.orphanRate style='percent'}}</td>
+  </tr>
+  {{/each-in}}
+  </tbody>
+</table>

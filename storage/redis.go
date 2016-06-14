@@ -28,7 +28,7 @@ type RedisClient struct {
 type BlockData struct {
 	Height         int64    `json:"height"`
 	Timestamp      int64    `json:"timestamp"`
-	Difficulty     string   `json:"difficulty"`
+	Difficulty     int64    `json:"difficulty"`
 	TotalShares    int64    `json:"shares"`
 	Uncle          bool     `json:"uncle"`
 	UncleHeight    int64    `json:"uncleHeight"`
@@ -751,6 +751,60 @@ func (r *RedisClient) CollectWorkersStats(sWindow, lWindow time.Duration, login 
 	return stats, nil
 }
 
+func (r *RedisClient) CollectLuckStats(windows []int) (map[string]interface{}, error) {
+	stats := make(map[string]interface{})
+
+	tx := r.client.Multi()
+	defer tx.Close()
+
+	max := int64(windows[len(windows)-1])
+
+	cmds, err := tx.Exec(func() error {
+		tx.ZRevRangeWithScores(r.formatKey("blocks", "immature"), 0, -1)
+		tx.ZRevRangeWithScores(r.formatKey("blocks", "matured"), 0, max-1)
+		return nil
+	})
+	if err != nil {
+		return stats, err
+	}
+	blocks := convertBlockResults(cmds[0].(*redis.ZSliceCmd), cmds[1].(*redis.ZSliceCmd))
+
+	calcLuck := func(max int) (int, float64, float64, float64) {
+		var total int
+		var sharesDiff, uncles, orphans float64
+		for i, block := range blocks {
+			if i > (max - 1) {
+				break
+			}
+			if block.Uncle {
+				uncles++
+			}
+			if block.Orphan {
+				orphans++
+			}
+			sharesDiff += float64(block.TotalShares) / float64(block.Difficulty)
+			total++
+		}
+		if total > 0 {
+			sharesDiff /= float64(total)
+			uncles /= float64(total)
+			orphans /= float64(total)
+		}
+		return total, sharesDiff, uncles, orphans
+	}
+	for _, max := range windows {
+		total, sharesDiff, uncleRate, orphanRate := calcLuck(max)
+		row := map[string]interface{}{
+			"luck": sharesDiff, "uncleRate": uncleRate, "orphanRate": orphanRate,
+		}
+		stats[strconv.Itoa(total)] = row
+		if total < max {
+			break
+		}
+	}
+	return stats, nil
+}
+
 func convertCandidateResults(raw *redis.ZSliceCmd) []*BlockData {
 	var result []*BlockData
 	for _, v := range raw.Val() {
@@ -763,7 +817,7 @@ func convertCandidateResults(raw *redis.ZSliceCmd) []*BlockData {
 		block.PowHash = fields[1]
 		block.MixDigest = fields[2]
 		block.Timestamp, _ = strconv.ParseInt(fields[3], 10, 64)
-		block.Difficulty = fields[4]
+		block.Difficulty, _ = strconv.ParseInt(fields[4], 10, 64)
 		block.TotalShares, _ = strconv.ParseInt(fields[5], 10, 64)
 		block.candidateKey = v.Member.(string)
 		result = append(result, &block)
@@ -771,26 +825,28 @@ func convertCandidateResults(raw *redis.ZSliceCmd) []*BlockData {
 	return result
 }
 
-func convertBlockResults(raw *redis.ZSliceCmd) []*BlockData {
+func convertBlockResults(rows ...*redis.ZSliceCmd) []*BlockData {
 	var result []*BlockData
-	for _, v := range raw.Val() {
-		// "uncleHeight:orphan:nonce:blockHash:timestamp:diff:totalShares:rewardInWei"
-		block := BlockData{}
-		block.Height = int64(v.Score)
-		block.RoundHeight = block.Height
-		fields := strings.Split(v.Member.(string), ":")
-		block.UncleHeight, _ = strconv.ParseInt(fields[0], 10, 64)
-		block.Uncle = block.UncleHeight > 0
-		block.Orphan, _ = strconv.ParseBool(fields[1])
-		block.Nonce = fields[2]
-		block.Hash = fields[3]
-		block.Timestamp, _ = strconv.ParseInt(fields[4], 10, 64)
-		block.Difficulty = fields[5]
-		block.TotalShares, _ = strconv.ParseInt(fields[6], 10, 64)
-		block.RewardString = fields[7]
-		block.ImmatureReward = fields[7]
-		block.immatureKey = v.Member.(string)
-		result = append(result, &block)
+	for _, row := range rows {
+		for _, v := range row.Val() {
+			// "uncleHeight:orphan:nonce:blockHash:timestamp:diff:totalShares:rewardInWei"
+			block := BlockData{}
+			block.Height = int64(v.Score)
+			block.RoundHeight = block.Height
+			fields := strings.Split(v.Member.(string), ":")
+			block.UncleHeight, _ = strconv.ParseInt(fields[0], 10, 64)
+			block.Uncle = block.UncleHeight > 0
+			block.Orphan, _ = strconv.ParseBool(fields[1])
+			block.Nonce = fields[2]
+			block.Hash = fields[3]
+			block.Timestamp, _ = strconv.ParseInt(fields[4], 10, 64)
+			block.Difficulty, _ = strconv.ParseInt(fields[5], 10, 64)
+			block.TotalShares, _ = strconv.ParseInt(fields[6], 10, 64)
+			block.RewardString = fields[7]
+			block.ImmatureReward = fields[7]
+			block.immatureKey = v.Member.(string)
+			result = append(result, &block)
+		}
 	}
 	return result
 }

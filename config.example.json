@@ -54,6 +54,7 @@
 		"statsCollectInterval": "5s",
 		"hashrateWindow": "30m",
 		"hashrateLargeWindow": "3h",
+		"luckWindow": [64, 128, 256],
 		"payments": 30,
 		"blocks": 50
 	},
