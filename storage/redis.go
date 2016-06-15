@@ -794,7 +794,7 @@ func (r *RedisClient) CollectLuckStats(windows []int) (map[string]interface{}, e
 	}
 	for _, max := range windows {
 		total, sharesDiff, uncleRate, orphanRate := calcLuck(max)
-		row := map[string]interface{}{
+		row := map[string]float64{
 			"luck": sharesDiff, "uncleRate": uncleRate, "orphanRate": orphanRate,
 		}
 		stats[strconv.Itoa(total)] = row
