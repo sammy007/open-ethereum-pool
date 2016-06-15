@@ -2,6 +2,7 @@ package storage
 
 import (
 	"os"
+	"reflect"
 	"strconv"
 	"testing"
 
@@ -285,6 +286,38 @@ func TestGetPendingPayments(t *testing.T) {
 	}
 	if pending[0].Timestamp <= 0 {
 		t.Error("Must have timestamp")
+	}
+}
+
+func TestCollectLuckStats(t *testing.T) {
+	reset()
+
+	members := []redis.Z{
+		redis.Z{Score: 0, Member: "1:0:0x0:0x0:0:100:100:0"},
+	}
+	r.client.ZAdd(r.formatKey("blocks:immature"), members...)
+	members = []redis.Z{
+		redis.Z{Score: 1, Member: "1:0:0x2:0x0:0:50:100:0"},
+		redis.Z{Score: 2, Member: "0:1:0x1:0x0:0:100:100:0"},
+		redis.Z{Score: 3, Member: "0:0:0x3:0x0:0:200:100:0"},
+	}
+	r.client.ZAdd(r.formatKey("blocks:matured"), members...)
+
+	stats, _ := r.CollectLuckStats([]int{1, 2, 5, 10})
+	expectedStats := map[string]interface{}{
+		"1": map[string]float64{
+			"luck": 1, "uncleRate": 1, "orphanRate": 0,
+		},
+		"2": map[string]float64{
+			"luck": 0.75, "uncleRate": 0.5, "orphanRate": 0,
+		},
+		"4": map[string]float64{
+			"luck": 1.125, "uncleRate": 0.5, "orphanRate": 0.25,
+		},
+	}
+
+	if !reflect.DeepEqual(stats, expectedStats) {
+		t.Error("Stats != expected stats")
 	}
 }
 
