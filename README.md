@@ -36,23 +36,11 @@ First install  [go-ethereum](https://github.com/ethereum/go-ethereum/wiki/Instal
 
 I suggest installing Golang-1.6 from <code>deb http://ppa.launchpad.net/ubuntu-lxc/lxd-stable/ubuntu trusty main</code> PPA.
 
-Export GOPATH:
-
-    export GOPATH=$HOME/go
-
-Install required packages:
-
-    go get github.com/ethereum/ethash
-    go get github.com/ethereum/go-ethereum/common
-    go get github.com/gorilla/mux
-    go get gopkg.in/redis.v3
-    go get github.com/yvasiyarov/gorelic
-
 Clone & compile:
 
     git clone https://github.com/sammy007/open-ethereum-pool.git
     cd open-ethereum-pool
-    go build -o ether-pool main.go
+    make
 
 Install redis-server.
 
@@ -64,7 +52,7 @@ For redis it maybe possible to use https://github.com/MSOpenTech/redis/releases.
 
 ### Running Pool
 
-    ./ether-pool config.json
+    ./build/bin/open-ethereum-pool config.json
 
 You can use Ubuntu upstart - check for sample config in <code>upstart.conf</code>.
 
