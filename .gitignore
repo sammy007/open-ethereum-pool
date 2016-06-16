@@ -5,3 +5,6 @@ ether-pool
 ether-pool.exe
 logs
 tools
+
+/build/_workspace/
+/build/bin/
