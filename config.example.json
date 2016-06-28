@@ -85,6 +85,7 @@
 		"poolFee": 1.0,
 		"poolFeeAddress": "",
 		"donate": true,
+		"keepTxFees": false,
 		"depth": 120,
 		"immatureDepth": 20,
 		"interval": "10m",
