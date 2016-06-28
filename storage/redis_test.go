@@ -36,7 +36,7 @@ func TestWriteShareCheckExist(t *testing.T) {
 	if exist {
 		t.Error("PoW must not exist")
 	}
-	exist, _ = r.WriteShare("x", "x", []string{"0x0", "0x0", "0x1"}, 100, 1016, 0)
+	exist, _ = r.WriteShare("z", "x", []string{"0x0", "0x0", "0x1"}, 100, 1016, 0)
 	if !exist {
 		t.Error("PoW must exist")
 	}
