@@ -22,6 +22,7 @@ type UnlockerConfig struct {
 	Donate         bool    `json:"donate"`
 	Depth          int64   `json:"depth"`
 	ImmatureDepth  int64   `json:"immatureDepth"`
+	KeepTxFees     bool    `json:"keepTxFees"`
 	Interval       string  `json:"interval"`
 	Daemon         string  `json:"daemon"`
 	Timeout        string  `json:"timeout"`
@@ -211,7 +212,11 @@ func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage
 	if err != nil {
 		return fmt.Errorf("Error while fetching TX receipt: %v", err)
 	}
-	reward.Add(reward, extraTxReward)
+	if u.config.KeepTxFees {
+		candidate.ExtraReward = extraTxReward
+	} else {
+		reward.Add(reward, extraTxReward)
+	}
 
 	// Add reward for including uncles
 	rewardForUncles := big.NewInt(0).Mul(uncleReward, big.NewInt(int64(len(block.Uncles))))
@@ -444,6 +449,12 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 	}
 
 	rewards := calculateRewardsForShares(shares, block.TotalShares, minersProfit)
+
+	if block.ExtraReward != nil {
+		extraReward := new(big.Rat).SetInt(block.ExtraReward)
+		poolProfit.Add(poolProfit, extraReward)
+		revenue.Add(revenue, extraReward)
+	}
 
 	if u.config.Donate {
 		var donation = new(big.Rat)

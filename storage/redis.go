@@ -38,6 +38,7 @@ type BlockData struct {
 	PowHash        string   `json:"-"`
 	MixDigest      string   `json:"-"`
 	Reward         *big.Int `json:"-"`
+	ExtraReward    *big.Int `json:"-"`
 	ImmatureReward string   `json:"-"`
 	RewardString   string   `json:"reward"`
 	RoundHeight    int64    `json:"-"`

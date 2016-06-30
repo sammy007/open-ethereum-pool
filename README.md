@@ -257,6 +257,8 @@ otherwise you will get errors on start because of JSON comments.**
     "depth": 120,
     // Simply don't touch this option
     "immatureDepth": 20,
+    // Keep mined transaction fees as pool fees
+    "keepTxFees": false,
     // Run unlocker in this interval
     "interval": "10m",
     // Geth instance node rpc endpoint for unlocking blocks
