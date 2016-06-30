@@ -8,11 +8,11 @@ import (
 	"strings"
 	"time"
 
-	"../rpc"
-	"../storage"
-	"../util"
-
 	"github.com/ethereum/go-ethereum/common"
+
+	"github.com/sammy007/open-ethereum-pool/rpc"
+	"github.com/sammy007/open-ethereum-pool/storage"
+	"github.com/sammy007/open-ethereum-pool/util"
 )
 
 type UnlockerConfig struct {
@@ -20,6 +20,7 @@ type UnlockerConfig struct {
 	PoolFee        float64 `json:"poolFee"`
 	PoolFeeAddress string  `json:"poolFeeAddress"`
 	Donate         bool    `json:"donate"`
+	KeepTxFees     bool    `json:"keepTXFees"`
 	Depth          int64   `json:"depth"`
 	ImmatureDepth  int64   `json:"immatureDepth"`
 	Interval       string  `json:"interval"`
@@ -220,6 +221,7 @@ func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage
 	candidate.Orphan = false
 	candidate.Hash = block.Hash
 	candidate.Reward = reward
+	candidate.TxFees = extraTxReward
 	return nil
 }
 
@@ -444,6 +446,12 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 	}
 
 	rewards := calculateRewardsForShares(shares, block.TotalShares, minersProfit)
+
+	if u.config.keepTxFees {
+		txFees := new(big.Rat).SetInt(block.TXFees)
+		minersProfit.Sub(minersProfit, txFees)
+		poolProfit.Add(poolProfit, txFees)
+	}
 
 	if u.config.Donate {
 		var donation = new(big.Rat)

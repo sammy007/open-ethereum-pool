@@ -1,7 +1,6 @@
 .DS_Store
 config.json
 testnet.json
-ether-pool
-ether-pool.exe
-logs
-tools
+
+/build/_workspace/
+/build/bin/

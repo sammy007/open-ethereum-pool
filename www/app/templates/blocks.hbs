@@ -8,6 +8,9 @@
   </div>
 </div>
 <div class="container">
+  {{#if model.luck}}
+    {{partial "luck"}}
+  {{/if}}
   <ul class="nav nav-tabs">
     {{#active-li currentWhen='blocks.index' role='presentation'}}
       {{#link-to 'blocks.index'}}Blocks <span class="badge alert-success">{{format-number model.maturedTotal}}</span>{{/link-to}}

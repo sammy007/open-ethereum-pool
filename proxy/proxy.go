@@ -2,7 +2,6 @@ package proxy
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"io"
 	"log"
 	"net"
@@ -12,10 +11,12 @@ import (
 	"sync/atomic"
 	"time"
 
-	"../policy"
-	"../rpc"
-	"../storage"
-	"../util"
+	"github.com/gorilla/mux"
+
+	"github.com/sammy007/open-ethereum-pool/policy"
+	"github.com/sammy007/open-ethereum-pool/rpc"
+	"github.com/sammy007/open-ethereum-pool/storage"
+	"github.com/sammy007/open-ethereum-pool/util"
 )
 
 type ProxyServer struct {
@@ -248,7 +249,7 @@ func (cs *Session) handleMessage(s *ProxyServer, r *http.Request, req *JSONRpcRe
 			}
 			reply, errReply := s.handleSubmitRPC(cs, login, vars["id"], params)
 			if errReply != nil {
-				err = cs.sendError(req.Id, errReply)
+				cs.sendError(req.Id, errReply)
 				break
 			}
 			cs.sendResult(req.Id, &reply)

@@ -7,10 +7,10 @@ import (
 	"strings"
 	"sync"
 
-	"../rpc"
-	"../util"
-
 	"github.com/ethereum/go-ethereum/common"
+
+	"github.com/sammy007/open-ethereum-pool/rpc"
+	"github.com/sammy007/open-ethereum-pool/util"
 )
 
 const maxBacklog = 3

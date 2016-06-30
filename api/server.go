@@ -2,16 +2,18 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"sort"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	"../storage"
-	"../util"
+	"github.com/gorilla/mux"
+
+	"github.com/sammy007/open-ethereum-pool/storage"
+	"github.com/sammy007/open-ethereum-pool/util"
 )
 
 type ApiConfig struct {
@@ -20,6 +22,7 @@ type ApiConfig struct {
 	StatsCollectInterval string `json:"statsCollectInterval"`
 	HashrateWindow       string `json:"hashrateWindow"`
 	HashrateLargeWindow  string `json:"hashrateLargeWindow"`
+	LuckWindow           []int  `json:"luckWindow"`
 	Payments             int64  `json:"payments"`
 	Blocks               int64  `json:"blocks"`
 	PurgeOnly            bool   `json:"purgeOnly"`
@@ -68,6 +71,8 @@ func (s *ApiServer) Start() {
 	purgeIntv := util.MustParseDuration(s.config.PurgeInterval)
 	purgeTimer := time.NewTimer(purgeIntv)
 	log.Printf("Set purge interval to %v", purgeIntv)
+
+	sort.Ints(s.config.LuckWindow)
 
 	if s.config.PurgeOnly {
 		s.purgeStale()
@@ -132,10 +137,17 @@ func (s *ApiServer) collectStats() {
 	stats, err := s.backend.CollectStats(s.hashrateWindow, s.config.Blocks, s.config.Payments)
 	if err != nil {
 		log.Printf("Failed to fetch stats from backend: %v", err)
-	} else {
-		log.Printf("Stats collection finished %s", time.Since(start))
-		s.stats.Store(stats)
+		return
 	}
+	if len(s.config.LuckWindow) > 0 {
+		stats["luck"], err = s.backend.CollectLuckStats(s.config.LuckWindow)
+		if err != nil {
+			log.Printf("Failed to fetch luck stats from backend: %v", err)
+			return
+		}
+	}
+	s.stats.Store(stats)
+	log.Printf("Stats collection finished %s", time.Since(start))
 }
 
 func (s *ApiServer) StatsIndex(w http.ResponseWriter, r *http.Request) {
@@ -204,6 +216,7 @@ func (s *ApiServer) BlocksIndex(w http.ResponseWriter, r *http.Request) {
 		reply["immatureTotal"] = stats["immatureTotal"]
 		reply["candidates"] = stats["candidates"]
 		reply["candidatesTotal"] = stats["candidatesTotal"]
+		reply["luck"] = stats["luck"]
 	}
 
 	err := json.NewEncoder(w).Encode(reply)
