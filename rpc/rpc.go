@@ -88,10 +88,6 @@ func (r *RPCClient) GetWork() ([]string, error) {
 	}
 	var reply []string
 	err = json.Unmarshal(*rpcResp.Result, &reply)
-	// Handle empty result, daemon is catching up (early geth bug and parity bug!!!)
-	if err == nil && (len(reply) != 3 || len(reply[0]) == 0) {
-		return nil, errors.New("Daemon is not ready")
-	}
 	return reply, err
 }
 
