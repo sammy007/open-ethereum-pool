@@ -24,6 +24,13 @@
 			"maxConn": 8192
 		},
 
+		"stratum_nice_hash": {
+			"enabled": true,
+			"listen": "0.0.0.0:8088",
+			"timeout": "120s",
+			"maxConn": 8192
+		},
+
 		"policy": {
 			"workers": 8,
 			"resetInterval": "60m",
