@@ -31,6 +31,8 @@
       <div class="col-md-4 stats">
         {{#if model.stats.blocksFound}}
         <div style="display: block;"><i class="fa fa-tachometer"></i> Blocks Found: <span>{{format-number model.stats.blocksFound}}</span></div>
+        {{else}}
+        <div style="display: block;"><i class="fa fa-tachometer"></i> Blocks Found: <span>0</span></div>
         {{/if}}
         <div style="display: block;"><i class="fa fa-paper-plane-o"></i> Total Payments: <span>{{format-number model.paymentsTotal}}</span></div>
         <div style="display: block;">
