@@ -18,11 +18,11 @@ func (s *ProxyServer) ListenNiceHashTCP(){
 	timeout := util.MustParseDuration(s.config.Proxy.StratumNiceHash.Timeout)
 	s.timeout = timeout
 
-	addr, err := net.ResolveTCPAddr("tcp", s.config.Proxy.StratumNiceHash.Listen)
+	addr, err := net.ResolveTCPAddr("tcp4", s.config.Proxy.StratumNiceHash.Listen)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
-	server, err := net.ListenTCP("tcp", addr)
+	server, err := net.ListenTCP("tcp4", addr)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}

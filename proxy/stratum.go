@@ -20,11 +20,11 @@ func (s *ProxyServer) ListenTCP() {
 	timeout := util.MustParseDuration(s.config.Proxy.Stratum.Timeout)
 	s.timeout = timeout
 
-	addr, err := net.ResolveTCPAddr("tcp", s.config.Proxy.Stratum.Listen)
+	addr, err := net.ResolveTCPAddr("tcp4", s.config.Proxy.Stratum.Listen)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
-	server, err := net.ListenTCP("tcp", addr)
+	server, err := net.ListenTCP("tcp4", addr)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
