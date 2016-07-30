@@ -28,24 +28,15 @@ type RPCClient struct {
 }
 
 type GetBlockReply struct {
-	Number           string   `json:"number"`
-	Hash             string   `json:"hash"`
-	ParentHash       string   `json:"parentHash"`
-	Nonce            string   `json:"nonce"`
-	Sha3Uncles       string   `json:"sha3Uncles"`
-	LogsBloom        string   `json:"logsBloom"`
-	TransactionsRoot string   `json:"transactionsRoot"`
-	StateRoot        string   `json:"stateRoot"`
-	Miner            string   `json:"miner"`
-	Difficulty       string   `json:"difficulty"`
-	TotalDifficulty  string   `json:"totalDifficulty"`
-	Size             string   `json:"size"`
-	ExtraData        string   `json:"extraData"`
-	GasLimit         string   `json:"gasLimit"`
-	GasUsed          string   `json:"gasUsed"`
-	Timestamp        string   `json:"timestamp"`
-	Transactions     []Tx     `json:"transactions"`
-	Uncles           []string `json:"uncles"`
+	Number       string   `json:"number"`
+	Hash         string   `json:"hash"`
+	Nonce        string   `json:"nonce"`
+	Miner        string   `json:"miner"`
+	Difficulty   string   `json:"difficulty"`
+	GasLimit     string   `json:"gasLimit"`
+	GasUsed      string   `json:"gasUsed"`
+	Transactions []Tx     `json:"transactions"`
+	Uncles       []string `json:"uncles"`
 	// https://github.com/ethereum/EIPs/issues/95
 	SealFields []string `json:"sealFields"`
 }
