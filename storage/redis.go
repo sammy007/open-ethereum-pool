@@ -160,16 +160,21 @@ func (r *RedisClient) GetNodeStates() ([]map[string]interface{}, error) {
 	return v, nil
 }
 
-func (r *RedisClient) WriteShare(login, id string, params []string, diff int64, height uint64, window time.Duration) (bool, error) {
+func (r *RedisClient) checkPoWExist(height uint64, params []string) (bool, error) {
 	// Sweep PoW backlog for previous blocks, we have 3 templates back in RAM
 	r.client.ZRemRangeByScore(r.formatKey("pow"), "-inf", fmt.Sprint("(", height-8))
 	val, err := r.client.ZAdd(r.formatKey("pow"), redis.Z{Score: float64(height), Member: strings.Join(params, ":")}).Result()
+	return val == 0, err
+}
+
+func (r *RedisClient) WriteShare(login, id string, params []string, diff int64, height uint64, window time.Duration) (bool, error) {
+	exist, err := r.checkPoWExist(height, params)
 	if err != nil {
 		return false, err
 	}
 	// Duplicate share, (nonce, powHash, mixDigest) pair exist
-	if val == 0 {
-		return true, err
+	if exist {
+		return true, nil
 	}
 	tx := r.client.Multi()
 	defer tx.Close()
@@ -185,7 +190,15 @@ func (r *RedisClient) WriteShare(login, id string, params []string, diff int64, 
 	return false, err
 }
 
-func (r *RedisClient) WriteBlock(login, id string, params []string, diff, roundDiff int64, height uint64, window time.Duration) error {
+func (r *RedisClient) WriteBlock(login, id string, params []string, diff, roundDiff int64, height uint64, window time.Duration) (bool, error) {
+	exist, err := r.checkPoWExist(height, params)
+	if err != nil {
+		return false, err
+	}
+	// Duplicate share, (nonce, powHash, mixDigest) pair exist
+	if exist {
+		return true, nil
+	}
 	tx := r.client.Multi()
 	defer tx.Close()
 
@@ -203,7 +216,7 @@ func (r *RedisClient) WriteBlock(login, id string, params []string, diff, roundD
 		return nil
 	})
 	if err != nil {
-		return err
+		return false, err
 	} else {
 		sharesMap, _ := cmds[10].(*redis.StringStringMapCmd).Result()
 		totalShares := int64(0)
@@ -214,7 +227,7 @@ func (r *RedisClient) WriteBlock(login, id string, params []string, diff, roundD
 		hashHex := strings.Join(params, ":")
 		s := join(hashHex, ts, roundDiff, totalShares)
 		cmd := r.client.ZAdd(r.formatKey("blocks", "candidates"), redis.Z{Score: float64(height), Member: s})
-		return cmd.Err()
+		return false, cmd.Err()
 	}
 }
 
