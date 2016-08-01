@@ -200,7 +200,7 @@ func (u *PayoutsProcessor) process() {
 			if err != nil {
 				log.Printf("Failed to get tx receipt for %v: %v", txHash, err)
 			}
-			if receipt != nil {
+			if receipt != nil && receipt.Confirmed() {
 				break
 			}
 		}

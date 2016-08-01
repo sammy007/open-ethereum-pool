@@ -47,8 +47,13 @@ type GetBlockReplyPart struct {
 }
 
 type TxReceipt struct {
-	TxHash  string `json:"transactionHash"`
-	GasUsed string `json:"gasUsed"`
+	TxHash    string `json:"transactionHash"`
+	GasUsed   string `json:"gasUsed"`
+	BlockHash string `json:"blockHash"`
+}
+
+func (r *TxReceipt) Confirmed() bool {
+	return len(r.BlockHash) > 0
 }
 
 type Tx struct {
