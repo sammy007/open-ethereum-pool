@@ -32,11 +32,9 @@ Dependencies:
   * nodejs
   * nginx
 
-**I highly recommend to use Ubuntu 14.04 LTS.**
+**I highly recommend to use Ubuntu 16.04 LTS.**
 
 First install  [go-ethereum](https://github.com/ethereum/go-ethereum/wiki/Installation-Instructions-for-Ubuntu).
-
-I suggest installing Golang-1.6 from <code>deb http://ppa.launchpad.net/ubuntu-lxc/lxd-stable/ubuntu trusty main</code> PPA.
 
 Clone & compile:
 
@@ -45,12 +43,6 @@ Clone & compile:
     make
 
 Install redis-server.
-
-### Building on Windows
-
-Windows isn't supported however you can try following these instructions
-[geth building instructions](https://github.com/ethereum/go-ethereum/wiki/Installation-instructions-for-Windows).
-For redis it maybe possible to use https://github.com/MSOpenTech/redis/releases.
 
 ### Running Pool
 
