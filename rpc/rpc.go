@@ -172,6 +172,12 @@ func (r *RPCClient) Sign(from string, s string) (string, error) {
 		return reply, err
 	}
 	err = json.Unmarshal(*rpcResp.Result, &reply)
+	if err != nil {
+		return reply, err
+	}
+	if util.IsZeroHash(reply) {
+		err = errors.New("Can't sign message, perhaps account is locked")
+	}
 	return reply, err
 }
 
