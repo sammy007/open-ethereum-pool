@@ -135,6 +135,39 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 		return cs.sendTCPResult(req.Id, &reply)
 	case "eth_submitHashrate":
 		return cs.sendTCPResult(req.Id, true)
+	// NICEHASH STRATUM
+	case "mining.authorize":
+		var params []string
+		err := json.Unmarshal(*req.Params, &params)
+		if err != nil {
+			log.Println("Malformed stratum request params from", cs.ip)
+			return err
+		}
+		reply, errReply := s.handleLoginRPC(cs, params, req.Worker)
+		if errReply != nil {
+			return cs.sendTCPError(req.Id, errReply)
+		}
+		return cs.sendTCPResult(req.Id, reply)
+	case "mining.set_difficulty":
+		return cs.sendTCPResult(req.Id, true)
+	case "mining.notify":
+		reply, errReply := s.handleGetWorkRPC(cs)
+		if errReply != nil {
+			return cs.sendTCPError(req.Id, errReply)
+		}
+		return cs.sendTCPResult(req.Id, &reply)
+	case "mining.submit":
+		var params []string
+		err := json.Unmarshal(*req.Params, &params)
+		if err != nil {
+			log.Println("Malformed stratum request params from", cs.ip)
+			return err
+		}
+		reply, errReply := s.handleTCPSubmitRPC(cs, req.Worker, params)
+		if errReply != nil {
+			return cs.sendTCPError(req.Id, errReply)
+		}
+		return cs.sendTCPResult(req.Id, &reply)
 	default:
 		errReply := s.handleUnknownRPC(cs, req.Method)
 		return cs.sendTCPError(req.Id, errReply)
