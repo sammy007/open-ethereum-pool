@@ -3,10 +3,13 @@
     <div class="row">
       <div class="col-md-5">
         <h1 style="font-size: 24px">
-          <strong>Open Ethereum Pool</strong>
+          <strong>Ethereum Classic Pool</strong>
         </h1>
-        <strong>Min. payout threshold: {{config.PayoutThreshold}}</strong>, Payouts run twice per day.<br/>
-        <span class="label label-success">PROP</span> Stable and profitable pool with regular payouts.
+        <strong>Min. payout threshold: {{config.PayoutThreshold}}</strong>, Payouts runs every hour.<br/>
+	<table>
+        <tr><td><span class="label label-success">PPLNS</span></td><td> Pay-Per-Last-1000-Shares</td></tr>
+        <tr><td><span class="label label-success">4G</span></td><td> Share difficulty for high mining efficiency</td></tr>
+	</table>
       </div>
       <div class="col-md-3 stats">
         <div><i class="fa fa-users"></i> Miners Online: <span id="poolHashrate">{{format-number stats.model.minersTotal}}</span></div>
@@ -40,8 +43,25 @@
   </div>
   <div>
     <hr/>
-    <h4 class="note note-info text-center">
-      ethminer.exe -F {{config.HttpHost}}:{{config.HttpPort}}/&lt;address&gt;/&lt;worker&gt; -G
+	<h4 class="note note-info">
+      Stratum connections: <br/><br>
+	<table width="50%"><tr><td><u>Location</u></td><td><u>Host</u></td><td><u>Port</u></td></tr>
+		<tr><td>Germany</td><td>etc-de.ethteam.com</td><td>8008</td></tr>
+		<tr><td>USA (North Kansas City)</td><td>etc-us.ethteam.com</td><td>8008</td></tr>
+	</table>
+    </h4>
+        <h4 class="note note-info text-center">
+        Donate 10% to Etc Developers and 10% to Pool Developer, more <a href="/#/about/">@About</a>
+    </h4>
+
+     <h4 class="note note-info text-center">
+      Start mining: <a href="http://ethteam.com/download/EtcStartBundle.zip"  target="_blank">EtcStartBundle.zip</a> (Ethminer + Proxy)
+    </h4>
+     <h4 class="note note-info text-center">
+      Telegram notification: <a href="https://web.telegram.org/#/im?p=@EtcTeam_bot"  target="_blank">@EtcTeam</a>
+    </h4>
+     <h4 class="note note-info text-center">
+      This is an Ethereum Classic Pool!
     </h4>
   </div>
 </div>

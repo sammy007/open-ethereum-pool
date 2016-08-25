@@ -25,13 +25,9 @@
     <h3>No workers online</h3>
   {{/if}}
   <div class="alert alert-info" role="alert">
-    <span class="sr-only">Notice:</span>
-    Your average hashrate will be smoothly adjusted until you have shares to fullfill estimation window.<br/>
-    There are two windows, long and short, first is equal to about 30 minutes and long window is usually equal to 3 hours.<br/>
-    Dead (sick) workers will be highlighted in a table of workers if they didn't submit a share for 1/2 of short window,
-    so you can perform maintenance of your rigs.
+	Gastracker:  <a href="http://gastracker.io/addr/{{model.login}}" target="_blank">{{model.login}}</a>
   </div>
   <div class="alert alert-info" role="alert">
-    <strong>Your bulk stats JSON API URL:</strong> <a href="/api/accounts/{{model.login}}">/api/accounts/{{model.login}}</a>
+    <strong>Your bulk stats JSON API URL:</strong> <a href="/api/accounts/{{model.login}}" target="_blank">/api/accounts/{{model.login}}</a>
   </div>
 </div>

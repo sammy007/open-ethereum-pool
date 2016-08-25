@@ -35,7 +35,7 @@
         <div style="display: block;"><i class="fa fa-paper-plane-o"></i> Total Payments: <span>{{format-number model.paymentsTotal}}</span></div>
         <div style="display: block;">
           <i class="fa fa-gears"></i> Your Round Share: <span>{{format-number roundPercent style='percent' maximumFractionDigits='6'}}</span><br/>
-          <small>Percent of your contribution to current round.</small>
+          <small>Percent of your contribution to last 1000 poolshares.</small>
         </div>
         <div style="display: block;">
           <i class="fa fa-clock-o"></i>
@@ -43,6 +43,12 @@
         </div>
       </div>
     </div>
+         <div style="display: block;">
+		<div style="font-size:100%;"><i class="fa fa-gears"></i> Your Round Shares:</div><p style="font-size:60%;">
+                {{#each model.shares as |share|}}
+                {{share}},
+                {{/each}}       </p>
+        </div>
   </div>
 </div>
 

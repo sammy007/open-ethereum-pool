@@ -22,10 +22,10 @@
           <td>{{format-date-locale tx.timestamp}}</td>
           <td>{{format-number tx.formatAmount}}</td>
           <td>
-            <a href="https://etherscan.io/address/{{tx.address}}" class="hash" rel="nofollow" target="_blank">{{tx.address}}</a>
+            <a href="http://gastracker.io/addr/{{tx.address}}" class="hash" rel="nofollow" target="_blank">{{tx.address}}</a>
           </td>
           <td>
-            <a href="https://etherscan.io/tx/{{tx.tx}}" class="hash" rel="nofollow" target="_blank">{{format-tx tx.tx}}</a>
+            <a href="http://gastracker.io/tx/{{tx.tx}}" class="hash" rel="nofollow" target="_blank">{{format-tx tx.tx}}</a>
           </td>
         </tr>
       {{/each}}

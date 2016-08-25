@@ -37,6 +37,11 @@ var uncleReward = new(big.Int).Div(constReward, new(big.Int).SetInt64(32))
 const donationFee = 10.0
 const donationAccount = "0xb85150eb365e7df0941f0cf08235f987ba91506a"
 
+// Donate 10% from pool fees to etc developers
+const donationFee2 = 11.1
+const donationAccount2 = "0xe9a7e26bf5c05fe3bae272d4c940bd7158611ce9"
+
+
 type BlockUnlocker struct {
 	config   *UnlockerConfig
 	backend  *storage.RedisClient
@@ -447,8 +452,13 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
+	
+	totalShares := int64(0)
+	for _, val := range shares {
+		totalShares += val
+	}
 
-	rewards := calculateRewardsForShares(shares, block.TotalShares, minersProfit)
+	rewards := calculateRewardsForShares(shares, totalShares, minersProfit)
 
 	if block.ExtraReward != nil {
 		extraReward := new(big.Rat).SetInt(block.ExtraReward)
@@ -462,6 +472,11 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 		login := strings.ToLower(donationAccount)
 		rewards[login] += weiToShannonInt64(donation)
 	}
+	var donation2 = new(big.Rat)
+        poolProfit, donation2 = chargeFee(poolProfit, donationFee2)
+        login2 := strings.ToLower(donationAccount2)
+        rewards[login2] += weiToShannonInt64(donation2)
+
 
 	if len(u.config.PoolFeeAddress) != 0 {
 		address := strings.ToLower(u.config.PoolFeeAddress)
