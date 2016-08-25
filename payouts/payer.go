@@ -15,6 +15,8 @@ import (
 	"github.com/sammy007/open-ethereum-pool/util"
 )
 
+const txCheckInterval = 5 * time.Second
+
 type PayoutsConfig struct {
 	Enabled      bool   `json:"enabled"`
 	RequirePeers int64  `json:"requirePeers"`
@@ -195,12 +197,12 @@ func (u *PayoutsProcessor) process() {
 		// Wait for TX confirmation before further payouts
 		for {
 			log.Printf("Waiting for tx confirmation: %v", txHash)
-			time.Sleep(10 * time.Second)
+			time.Sleep(txCheckInterval)
 			receipt, err := u.rpc.GetTxReceipt(txHash)
 			if err != nil {
 				log.Printf("Failed to get tx receipt for %v: %v", txHash, err)
 			}
-			if receipt != nil {
+			if receipt != nil && receipt.Confirmed() {
 				break
 			}
 		}
