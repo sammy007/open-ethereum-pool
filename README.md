@@ -1,6 +1,6 @@
-## Open Source Ethereum Mining Pool
+## Open Source Ethereum Classic Mining Pool
 
-![Miner's stats page](https://15254b2dcaab7f5478ab-24461f391e20b7336331d5789078af53.ssl.cf1.rackcdn.com/ethereum.vanillaforums.com/editor/pe/cf77cki0pjpt.png)
+![Miner's stats page](https://s22.postimg.io/4rb17sqfl/2016_08_27_12_13_25_Fotos.png)
 
 [![Join the chat at https://gitter.im/sammy007/open-ethereum-pool](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sammy007/open-ethereum-pool?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/sammy007/open-ethereum-pool.svg?branch=develop)](https://travis-ci.org/sammy007/open-ethereum-pool) [![Go Report Card](https://goreportcard.com/badge/github.com/sammy007/open-ethereum-pool)](https://goreportcard.com/report/github.com/sammy007/open-ethereum-pool)
 
@@ -18,6 +18,7 @@ Pools running with this fork: [EthTeam.com](http://www.ethteam.com)
 * Modern beautiful Ember.js frontend
 * Separate stats for workers: can highlight timed-out workers so miners can perform maintenance of rigs
 * JSON-API for stats
+* PPLNS block reward
 
 #### Proxies
 
