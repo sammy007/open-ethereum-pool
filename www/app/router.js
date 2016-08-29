@@ -12,6 +12,7 @@ Router.map(function() {
   this.route('not-found');
 
   this.route('blocks', function() {
+    this.route('mature');
     this.route('immature');
     this.route('pending');
   });
