@@ -87,7 +87,7 @@ func (s *ProxyServer) handleTCPClient(cs *Session) error {
 			err = json.Unmarshal(data, &req)
 			if err != nil {
 				s.policy.ApplyMalformedPolicy(cs.ip)
-				log.Printf("Malformed stratum request from %s: %v", cs.ip, err)
+				log.Printf("Malformed stratum request from %s: %v", data, err)
 				return err
 			}
 			s.setDeadline(cs.conn)
@@ -103,7 +103,22 @@ func (s *ProxyServer) handleTCPClient(cs *Session) error {
 func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 	// Handle RPC methods
 	switch req.Method {
+	//this case is for Qtminer compatibility #lodos2005
+	case "eth_login":
+		//log.Println("qtminer connected %s", cs.ip)
+                var params []string
+                err := json.Unmarshal(*req.Params, &params)
+                if err != nil {
+                        log.Println("Malformed stratum request params from", cs.ip)
+                        return err
+                }
+                reply, errReply := s.handleLoginRPC(cs, params, req.Worker)
+                if errReply != nil {
+                        return cs.sendTCPError(req.Id, errReply)
+                }
+                return cs.sendTCPResult(req.Id, reply)
 	case "eth_submitLogin":
+		//log.Println("claymore or proxy connected", cs.ip)
 		var params []string
 		err := json.Unmarshal(*req.Params, &params)
 		if err != nil {
@@ -135,7 +150,9 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 		return cs.sendTCPResult(req.Id, &reply)
 	case "eth_submitHashrate":
 		return cs.sendTCPResult(req.Id, true)
-	// NICEHASH STRATUM
+	// NICEHASH STRATUM COMPATIBILITY #lodos2005
+	case "mining.subscribe":
+		return cs.sendTCPResult(req.Id, true)
 	case "mining.authorize":
 		var params []string
 		err := json.Unmarshal(*req.Params, &params)
@@ -144,14 +161,6 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 			return err
 		}
 		reply, errReply := s.handleLoginRPC(cs, params, req.Worker)
-		if errReply != nil {
-			return cs.sendTCPError(req.Id, errReply)
-		}
-		return cs.sendTCPResult(req.Id, reply)
-	case "mining.set_difficulty":
-		return cs.sendTCPResult(req.Id, true)
-	case "mining.notify":
-		reply, errReply := s.handleGetWorkRPC(cs)
 		if errReply != nil {
 			return cs.sendTCPError(req.Id, errReply)
 		}
@@ -169,6 +178,7 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 		}
 		return cs.sendTCPResult(req.Id, &reply)
 	default:
+		//log.Println("wrong method %s",req.Method)
 		errReply := s.handleUnknownRPC(cs, req.Method)
 		return cs.sendTCPError(req.Id, errReply)
 	}
@@ -182,11 +192,19 @@ func (cs *Session) sendTCPResult(id *json.RawMessage, result interface{}) error 
 	return cs.enc.Encode(&message)
 }
 
+
 func (cs *Session) pushNewJob(result interface{}) error {
 	cs.Lock()
 	defer cs.Unlock()
 	// FIXME: Temporarily add ID for Claymore compliance
 	message := JSONPushMessage{Version: "2.0", Result: result, Id: 0}
+	return cs.enc.Encode(&message)
+}
+func (cs *Session) pushNewJobNiceHash(params []string) error {
+	cs.Lock()
+	defer cs.Unlock()
+	// FIXME: "method": "mining.notify" for nicehash
+	message := JSONPushMessageNiceHash{Version: "2.0",Method: "mining.notify", Params: params, Id: 6}
 	return cs.enc.Encode(&message)
 }
 
@@ -241,6 +259,8 @@ func (s *ProxyServer) broadcastNewJobs() {
 
 		go func(cs *Session) {
 			err := cs.pushNewJob(&reply)
+			//we must send job for nicehash but i know this is not good code. im newbie sorry.
+			cs.pushNewJobNiceHash([]string{t.Header, t.Seed, s.diff})
 			<-bcast
 			if err != nil {
 				log.Printf("Job transmit error to %v@%v: %v", cs.login, cs.ip, err)
