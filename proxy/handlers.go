@@ -32,9 +32,7 @@ func (s *ProxyServer) handleLoginRPC(cs *Session, params []string, id string) (b
 	log.Printf("Stratum miner connected %v@%v", login, cs.ip)
 	return true, nil
 }
-func (s *ProxyServer) handleSendNotify(cs *Session) ([]string, *ErrorReply) {
-	return []string{"mining.notify","ae6812eb4cd7735a302a8a9dd95cf71f","EthereumStratum/1.0.0"}, nil
-}
+
 func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 	t := s.currentBlockTemplate()
 	if t == nil || len(t.Header) == 0 || s.isSick() {
