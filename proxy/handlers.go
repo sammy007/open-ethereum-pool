@@ -32,7 +32,9 @@ func (s *ProxyServer) handleLoginRPC(cs *Session, params []string, id string) (b
 	log.Printf("Stratum miner connected %v@%v", login, cs.ip)
 	return true, nil
 }
-
+func (s *ProxyServer) handleSendNotify(cs *Session) ([]string, *ErrorReply) {
+	return []string{"mining.notify","ae6812eb4cd7735a302a8a9dd95cf71f","EthereumStratum/1.0.0"}, nil
+}
 func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 	t := s.currentBlockTemplate()
 	if t == nil || len(t.Header) == 0 || s.isSick() {
@@ -52,10 +54,29 @@ func (s *ProxyServer) handleTCPSubmitRPC(cs *Session, id string, params []string
 	}
 	return s.handleSubmitRPC(cs, cs.login, id, params)
 }
+//for nicehash support, need function
+func delete_empty (s []string) []string {
+    var r []string
+    for _, str := range s {
+        if str != "" {
+            r = append(r, str)
+        }
+    }
+    return r
+}
 
 func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []string) (bool, *ErrorReply) {
 	if !workerPattern.MatchString(id) {
 		id = "0"
+	}
+	//nicehash send 5 parameters
+	//first parameter is equals wallet.
+	//second parameter equals four parameter just without "0x"
+	if len(params) == 5 {
+		//log.Printf("Nicehash submit share %v", params)
+		params[0]=""
+		params[1]=""
+		params=delete_empty(params)
 	}
 	if len(params) != 3 {
 		s.policy.ApplyMalformedPolicy(cs.ip)
