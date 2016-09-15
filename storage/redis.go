@@ -206,30 +206,36 @@ func (r *RedisClient) WriteBlock(login, id string, params []string, diff, roundD
 	ts := ms / 1000
 
 	cmds, err := tx.Exec(func() error {
-		r.writeShare(tx, ms, ts, login, id, diff, window) // 8
-		tx.HSet(r.formatKey("stats"), "lastBlockFound", strconv.FormatInt(ts, 10)) // 9
-		tx.HDel(r.formatKey("stats"), "roundShares") // 10
-		tx.ZIncrBy(r.formatKey("finders"), 1, login) // 11
-		tx.HIncrBy(r.formatKey("miners", login), "blocksFound", 1)  // 12
-		//tx.Rename(r.formatKey("shares", "roundCurrent"), r.formatRound(int64(height), params[0])) // 13
+		r.writeShare(tx, ms, ts, login, id, diff, window)
+		tx.HSet(r.formatKey("stats"), "lastBlockFound", strconv.FormatInt(ts, 10))
+		tx.HDel(r.formatKey("stats"), "roundShares")
+		tx.ZIncrBy(r.formatKey("finders"), 1, login)
+		tx.HIncrBy(r.formatKey("miners", login), "blocksFound", 1)
 		tx.HGetAllMap(r.formatKey("shares", "roundCurrent"))
 		tx.Del(r.formatKey("shares", "roundCurrent"))
-		tx.LRange(r.formatKey("lastshares"), 0, -1)
-		tx.Rename(r.formatKey("shares", "currentShares"), r.formatRound(int64(height), params[0])) // 13
+		tx.LRange(r.formatKey("lastshares"), 0, 999)
 		return nil
 	})
 	if err != nil {
 		return false, err
 	} else {
 
-		shares := cmds[len(cmds) - 2].(*redis.StringSliceCmd).Val()
+		shares := cmds[len(cmds) - 1].(*redis.StringSliceCmd).Val()
 
-		tx.Del(r.formatKey("shares", "currentShares"))
-        	for _, val := range shares {
-			 tx.HIncrBy(r.formatKey("shares", "currentShares"), val, 1)
+	 	tx2 := r.client.Multi()
+	        defer tx2.Close()
+
+		_, err := tx2.Exec(func() error {
+			for _, val := range shares {
+                         	tx2.HIncrBy(r.formatRound(int64(height), params[0]), val, 1)
+                	}
+                	return nil
+        	})
+        	if err != nil {
+                	return false, err
 		}
 
-		sharesMap, _ := cmds[len(cmds) - 4].(*redis.StringStringMapCmd).Result()
+		sharesMap, _ := cmds[len(cmds) - 3].(*redis.StringStringMapCmd).Result()
                 totalShares := int64(0)
                 for _, v := range sharesMap {
                         n, _ := strconv.ParseInt(v, 10, 64)
@@ -243,29 +249,14 @@ func (r *RedisClient) WriteBlock(login, id string, params []string, diff, roundD
 }
 
 func (r *RedisClient) writeShare(tx *redis.Multi, ms, ts int64, login, id string, diff int64, expire time.Duration) {
-	tx.LPush(r.formatKey("lastshares"), login) // 0
+	tx.LPush(r.formatKey("lastshares"), login)
+	tx.LTrim(r.formatKey("lastshares"), 0, 999)
 
-	tx.HIncrBy(r.formatKey("shares", "roundCurrent"), login, diff) // 1
-	tx.ZAdd(r.formatKey("hashrate"), redis.Z{Score: float64(ts), Member: join(diff, login, id, ms)}) // 2
-	tx.ZAdd(r.formatKey("hashrate", login), redis.Z{Score: float64(ts), Member: join(diff, id, ms)}) // 3
-	tx.Expire(r.formatKey("hashrate", login), expire) // Will delete hashrates for miners that gone // 4
-	tx.HSet(r.formatKey("miners", login), "lastShare", strconv.FormatInt(ts, 10)) // 5
-
-	r.HandleLastShares(tx) // 7
-	tx.HIncrBy(r.formatKey("shares", "currentShares"), login, 1) // 8
-}
-
-func (r *RedisClient) HandleLastShares(tx *redis.Multi)([]string, error) {
-	nsha := int64(1000)
-	cmd := r.client.LRange(r.formatKey("lastshares"), nsha - 1, -1)
-	if cmd.Err() != nil {
-		return nil, cmd.Err()
-	}
-	for _, login := range cmd.Val() {
-		tx.HIncrBy(r.formatKey("shares", "currentShares"), login, -1)
-	}
-	tx.LTrim(r.formatKey("lastshares"), 0, nsha - 1)
-	return cmd.Val(), nil
+	tx.HIncrBy(r.formatKey("shares", "roundCurrent"), login, diff)
+	tx.ZAdd(r.formatKey("hashrate"), redis.Z{Score: float64(ts), Member: join(diff, login, id, ms)})
+	tx.ZAdd(r.formatKey("hashrate", login), redis.Z{Score: float64(ts), Member: join(diff, id, ms)})
+	tx.Expire(r.formatKey("hashrate", login), expire) // Will delete hashrates for miners that gone
+	tx.HSet(r.formatKey("miners", login), "lastShare", strconv.FormatInt(ts, 10))
 }
 
 func (r *RedisClient) formatKey(args ...interface{}) string {
@@ -628,11 +619,11 @@ func (r *RedisClient) GetMinerStats(login string, maxPayments int64) (map[string
 		payments := convertPaymentsResults(cmds[1].(*redis.ZSliceCmd))
 		stats["payments"] = payments
 		stats["paymentsTotal"] = cmds[2].(*redis.IntCmd).Val()
-		roundShares, _ := cmds[3].(*redis.StringCmd).Int64()
-		if roundShares < 0 {
-			roundShares = 0
-		}
-		stats["roundShares"] = roundShares
+		//roundShares, _ := cmds[3].(*redis.StringCmd).Int64()
+		//if roundShares < 0 {
+		//	roundShares = 0
+		//}
+		//stats["roundShares"] = roundShares
 	}
 
 	return stats, nil
@@ -758,7 +749,7 @@ func (r *RedisClient) CollectWorkersStats(sWindow, lWindow time.Duration, login 
 	cmds, err := tx.Exec(func() error {
 		tx.ZRemRangeByScore(r.formatKey("hashrate", login), "-inf", fmt.Sprint("(", now-largeWindow))
 		tx.ZRangeWithScores(r.formatKey("hashrate", login), 0, -1)
-		tx.LRange(r.formatKey("lastshares"), 0, -1)
+		tx.LRange(r.formatKey("lastshares"), 0, 999)
 		return nil
 	})
 
@@ -804,16 +795,19 @@ func (r *RedisClient) CollectWorkersStats(sWindow, lWindow time.Duration, login 
 
 	shares := cmds[2].(*redis.StringSliceCmd).Val()
 
+	csh := 0
 	var myshares []string
 	for _, val := range shares {
 		text := "█"
 		if val != login {
 			text = "▁"
+		} else {
+			csh++
 		}
 		//myshares = append(myshares,  strconv.FormatInt(int64(ind) 10))
 		myshares = append(myshares,  text)
 	}
-
+	stats["roundShares"] = csh
 	stats["shares"] = myshares
 	stats["workers"] = workers
 	stats["workersTotal"] = len(workers)
