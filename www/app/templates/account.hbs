@@ -5,12 +5,15 @@
       <div class="col-md-4 stats">
         <div style="display: block;">
           <i class="fa fa-cloud"></i> Immature Balance: <span>{{format-balance model.stats.immature}}</span><br>
-          <small>Preliminary balance awaiting blocks to mature.</small>
         </div>
         <div style="display: block;">
           <i class="fa fa-bank"></i> Pending Balance: <span>{{format-balance model.stats.balance}}</span><br>
-          <small>Credited coins awaiting payout.</small>
         </div>
+         {{#if model.stats.payouttreshold}}
+	<div style="display: block;">
+          <i class="fa fa-bank"></i> Payout Treshold: <span>{{format-balance model.stats.payouttreshold}}</span><br>
+        </div>
+	 {{/if}}
         {{#if model.stats.pending}}
         <div style="display: block;">
           <i class="fa fa-clock-o"></i> Current Payment: <span>{{format-balance model.stats.pending}}</span><br>
