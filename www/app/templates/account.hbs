@@ -8,12 +8,10 @@
         </div>
         <div style="display: block;">
           <i class="fa fa-bank"></i> Pending Balance: <span>{{format-balance model.stats.balance}}</span><br>
+		{{#if model.stats.payouttreshold}}
+		 <small>Payout treshold: {{format-balance model.stats.payouttreshold}}</small>
+		{{/if}}
         </div>
-         {{#if model.stats.payouttreshold}}
-	<div style="display: block;">
-          <i class="fa fa-bank"></i> Payout Treshold: <span>{{format-balance model.stats.payouttreshold}}</span><br>
-        </div>
-	 {{/if}}
         {{#if model.stats.pending}}
         <div style="display: block;">
           <i class="fa fa-clock-o"></i> Current Payment: <span>{{format-balance model.stats.pending}}</span><br>
