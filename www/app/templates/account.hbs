@@ -54,9 +54,13 @@
     {{#active-li currentWhen='account.index' role='presentation'}}
       {{#link-to 'account.index'}}Workers <span class="badge alert-danger">{{model.workersOffline}}</span>{{/link-to}}
     {{/active-li}}
+    {{#active-li currentWhen='account.rewards' role='presentation'}}
+      {{#link-to 'account.rewards'}}Rewards{{/link-to}}
+    {{/active-li}}
     {{#active-li currentWhen='account.payouts' role='presentation'}}
       {{#link-to 'account.payouts'}}Payouts{{/link-to}}
     {{/active-li}}
+
   </ul>
 </div>
 

@@ -24,7 +24,13 @@ type RedisClient struct {
 	client *redis.Client
 	prefix string
 }
-
+type RewardData struct {
+	Height	       int64    `json:"blockheight"`
+        BlockHash      string   `json:"blockhash"`
+        Reward         int64    `json:"reward"`
+        Percent        float64  `json:"percent"`
+        Immature       bool     `json:"immature"`
+}
 type BlockData struct {
 	Height         int64    `json:"height"`
 	Timestamp      int64    `json:"timestamp"`
@@ -292,6 +298,13 @@ func join(args ...interface{}) string {
 			} else {
 				s[i] = "0"
 			}
+		case *big.Rat:
+			x := v.(*big.Rat)
+			if x != nil {
+				s[i] = x.FloatString(9)
+			} else {
+				s[i] = "0"
+			}
 		default:
 			panic("Invalid type specified for conversion")
 		}
@@ -316,6 +329,15 @@ func (r *RedisClient) GetImmatureBlocks(maxHeight int64) ([]*BlockData, error) {
 	}
 	return convertBlockResults(cmd), nil
 }
+func (r *RedisClient) GetRewards(login string) ([]*RewardData, error) {
+        option := redis.ZRangeByScore{Min: "0", Max: strconv.FormatInt(10, 10)}
+        cmd := r.client.ZRangeByScoreWithScores(r.formatKey("rewards", login), option)
+        if cmd.Err() != nil {
+                return nil, cmd.Err()
+        }
+        return convertRewardResults(cmd), nil
+}
+
 
 func (r *RedisClient) GetRoundShares(height int64, nonce string) (map[string]int64, error) {
 	result := make(map[string]int64)
@@ -484,6 +506,25 @@ func (r *RedisClient) WritePayment(login, txHash string, amount int64) error {
 	})
 	return err
 }
+func (r *RedisClient) WriteReward(login string, amount int64, percent *big.Rat, immature bool, block *BlockData) error {
+	if (amount <= 0) {
+		return nil
+	}
+        tx := r.client.Multi()
+        defer tx.Close()
+
+	addStr := join(amount, percent, immature, block.Hash, block.Height)
+	remStr := join(amount, percent, !immature, block.Hash, block.Height)
+
+        _, err := tx.Exec(func() error {
+                tx.ZAdd(r.formatKey("rewards", login), redis.Z{Score: float64(block.Height), Member: addStr})
+		tx.ZRem(r.formatKey("rewards", login), remStr)
+                tx.ZRemRangeByRank(r.formatKey("rewards", login), 20, -1)
+                return nil
+        })
+        return err
+}
+
 
 func (r *RedisClient) WriteImmatureBlock(block *BlockData, roundRewards map[string]int64) error {
 	tx := r.client.Multi()
@@ -759,6 +800,7 @@ func (r *RedisClient) CollectWorkersStats(sWindow, lWindow time.Duration, login 
 		tx.ZRemRangeByScore(r.formatKey("hashrate", login), "-inf", fmt.Sprint("(", now-largeWindow))
 		tx.ZRangeWithScores(r.formatKey("hashrate", login), 0, -1)
 		tx.LRange(r.formatKey("lastshares"), 0, 999)
+		tx.ZRevRangeWithScores(r.formatKey("rewards", login), 0, 39)
 		return nil
 	})
 
@@ -824,6 +866,10 @@ func (r *RedisClient) CollectWorkersStats(sWindow, lWindow time.Duration, login 
 	stats["workersOffline"] = offline
 	stats["hashrate"] = totalHashrate
 	stats["currentHashrate"] = currentHashrate
+
+	rewards := convertRewardResults(cmds[3].(*redis.ZSliceCmd))
+        stats["rewards"] = rewards
+
 	return stats, nil
 }
 
@@ -900,6 +946,28 @@ func convertCandidateResults(raw *redis.ZSliceCmd) []*BlockData {
 	}
 	return result
 }
+
+func convertRewardResults(rows ...*redis.ZSliceCmd) []*RewardData {
+        var result []*RewardData
+        for _, row := range rows {
+                for _, v := range row.Val() {
+                        // "amount:percent:immature:block.Hash:block.height"
+                        reward := RewardData{}
+                        reward.Height = int64(v.Score)
+                        fields := strings.Split(v.Member.(string), ":")
+                        //block.UncleHeight, _ = strconv.ParseInt(fields[0], 10, 64)
+                        reward.BlockHash = fields[3]
+			reward.Reward, _ = strconv.ParseInt(fields[0], 10, 64)
+			reward.Percent, _ =  strconv.ParseFloat(fields[1], 64)
+			reward.Immature, _ = strconv.ParseBool(fields[2])
+                        result = append(result, &reward)
+                }
+        }
+        return result
+}
+
+
+
 
 func convertBlockResults(rows ...*redis.ZSliceCmd) []*BlockData {
 	var result []*BlockData
