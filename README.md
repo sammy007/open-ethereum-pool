@@ -318,4 +318,4 @@ Made by sammy007. Licensed under GPLv3.
 
 ### Donations
 
-Coming Soon: ethereum contract and p2sh script. Please contact subtly on gitter if you would like to donate.
+ETH/ETC: 0xb85150eb365e7df0941f0cf08235f987ba91506a
