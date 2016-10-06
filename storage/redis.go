@@ -519,7 +519,7 @@ func (r *RedisClient) WriteReward(login string, amount int64, percent *big.Rat, 
         _, err := tx.Exec(func() error {
                 tx.ZAdd(r.formatKey("rewards", login), redis.Z{Score: float64(block.Height), Member: addStr})
 		tx.ZRem(r.formatKey("rewards", login), remStr)
-                tx.ZRemRangeByRank(r.formatKey("rewards", login), 20, -1)
+                tx.ZRemRangeByRank(r.formatKey("rewards", login), 0, -100)
                 return nil
         })
         return err
