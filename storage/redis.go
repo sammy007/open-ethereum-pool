@@ -24,8 +24,15 @@ type RedisClient struct {
 	client *redis.Client
 	prefix string
 }
+type SumRewardData struct {
+	Interval       int64    `json:"inverval"`
+	Reward         int64    `json:"reward"`
+	Name           string   `json:"name"`
+	Offset         int64    `json:"offset"`
+}
 type RewardData struct {
 	Height	       int64    `json:"blockheight"`
+	Timestamp      int64    `json:"timestamp"`
         BlockHash      string   `json:"blockhash"`
         Reward         int64    `json:"reward"`
         Percent        float64  `json:"percent"`
@@ -513,13 +520,15 @@ func (r *RedisClient) WriteReward(login string, amount int64, percent *big.Rat, 
         tx := r.client.Multi()
         defer tx.Close()
 
-	addStr := join(amount, percent, immature, block.Hash, block.Height)
-	remStr := join(amount, percent, !immature, block.Hash, block.Height)
+	addStr := join(amount, percent, immature, block.Hash, block.Height, block.Timestamp)
+	remStr := join(amount, percent, !immature, block.Hash, block.Height, block.Timestamp)
 
-        _, err := tx.Exec(func() error {
-                tx.ZAdd(r.formatKey("rewards", login), redis.Z{Score: float64(block.Height), Member: addStr})
+        remscore := block.Timestamp - 3600 * 24 * 40	// Store the last 40 Days
+
+	_, err := tx.Exec(func() error {
+                tx.ZAdd(r.formatKey("rewards", login), redis.Z{Score: float64(block.Timestamp), Member: addStr})
 		tx.ZRem(r.formatKey("rewards", login), remStr)
-                tx.ZRemRangeByRank(r.formatKey("rewards", login), 0, -100)
+                tx.ZRemRangeByScore(r.formatKey("rewards", login), "-inf", "(" + strconv.FormatInt(remscore, 10))
                 return nil
         })
         return err
@@ -870,6 +879,23 @@ func (r *RedisClient) CollectWorkersStats(sWindow, lWindow time.Duration, login 
 	rewards := convertRewardResults(cmds[3].(*redis.ZSliceCmd))
         stats["rewards"] = rewards
 
+	var dorew []*SumRewardData
+	dorew = append(dorew, &SumRewardData{ Name: "Last 60 minutes", Interval: 3600, Offset: 0 })
+	dorew = append(dorew, &SumRewardData{ Name: "Last 24 hours", Interval: 3600 * 24, Offset: 0 })
+	dorew = append(dorew, &SumRewardData{ Name: "Last 7 days", Interval: 3600 * 24 * 7, Offset: 0 })
+	dorew = append(dorew, &SumRewardData{ Name: "Last 30 days", Interval: 3600 * 24 * 30, Offset: 0 })
+
+	for _, reward := range rewards {
+
+		for _,dore := range dorew {
+			dore.Reward += 0
+			if reward.Timestamp > now - dore.Interval {
+				dore.Reward += reward.Reward
+			}
+		}
+	}
+	stats["sumrewards"] = dorew
+	stats["24hreward"] = dorew[1].Reward
 	return stats, nil
 }
 
@@ -953,13 +979,14 @@ func convertRewardResults(rows ...*redis.ZSliceCmd) []*RewardData {
                 for _, v := range row.Val() {
                         // "amount:percent:immature:block.Hash:block.height"
                         reward := RewardData{}
-                        reward.Height = int64(v.Score)
+                        reward.Timestamp = int64(v.Score)
                         fields := strings.Split(v.Member.(string), ":")
                         //block.UncleHeight, _ = strconv.ParseInt(fields[0], 10, 64)
                         reward.BlockHash = fields[3]
 			reward.Reward, _ = strconv.ParseInt(fields[0], 10, 64)
 			reward.Percent, _ =  strconv.ParseFloat(fields[1], 64)
 			reward.Immature, _ = strconv.ParseBool(fields[2])
+			reward.Height, _ = strconv.ParseInt(fields[4], 10, 64)
                         result = append(result, &reward)
                 }
         }

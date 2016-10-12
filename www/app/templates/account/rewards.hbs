@@ -1,6 +1,14 @@
 <div class="container">
   {{#if model.rewards}}
   <h4>Your Latest Rewards</h4>
+   <table class="table table-condensed table-striped">
+  {{#each model.sumrewards as |sumreward|}}
+  <tr>
+    <td>{{sumreward.name}}</td>
+    <td>{{format-balance sumreward.reward}}</td>
+  </tr>
+  {{/each}}
+   </table>
    <span class="label label-default">Immature</span> <span class="label label-success">Matured</span>
   <table class="table table-condensed table-striped">
     <thead>
