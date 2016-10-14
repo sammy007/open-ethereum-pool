@@ -810,6 +810,7 @@ func (r *RedisClient) CollectWorkersStats(sWindow, lWindow time.Duration, login 
 		tx.ZRangeWithScores(r.formatKey("hashrate", login), 0, -1)
 		tx.LRange(r.formatKey("lastshares"), 0, 999)
 		tx.ZRevRangeWithScores(r.formatKey("rewards", login), 0, 39)
+		tx.ZRevRangeWithScores(r.formatKey("rewards", login), 0, -1)
 		return nil
 	})
 
@@ -876,11 +877,12 @@ func (r *RedisClient) CollectWorkersStats(sWindow, lWindow time.Duration, login 
 	stats["hashrate"] = totalHashrate
 	stats["currentHashrate"] = currentHashrate
 
-	rewards := convertRewardResults(cmds[3].(*redis.ZSliceCmd))
-        stats["rewards"] = rewards
+	stats["rewards"] = convertRewardResults(cmds[3].(*redis.ZSliceCmd)) // last 40
+	rewards := convertRewardResults(cmds[4].(*redis.ZSliceCmd)) // all
 
 	var dorew []*SumRewardData
 	dorew = append(dorew, &SumRewardData{ Name: "Last 60 minutes", Interval: 3600, Offset: 0 })
+	dorew = append(dorew, &SumRewardData{ Name: "Last 12 hours", Interval: 3600 * 12, Offset: 0 })
 	dorew = append(dorew, &SumRewardData{ Name: "Last 24 hours", Interval: 3600 * 24, Offset: 0 })
 	dorew = append(dorew, &SumRewardData{ Name: "Last 7 days", Interval: 3600 * 24 * 7, Offset: 0 })
 	dorew = append(dorew, &SumRewardData{ Name: "Last 30 days", Interval: 3600 * 24 * 30, Offset: 0 })
@@ -895,7 +897,7 @@ func (r *RedisClient) CollectWorkersStats(sWindow, lWindow time.Duration, login 
 		}
 	}
 	stats["sumrewards"] = dorew
-	stats["24hreward"] = dorew[1].Reward
+	stats["24hreward"] = dorew[2].Reward
 	return stats, nil
 }
 
