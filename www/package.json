@@ -40,7 +40,7 @@
     "ember-resolver": "^2.0.3",
     "ember-welcome-page": "^1.0.3",
     "loader.js": "^4.0.10",
-    "ember-intl": "2.9.3",
+    "ember-intl": "2.15.1",
     "ember-cli-cookie": "^0.2.0"
   }
 }
