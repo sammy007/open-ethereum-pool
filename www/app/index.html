@@ -9,15 +9,15 @@
     <meta name="keywords" content="ethereum, pool, mining, cryptocurrency"/>
     <script src="https://cdn.polyfill.io/v1/polyfill.min.js?features=Intl.~locale.en"></script>
     {{content-for "head"}}
-    <link rel="stylesheet" href="assets/vendor.css">
-    <link rel="stylesheet" href="assets/pool.css">
+    <link rel="stylesheet" href="{{rootURL}}assets/vendor.css">
+    <link rel="stylesheet" href="{{rootURL}}assets/open-ethereum-pool.css">
     {{content-for "head-footer"}}
   </head>
   <body>
     {{content-for "body"}}
 
-    <script src="assets/vendor.js"></script>
-    <script src="assets/pool.js"></script>
+    <script src="{{rootURL}}assets/vendor.js"></script>
+    <script src="{{rootURL}}assets/open-ethereum-pool.js"></script>
 
     {{content-for "body-footer"}}
 
