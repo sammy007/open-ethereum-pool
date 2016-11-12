@@ -29,7 +29,7 @@ Dependencies:
   * go >= 1.5
   * geth
   * redis-server >= 2.8.0
-  * nodejs
+  * nodejs >= 4 LTS
   * nginx
 
 **I highly recommend to use Ubuntu 16.04 LTS.**
@@ -52,7 +52,7 @@ You can use Ubuntu upstart - check for sample config in <code>upstart.conf</code
 
 ### Building Frontend
 
-Install nodejs. I suggest using LTS version >= 4.x from https://github.com/nodesource/distributions or from your Linux distribution.
+Install nodejs. I suggest using LTS version >= 4.x from https://github.com/nodesource/distributions or from your Linux distribution or simply install nodejs on Ubuntu Xenial 16.04.
 
 The frontend is a single-page Ember.js application that polls the pool API to render miner stats.
 
@@ -60,7 +60,7 @@ The frontend is a single-page Ember.js application that polls the pool API to re
 
 Change <code>ApiUrl: '//example.net/'</code> in <code>www/config/environment.js</code> to match your domain name. Also don't forget to adjust other options.
 
-    npm install -g ember-cli@2.4.3
+    npm install -g ember-cli@2.9.1
     npm install -g bower
     npm install
     bower install
