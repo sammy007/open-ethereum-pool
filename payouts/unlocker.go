@@ -30,8 +30,12 @@ type UnlockerConfig struct {
 
 const minDepth = 16
 
-var constReward = common.Big("5000000000000000000")
-var uncleReward = new(big.Int).Div(constReward, new(big.Int).SetInt64(32))
+var (
+	big2                 = big.NewInt(2)
+	big32                = big.NewInt(32)
+	BlockReward *big.Int = big.NewInt(8e+18)
+	uncleReward          = new(big.Int).Div(BlockReward, big32)
+)
 
 // Donate 10% from pool fees to developers
 const donationFee = 10.0
@@ -199,7 +203,7 @@ func matchCandidate(block *rpc.GetBlockReply, candidate *storage.BlockData) bool
 
 func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage.BlockData) error {
 	// Initial 5 Ether static reward
-	reward := new(big.Int).Set(constReward)
+	reward := new(big.Int).Set(BlockReward)
 
 	correctHeight, err := strconv.ParseInt(strings.Replace(block.Number, "0x", "", -1), 16, 64)
 	if err != nil {
@@ -497,10 +501,17 @@ func weiToShannonInt64(wei *big.Rat) int64 {
 }
 
 func getUncleReward(uHeight, height int64) *big.Int {
-	reward := new(big.Int).Set(constReward)
-	reward.Mul(big.NewInt(uHeight+8-height), reward)
-	reward.Div(reward, big.NewInt(8))
-	return reward
+	uncleNumber := big.NewInt(uHeight)
+	headerNumber := big.NewInt(height)
+
+	r := new(big.Int)
+
+	r.Add(uncleNumber, big2)
+	r.Sub(r, headerNumber)
+	r.Mul(r, BlockReward)
+	r.Div(r, big2)
+
+	return r
 }
 
 func (u *BlockUnlocker) getExtraRewardForTx(block *rpc.GetBlockReply) (*big.Int, error) {
