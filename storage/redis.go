@@ -238,16 +238,21 @@ func (r *RedisClient) WriteBlock(login, id string, params []string, diff, roundD
 	 	tx2 := r.client.Multi()
 	        defer tx2.Close()
 
-		_, err := tx2.Exec(func() error {
-			for _, val := range shares {
-                         	tx2.HIncrBy(r.formatRound(int64(height), params[0]), val, 1)
-                	}
-                	return nil
-        	})
-        	if err != nil {
-                	return false, err
-		}
+                totalshares := make(map[string]int64)
+                for _, val := range shares {
+                        totalshares[val] += 1
+                }
 
+                _, err := tx2.Exec(func() error {
+                        for k, v := range totalshares {
+                                tx2.HIncrBy(r.formatRound(int64(height), params[0]), k, v)
+                        }
+                        return nil
+                })
+                if err != nil {
+                        return false, err
+                }
+		
 		sharesMap, _ := cmds[len(cmds) - 3].(*redis.StringStringMapCmd).Result()
                 totalShares := int64(0)
                 for _, v := range sharesMap {
