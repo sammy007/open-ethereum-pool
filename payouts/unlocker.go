@@ -34,7 +34,6 @@ var (
 	big2                 = big.NewInt(2)
 	big32                = big.NewInt(32)
 	BlockReward *big.Int = big.NewInt(8e+18)
-	uncleReward          = new(big.Int).Div(BlockReward, big32)
 )
 
 // Donate 10% from pool fees to developers
@@ -202,14 +201,24 @@ func matchCandidate(block *rpc.GetBlockReply, candidate *storage.BlockData) bool
 }
 
 func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage.BlockData) error {
-	// Initial 5 Ether static reward
-	reward := new(big.Int).Set(BlockReward)
-
 	correctHeight, err := strconv.ParseInt(strings.Replace(block.Number, "0x", "", -1), 16, 64)
 	if err != nil {
 		return err
 	}
 	candidate.Height = correctHeight
+
+	// Rewards
+	reward := new(big.Int).Set(BlockReward)
+	headerNumber := big.NewInt(candidate.Height)
+	if headerNumber.Cmp(big.NewInt(1000)) > 0 {
+		reward = big.NewInt(7e+18)
+	}
+	if headerNumber.Cmp(big.NewInt(2000)) > 0 {
+		reward = big.NewInt(6e+18)
+	}
+	if headerNumber.Cmp(big.NewInt(3000)) > 0 {
+		reward = big.NewInt(5e+18)
+	}
 
 	// Add TX fees
 	extraTxReward, err := u.getExtraRewardForTx(block)
@@ -223,6 +232,7 @@ func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage
 	}
 
 	// Add reward for including uncles
+	uncleReward := new(big.Int).Div(reward, big32)
 	rewardForUncles := big.NewInt(0).Mul(uncleReward, big.NewInt(int64(len(block.Uncles))))
 	reward.Add(reward, rewardForUncles)
 
@@ -504,11 +514,23 @@ func getUncleReward(uHeight, height int64) *big.Int {
 	uncleNumber := big.NewInt(uHeight)
 	headerNumber := big.NewInt(height)
 
+	// Rewards
+	reward := new(big.Int).Set(BlockReward)
+	if headerNumber.Cmp(big.NewInt(1000)) > 0 {
+		reward = big.NewInt(7e+18)
+	}
+	if headerNumber.Cmp(big.NewInt(2000)) > 0 {
+		reward = big.NewInt(6e+18)
+	}
+	if headerNumber.Cmp(big.NewInt(3000)) > 0 {
+		reward = big.NewInt(5e+18)
+	}
+
 	r := new(big.Int)
 
 	r.Add(uncleNumber, big2)
 	r.Sub(r, headerNumber)
-	r.Mul(r, BlockReward)
+	r.Mul(r, reward)
 	r.Div(r, big2)
 
 	return r
