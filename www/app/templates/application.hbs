@@ -3,46 +3,47 @@
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand"><span class="logo-1">Ξthereum</span><span class="logo-2">Pool</span></a>
+      <a class="navbar-brand center" href="/">
+        <object type="image/svg+xml" data="ubiq.svg" class="ubiq"></object></a>
     </div>
     <div class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
-        {{#active-li currentWhen='index'}}
+        {{#active-li currentWhen='index' }}
           {{#link-to 'index'}}
             <i class="fa fa-home"></i> Home
           {{/link-to}}
         {{/active-li}}
-        {{#active-li currentWhen='help'}}
-          {{#link-to 'help'}}
-            <i class="fa fa-rocket"></i> Help
-          {{/link-to}}
-        {{/active-li}}
-        {{#active-li currentWhen='blocks'}}
+        {{#active-li currentWhen='blocks' }}
           {{#link-to 'blocks'}}
             <i class="fa fa-cubes"></i> Pool Blocks
             {{#if immatureTotal}}
-              <span class="badge alert-success">{{immatureTotal}}</span>
+              <span class="ul">{{immatureTotal}}</span>
             {{/if}}
           {{/link-to}}
         {{/active-li}}
-        {{#active-li currentWhen='payments'}}
+        {{#active-li currentWhen='payments' }}
           {{#link-to 'payments'}}
-            <i class="fa fa-paper-plane-o"></i> Payments
+            <i class="fa fa-paper-plane"></i> Payments
           {{/link-to}}
         {{/active-li}}
-        {{#active-li currentWhen='miners'}}
+        {{#active-li currentWhen='miners' }}
           {{#link-to 'miners'}}
             <i class="fa fa-users"></i> Miners
           {{/link-to}}
         {{/active-li}}
-        {{#active-li currentWhen='about'}}
+        {{#active-li currentWhen='help' }}
+          {{#link-to 'help'}}
+            <i class="fa fa-rocket"></i> Help
+          {{/link-to}}
+        {{/active-li}}
+        {{#active-li currentWhen='about' }}
           {{#link-to 'about'}}
-            <i class="fa fa-comments"></i> About <span class="badge alert-success">&#x2713;</span>
+            <i class="fa fa-comments"></i> About
           {{/link-to}}
         {{/active-li}}
       </ul>

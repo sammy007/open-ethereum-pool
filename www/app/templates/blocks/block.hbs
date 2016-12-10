@@ -30,4 +30,11 @@
     <span class="label label-primary">{{block.formatReward}}</span>
     {{/if}}
   </td>
+  <td>
+    {{#if block.uncle}}
+    <span class="label label-default">Uncle</span>
+    {{else if block.isOk}}
+    <span class="label label-primary">Block</span>
+    {{/if}}
+  </td>
 </tr>
