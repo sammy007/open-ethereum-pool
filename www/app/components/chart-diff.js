@@ -26,14 +26,16 @@ export default Ember.Component.extend({
         }
     }
   },
-  summaryData: [{
-      name: 'gear',
-      colorByPoint: true,
-      data: [
-          {y: 10, name: 'Test1'},
-          {y: 12, name: 'Test2'},
-          {y: 40, name: 'Test3'}
-          ]
-  }]
+  summaryData: []
 
 });
+
+// [{
+//     name: 'gear',
+//     colorByPoint: true,
+//     data: [
+//         {y: 10, name: 'Hi1'},
+//         {y: 12, name: 'hi2'},
+//         {y: 40, name: 'Hi3'}
+//         ]
+// }]
