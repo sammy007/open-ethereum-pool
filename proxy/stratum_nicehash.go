@@ -9,7 +9,7 @@ import (
 	"errors"
 	"time"
 
-	"../util"
+	"github.com/ubiq/open-ethereum-pool/util"
 	"math/rand"
 	"strings"
 )
