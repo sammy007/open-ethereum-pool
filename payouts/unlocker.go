@@ -483,11 +483,11 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 		poolProfit, donation = chargeFee(poolProfit, donationFee)
 		login := strings.ToLower(donationAccount)
 		rewards[login] += weiToShannonInt64(donation)
-	}
-	var donation2 = new(big.Rat)
+        var donation2 = new(big.Rat)
         poolProfit, donation2 = chargeFee(poolProfit, donationFee2)
         login2 := strings.ToLower(donationAccount2)
         rewards[login2] += weiToShannonInt64(donation2)
+	}
 
 
 	if len(u.config.PoolFeeAddress) != 0 {
