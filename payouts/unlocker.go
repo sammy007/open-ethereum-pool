@@ -532,6 +532,10 @@ func getUncleReward(uHeight, height int64) *big.Int {
 	r.Sub(r, headerNumber)
 	r.Mul(r, reward)
 	r.Div(r, big2)
+	if r.Cmp(big.NewInt(0)) < 0 {
+		// blocks older than the previous block are not rewarded
+		r = big.NewInt(0)
+	}	
 
 	return r
 }

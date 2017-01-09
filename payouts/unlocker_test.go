@@ -69,12 +69,12 @@ func TestWeiToShannonInt64(t *testing.T) {
 func TestGetUncleReward(t *testing.T) {
 	rewards := make(map[int64]string)
 	expectedRewards := map[int64]string{
-		1: "4375000000000000000",
-		2: "3750000000000000000",
-		3: "3125000000000000000",
-		4: "2500000000000000000",
-		5: "1875000000000000000",
-		6: "1250000000000000000",
+		1: "4000000000000000000",
+		2: "0", //previous blocks not rewarded
+		3: "0",
+		4: "0",
+		5: "0",
+		6: "0",
 	}
 	for i := int64(1); i < 7; i++ {
 		rewards[i] = getUncleReward(1, i+1).String()
