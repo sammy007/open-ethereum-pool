@@ -9,8 +9,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/sammy007/open-ethereum-pool/rpc"
-	"github.com/sammy007/open-ethereum-pool/util"
+	"github.com/ubiq/open-ethereum-pool/rpc"
+	"github.com/ubiq/open-ethereum-pool/util"
 )
 
 const maxBacklog = 3
@@ -93,6 +93,10 @@ func (s *ProxyServer) fetchBlockTemplate() {
 	// Stratum
 	if s.config.Proxy.Stratum.Enabled {
 		go s.broadcastNewJobs()
+	}
+
+	if s.config.Proxy.StratumNiceHash.Enabled{
+		go s.broadcastNewJobsNH()
 	}
 }
 

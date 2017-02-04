@@ -1,10 +1,10 @@
 package proxy
 
 import (
-	"github.com/sammy007/open-ethereum-pool/api"
-	"github.com/sammy007/open-ethereum-pool/payouts"
-	"github.com/sammy007/open-ethereum-pool/policy"
-	"github.com/sammy007/open-ethereum-pool/storage"
+	"github.com/ubiq/open-ethereum-pool/api"
+	"github.com/ubiq/open-ethereum-pool/payouts"
+	"github.com/ubiq/open-ethereum-pool/policy"
+	"github.com/ubiq/open-ethereum-pool/storage"
 )
 
 type Config struct {
@@ -45,9 +45,18 @@ type Proxy struct {
 	HealthCheck bool  `json:"healthCheck"`
 
 	Stratum Stratum `json:"stratum"`
+
+	StratumNiceHash StratumNiceHash `json:"stratum_nice_hash"`
 }
 
 type Stratum struct {
+	Enabled bool   `json:"enabled"`
+	Listen  string `json:"listen"`
+	Timeout string `json:"timeout"`
+	MaxConn int    `json:"maxConn"`
+}
+
+type StratumNiceHash struct {
 	Enabled bool   `json:"enabled"`
 	Listen  string `json:"listen"`
 	Timeout string `json:"timeout"`

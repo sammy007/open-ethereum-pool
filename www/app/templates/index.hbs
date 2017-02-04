@@ -1,11 +1,15 @@
-<div class="jumbotron">
+<div class="jumbotron-brand">
   <div class="container">
     <div class="row">
       <div class="col-md-5">
         <h1 style="font-size: 24px">
-          <strong>Open Ethereum Pool</strong>
+          <div class="ubiq-green">
+            <object type="image/svg+xml" data="ubiq-green-small.svg"></object>
+            <strong><span class="logo-2">Pool</span></strong>
+          </div>
         </h1>
-        <strong>Min. payout threshold: {{config.PayoutThreshold}}</strong>, Payouts run twice per day.<br/>
+        <strong>Min. payout threshold: {{config.PayoutThreshold}}</strong>, Payouts are continuos throughout the  day.
+        <br/>
         <span class="label label-success">PROP</span> Stable and profitable pool with regular payouts.
       </div>
       <div class="col-md-3 stats">
@@ -13,7 +17,7 @@
         <div><i class="fa fa-tachometer"></i> Pool Hash Rate: <span id="poolHashrate">{{format-hashrate stats.model.hashrate}}</span></div>
         <div><i class="fa fa-money"></i> Pool Fee: <span id="poolFee" class="label label-success">{{config.PoolFee}}</span></div>
         {{#if stats.model.stats.lastBlockFound}}
-        <div><i class="fa fa-clock-o"></i> Last Block Found: <span>{{format-relative (seconds-to-ms stats.model.stats.lastBlockFound)}}</span></div>
+          <div><i class="fa fa-clock-o"></i> Last Block Found: <span>{{format-relative (seconds-to-ms stats.model.stats.lastBlockFound)}}</span></div>
         {{/if}}
       </div>
       <div class="col-md-4 stats">
@@ -30,18 +34,41 @@
   <div class="stats">
     <h4>Your Stats &amp; Payment History</h4>
     <div class="input-group">
-      {{input value=cachedLogin class="form-control" placeholder="Enter Your Ethereum Address"}}
+      {{input value=cachedLogin class="form-control" placeholder="Enter Your Ubiq Address"}}
       <span class="input-group-btn">
-        <button class="btn btn-primary" type="button" {{action 'lookup' cachedLogin}}>
+        <button class="btn btn-primary btn-ubiq" type="button" {{action 'lookup' cachedLogin}}>
           <span style="display: inline;"><i class="fa fa-search"></i> Lookup</span>
-        </button>
+      </button>
       </span>
     </div>
   </div>
   <div>
-    <hr/>
-    <h4 class="note note-info text-center">
-      ethminer.exe -F {{config.HttpHost}}:{{config.HttpPort}}/&lt;address&gt;/&lt;worker&gt; -G
-    </h4>
+    <div class="bs-callout bs-callout-danger">
+      <h4>
+        Warning
+      </h4>
+      <p>This is an experimental pool! All the coins mined are in an alpha network (that will be reset eventually) and are for testing purposed only.</p>
+    </div>
+    <div class="jumbotron">
+      <div class="container">
+        <h3 class="text-center" style="padding: 0 0 5px 0; margin: 0 0 40px 0;"> Instructions</h3>
+        <div class="row">
+          <div class="col-md-6">
+            <p class="lead text-center">
+              <a href="#/help" class="ul-link">
+                <span class="ul ul-danger">Getwork</span>
+              </a>
+            </p>
+          </div>
+          <div class="col-md-6">
+            <p class="lead text-center">
+              <a href="#/help" class="ul-link">
+                <span class="ul ul-warning">Stratum</span>
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

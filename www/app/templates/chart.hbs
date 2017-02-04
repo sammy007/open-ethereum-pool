@@ -1,0 +1,27 @@
+<div class="container">
+  <div class="page-header">
+    <h1>About</h1>
+  </div>
+  <h3>Terms of Service</h3>
+  <p><br/>
+    {{#each model as |item|}}
+      {{!-- {{log "TEST"}}
+      {{log item}} --}}
+      {{log "TEST MODEL"}}
+      {{log item}}
+      Title :{{item.name}} <br>
+      Data : {{item.chartdata}} <br>
+      {{!-- Content :{{item.content}}
+      Author :{{item.author}} --}}
+      <br>
+    {{/each}}
+  </p>
+  <h3>Details</h3>
+  <p>
+    <ul>
+      {{#each model as |item|}}
+        {{chart-diff chartData=item}}
+      {{/each}}
+    </ul>
+  </p>
+</div>

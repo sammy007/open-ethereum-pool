@@ -20,6 +20,7 @@ Router.map(function() {
   this.route('payments');
   this.route('miners');
   this.route('about');
+  this.route('chart');
 });
 
 export default Router;
