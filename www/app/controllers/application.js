@@ -75,6 +75,16 @@ export default Ember.Controller.extend({
     }
   }),
 
+  roundExponent: Ember.computed('model', {
+    get() {
+      var percent = this.get('model.stats.roundShares') / this.get('difficulty');
+      if (!percent) {
+        return 1;
+      }
+      return Math.exp(percent);
+    }
+  }),
+
   nextEpoch: Ember.computed('height', {
     get() {
       var epochOffset = (30000 - (this.getWithDefault('height', 1) % 30000)) * 1000 * this.get('config').BlockTime;

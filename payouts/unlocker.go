@@ -443,12 +443,12 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 	revenue := new(big.Rat).SetInt(block.Reward)
 	minersProfit, poolProfit := chargeFee(revenue, u.config.PoolFee)
 
-	shares, err := u.backend.GetRoundShares(block.RoundHeight, block.Nonce)
+	scores, err := u.backend.GetRoundScores(block.RoundHeight, block.Nonce)
 	if err != nil {
 		return nil, nil, nil, nil, err
 	}
 
-	rewards := calculateRewardsForShares(shares, block.TotalShares, minersProfit)
+	rewards := calculateRewardsForScores(scores, block.TotalScore, minersProfit)
 
 	if block.ExtraReward != nil {
 		extraReward := new(big.Rat).SetInt(block.ExtraReward)
@@ -471,10 +471,10 @@ func (u *BlockUnlocker) calculateRewards(block *storage.BlockData) (*big.Rat, *b
 	return revenue, minersProfit, poolProfit, rewards, nil
 }
 
-func calculateRewardsForShares(shares map[string]int64, total int64, reward *big.Rat) map[string]int64 {
+func calculateRewardsForScores(scores map[string]int64, total int64, reward *big.Rat) map[string]int64 {
 	rewards := make(map[string]int64)
 
-	for login, n := range shares {
+	for login, n := range scores {
 		percent := big.NewRat(n, total)
 		workerReward := new(big.Rat).Mul(reward, percent)
 		rewards[login] += weiToShannonInt64(workerReward)
