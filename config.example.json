@@ -74,7 +74,8 @@
 	],
 
 	"redis": {
-		"endpoint": "127.0.0.1:6379",
+		"network": "unix",
+		"endpoint": "/var/run/redis.sock",
 		"poolSize": 10,
 		"database": 0,
 		"password": ""
