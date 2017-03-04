@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/math"
 
 	"github.com/sammy007/open-ethereum-pool/rpc"
 	"github.com/sammy007/open-ethereum-pool/storage"
@@ -30,7 +30,7 @@ type UnlockerConfig struct {
 
 const minDepth = 16
 
-var constReward = common.Big("5000000000000000000")
+var constReward = math.MustParseBig256("5000000000000000000")
 var uncleReward = new(big.Int).Div(constReward, new(big.Int).SetInt64(32))
 
 // Donate 10% from pool fees to developers
@@ -490,7 +490,7 @@ func chargeFee(value *big.Rat, fee float64) (*big.Rat, *big.Rat) {
 }
 
 func weiToShannonInt64(wei *big.Rat) int64 {
-	shannon := new(big.Rat).SetInt(common.Shannon)
+	shannon := new(big.Rat).SetInt(util.Shannon)
 	inShannon := new(big.Rat).Quo(wei, shannon)
 	value, _ := strconv.ParseInt(inShannon.FloatString(0), 10, 64)
 	return value
@@ -512,8 +512,8 @@ func (u *BlockUnlocker) getExtraRewardForTx(block *rpc.GetBlockReply) (*big.Int,
 			return nil, err
 		}
 		if receipt != nil {
-			gasUsed := common.String2Big(receipt.GasUsed)
-			gasPrice := common.String2Big(tx.GasPrice)
+			gasUsed := util.String2Big(receipt.GasUsed)
+			gasPrice := util.String2Big(tx.GasPrice)
 			fee := new(big.Int).Mul(gasUsed, gasPrice)
 			amount.Add(amount, fee)
 		}

@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
 	"gopkg.in/redis.v3"
 
 	"github.com/sammy007/open-ethereum-pool/util"
@@ -47,7 +46,7 @@ type BlockData struct {
 }
 
 func (b *BlockData) RewardInShannon() int64 {
-	reward := new(big.Int).Div(b.Reward, common.Shannon)
+	reward := new(big.Int).Div(b.Reward, util.Shannon)
 	return reward.Int64()
 }
 
