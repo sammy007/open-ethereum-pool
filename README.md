@@ -4,7 +4,7 @@
 
 [![Join the chat at https://gitter.im/sammy007/open-ethereum-pool](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sammy007/open-ethereum-pool?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/sammy007/open-ethereum-pool.svg?branch=develop)](https://travis-ci.org/sammy007/open-ethereum-pool) [![Go Report Card](https://goreportcard.com/badge/github.com/sammy007/open-ethereum-pool)](https://goreportcard.com/report/github.com/sammy007/open-ethereum-pool)
 
-[List Of Open Ethereum Pools](https://github.com/sammy007/open-ethereum-pool/wiki/List-Of-Open-Pools)
+[List Of Open Dubaicoin Pools](https://github.com/sammy007/open-ethereum-pool/wiki/List-Of-Open-Pools)
 
 ### Features
 
@@ -19,8 +19,8 @@
 
 #### Proxies
 
-* [Ether-Proxy](https://github.com/sammy007/ether-proxy) HTTP proxy with web interface
-* [Stratum Proxy](https://github.com/Atrides/eth-proxy) for Ethereum
+* [Dbix Proxy Solo](https://github.com/ArabianChain/dbix-proxy-solo) HTTP proxy with web interface
+* [Dbix Stratum Proxy](https://github.com/ArabianChain/dbix-stratum-proxy) with monitoring
 
 ### Building on Linux
 
@@ -34,7 +34,7 @@ Dependencies:
 
 **I highly recommend to use Ubuntu 16.04 LTS.**
 
-First install  [go-ethereum](https://github.com/ethereum/go-ethereum/wiki/Installation-Instructions-for-Ubuntu).
+First install  [go-dubaicoin](https://github.com/ArabianChain).
 
 Clone & compile:
 
@@ -47,7 +47,7 @@ Install redis-server.
 
 ### Running Pool
 
-    ./build/bin/open-ethereum-pool config.json
+    ./build/bin/open-dubaicoin-pool config.json
 
 You can use Ubuntu upstart - check for sample config in <code>upstart.conf</code>.
 
@@ -75,7 +75,7 @@ Configure nginx to serve <code>www/dist</code> as static website.
 Create an upstream for API:
 
     upstream api {
-        server 127.0.0.1:8080;
+        server 127.0.0.1:7070;
     }
 
 and add this setting after <code>location /</code>:
@@ -107,7 +107,7 @@ otherwise you will get errors on start because of JSON comments.**
   // Set to the number of CPU cores of your server
   "threads": 2,
   // Prefix for keys in redis store
-  "coin": "eth",
+  "coin": "dbix",
   // Give unique name to each instance
   "name": "main",
 
@@ -115,7 +115,7 @@ otherwise you will get errors on start because of JSON comments.**
     "enabled": true,
 
     // Bind HTTP mining endpoint to this IP:PORT
-    "listen": "0.0.0.0:8888",
+    "listen": "0.0.0.0:7777",
 
     // Allow only this header and body size of HTTP request from miners
     "limitHeadersSize": 1024,
@@ -131,7 +131,7 @@ otherwise you will get errors on start because of JSON comments.**
     "stratum": {
       "enabled": true,
       // Bind stratum mining socket to this IP:PORT
-      "listen": "0.0.0.0:8008",
+      "listen": "0.0.0.0:7007",
       "timeout": "120s",
       "maxConn": 8192
     },
@@ -186,7 +186,7 @@ otherwise you will get errors on start because of JSON comments.**
   // Provides JSON data for frontend which is static website
   "api": {
     "enabled": true,
-    "listen": "0.0.0.0:8080",
+    "listen": "0.0.0.0:7070",
     // Collect miners stats (hashrate, ...) in this interval
     "statsCollectInterval": "5s",
     // Purge stale stats interval
@@ -220,12 +220,12 @@ otherwise you will get errors on start because of JSON comments.**
   "upstream": [
     {
       "name": "main",
-      "url": "http://127.0.0.1:8545",
+      "url": "http://127.0.0.1:7565",
       "timeout": "10s"
     },
     {
       "name": "backup",
-      "url": "http://127.0.0.2:8545",
+      "url": "http://127.0.0.2:7565",
       "timeout": "10s"
     }
   ],
@@ -243,7 +243,7 @@ otherwise you will get errors on start because of JSON comments.**
   "unlocker": {
     "enabled": false,
     // Pool fee percentage
-    "poolFee": 1.0,
+    "poolFee": 2.0,
     // Pool fees beneficiary address (leave it blank to disable fee withdrawals)
     "poolFeeAddress": "",
     // Donate 10% from pool fees to developers
@@ -257,7 +257,7 @@ otherwise you will get errors on start because of JSON comments.**
     // Run unlocker in this interval
     "interval": "10m",
     // Geth instance node rpc endpoint for unlocking blocks
-    "daemon": "http://127.0.0.1:8545",
+    "daemon": "http://127.0.0.1:7565",
     // Rise error if can't reach geth in this amount of time
     "timeout": "10s"
   },
