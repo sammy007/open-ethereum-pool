@@ -1,11 +1,11 @@
 {
 	"threads": 2,
-	"coin": "eth",
+	"coin": "dbix",
 	"name": "main",
 
 	"proxy": {
 		"enabled": true,
-		"listen": "0.0.0.0:8888",
+		"listen": "0.0.0.0:7777",
 		"limitHeadersSize": 1024,
 		"limitBodySize": 256,
 		"behindReverseProxy": false,
@@ -19,7 +19,7 @@
 
 		"stratum": {
 			"enabled": true,
-			"listen": "0.0.0.0:8008",
+			"listen": "0.0.0.0:7007",
 			"timeout": "120s",
 			"maxConn": 8192
 		},
@@ -50,7 +50,7 @@
 		"enabled": true,
 		"purgeOnly": false,
 		"purgeInterval": "10m",
-		"listen": "0.0.0.0:8080",
+		"listen": "0.0.0.0:7070",
 		"statsCollectInterval": "5s",
 		"hashrateWindow": "30m",
 		"hashrateLargeWindow": "3h",
@@ -63,12 +63,12 @@
 	"upstream": [
 		{
 			"name": "main",
-			"url": "http://127.0.0.1:8545",
+			"url": "http://127.0.0.1:7565",
 			"timeout": "10s"
 		},
 		{
 			"name": "backup",
-			"url": "http://127.0.0.2:8545",
+			"url": "http://127.0.0.2:7565",
 			"timeout": "10s"
 		}
 	],
@@ -82,14 +82,14 @@
 
 	"unlocker": {
 		"enabled": false,
-		"poolFee": 1.0,
+		"poolFee": 2.0,
 		"poolFeeAddress": "",
 		"donate": true,
 		"depth": 120,
 		"immatureDepth": 20,
 		"keepTxFees": false,
 		"interval": "10m",
-		"daemon": "http://127.0.0.1:8545",
+		"daemon": "http://127.0.0.1:7565",
 		"timeout": "10s"
 	},
 
@@ -97,7 +97,7 @@
 		"enabled": false,
 		"requirePeers": 25,
 		"interval": "120m",
-		"daemon": "http://127.0.0.1:8545",
+		"daemon": "http://127.0.0.1:7565",
 		"timeout": "10s",
 		"address": "0x0",
 		"gas": "21000",
