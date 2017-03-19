@@ -1,5 +1,5 @@
 ## Open Source Dubaicoin Mining Pool
-![Demo](https://raw.githubusercontent.com/sanja18/Dubaicoin-DBIX-Pool/master/dbixpool.png)
+![Demo](https://raw.githubusercontent.com/sanja18/Dubaicoin-DBIX-Pool/master/dubaicoin-dbixpool.png)
 
 [Open Dubaicoin DBIX Pool](http://eu2.pool.dubaicoin.org)
 
