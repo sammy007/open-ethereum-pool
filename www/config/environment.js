@@ -19,18 +19,18 @@ module.exports = function(environment) {
 
       // HTTP mining endpoint
       HttpHost: 'http://example.net',
-      HttpPort: 8888,
+      HttpPort: 7777,
 
       // Stratum mining endpoint
       StratumHost: 'example.net',
-      StratumPort: 8008,
+      StratumPort: 7007,
 
       // Fee and payout details
       PoolFee: '1%',
-      PayoutThreshold: '0.5 Ether',
+      PayoutThreshold: '0.5 Dbix',
 
       // For network hashrate (change for your favourite fork)
-      BlockTime: 14.4
+      BlockTime: 90
     }
   };
 
@@ -38,7 +38,7 @@ module.exports = function(environment) {
     /* Override ApiUrl just for development, while you are customizing
       frontend markup and css theme on your workstation.
     */
-    ENV.APP.ApiUrl = 'http://localhost:8080/'
+    ENV.APP.ApiUrl = 'http://localhost:7070/'
     // ENV.APP.LOG_RESOLVER = true;
     // ENV.APP.LOG_ACTIVE_GENERATION = true;
     // ENV.APP.LOG_TRANSITIONS = true;
