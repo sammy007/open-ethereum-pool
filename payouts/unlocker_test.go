@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/sammy007/open-ethereum-pool/rpc"
-	"github.com/sammy007/open-ethereum-pool/storage"
+	"github.com/expanse-org/open-expanse-pool/rpc"
+	"github.com/expanse-org/open-expanse-pool/storage"
 )
 
 func TestMain(m *testing.M) {
@@ -14,13 +14,13 @@ func TestMain(m *testing.M) {
 }
 
 func TestCalculateRewards(t *testing.T) {
-	blockReward, _ := new(big.Rat).SetString("5000000000000000000")
+	blockReward, _ := new(big.Rat).SetString("8000000000000000000")
 	shares := map[string]int64{"0x0": 1000000, "0x1": 20000, "0x2": 5000, "0x3": 10, "0x4": 1}
 	expectedRewards := map[string]int64{"0x0": 4877996431, "0x1": 97559929, "0x2": 24389982, "0x3": 48780, "0x4": 4878}
 	totalShares := int64(1025011)
 
 	rewards := calculateRewardsForShares(shares, totalShares, blockReward)
-	expectedTotalAmount := int64(5000000000)
+	expectedTotalAmount := int64(8000000000)
 
 	totalAmount := int64(0)
 	for login, amount := range rewards {
@@ -36,8 +36,8 @@ func TestCalculateRewards(t *testing.T) {
 }
 
 func TestChargeFee(t *testing.T) {
-	orig, _ := new(big.Rat).SetString("5000000000000000000")
-	value, _ := new(big.Rat).SetString("5000000000000000000")
+	orig, _ := new(big.Rat).SetString("8000000000000000000")
+	value, _ := new(big.Rat).SetString("8000000000000000000")
 	expectedNewValue, _ := new(big.Rat).SetString("3750000000000000000")
 	expectedFee, _ := new(big.Rat).SetString("1250000000000000000")
 	newValue, fee := chargeFee(orig, 25.0)
