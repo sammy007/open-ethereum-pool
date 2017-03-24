@@ -52,10 +52,29 @@ func (s *ProxyServer) handleTCPSubmitRPC(cs *Session, id string, params []string
 	}
 	return s.handleSubmitRPC(cs, cs.login, id, params)
 }
+//for nicehash support, need function
+func delete_empty (s []string) []string {
+    var r []string
+    for _, str := range s {
+        if str != "" {
+            r = append(r, str)
+        }
+    }
+    return r
+}
 
 func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []string) (bool, *ErrorReply) {
 	if !workerPattern.MatchString(id) {
 		id = "0"
+	}
+	//nicehash send 5 parameters
+	//first parameter is equals wallet.
+	//second parameter equals four parameter just without "0x"
+	if len(params) == 5 {
+		//log.Printf("Nicehash submit share %v", params)
+		params[0]=""
+		params[1]=""
+		params=delete_empty(params)
 	}
 	if len(params) != 3 {
 		s.policy.ApplyMalformedPolicy(cs.ip)
