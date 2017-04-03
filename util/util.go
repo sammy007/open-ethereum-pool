@@ -7,9 +7,13 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/math"
 )
 
-var pow256 = common.BigPow(2, 256)
+var Ether = math.BigPow(10, 18)
+var Shannon = math.BigPow(10, 9)
+
+var pow256 = math.BigPow(2, 256)
 var addressPattern = regexp.MustCompile("^0x[0-9a-fA-F]{40}$")
 var zeroHash = regexp.MustCompile("^0?x?0+$")
 
@@ -36,7 +40,7 @@ func GetTargetHex(diff int64) string {
 
 func TargetHexToDiff(targetHex string) *big.Int {
 	targetBytes := common.FromHex(targetHex)
-	return new(big.Int).Div(pow256, common.BytesToBig(targetBytes))
+	return new(big.Int).Div(pow256, new(big.Int).SetBytes(targetBytes))
 }
 
 func ToHex(n int64) string {
@@ -48,7 +52,7 @@ func FormatReward(reward *big.Int) string {
 }
 
 func FormatRatReward(reward *big.Rat) string {
-	wei := new(big.Rat).SetInt(common.Ether)
+	wei := new(big.Rat).SetInt(Ether)
 	reward = reward.Quo(reward, wei)
 	return reward.FloatString(8)
 }
@@ -68,4 +72,10 @@ func MustParseDuration(s string) time.Duration {
 		panic("util: Can't parse duration `" + s + "`: " + err.Error())
 	}
 	return value
+}
+
+func String2Big(num string) *big.Int {
+	n := new(big.Int)
+	n.SetString(num, 0)
+	return n
 }
