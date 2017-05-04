@@ -1,7 +1,7 @@
 {
-  "name": "open-ethereum-pool",
+  "name": "open-musicoin-pool",
   "version": "0.0.0",
-  "description": "Open Ethereum Pool",
+  "description": "Open Musicoin Pool",
   "private": true,
   "directories": {
     "doc": "doc",

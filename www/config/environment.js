@@ -2,7 +2,7 @@
 
 module.exports = function(environment) {
   var ENV = {
-    modulePrefix: 'open-ethereum-pool',
+    modulePrefix: 'music-pool-claims',
     environment: environment,
     rootURL: '/',
     locationType: 'hash',
@@ -15,19 +15,19 @@ module.exports = function(environment) {
 
     APP: {
       // API host and port
-      ApiUrl: '//example.net/',
+      ApiUrl: '//music.pool.claims/',
 
       // HTTP mining endpoint
-      HttpHost: 'http://example.net',
+      HttpHost: 'http://music.pool.claims',
       HttpPort: 8888,
 
       // Stratum mining endpoint
-      StratumHost: 'example.net',
+      StratumHost: 'music.pool.claims',
       StratumPort: 8008,
 
       // Fee and payout details
-      PoolFee: '1%',
-      PayoutThreshold: '0.5 Ether',
+      PoolFee: '0.5%',
+      PayoutThreshold: '5 music',
 
       // For network hashrate (change for your favourite fork)
       BlockTime: 14.4

@@ -1,0 +1,27 @@
+version: "2"
+services:
+  pool:
+    build: .
+    ports:
+      - 8812:8008
+    volumes:
+      - ./musicoin:/root/.musicoin
+    environment:
+      - VIRTUAL_HOST=music.pool.claims
+      - VIRTUAL_PORT=80
+    networks:
+      - pool
+      - rproxy
+
+  redis:
+    image: redis
+    volumes:
+      - ./redis:/data
+    networks:
+      - pool
+
+networks:
+  pool:
+  rproxy:
+    external:
+      name: rproxy
