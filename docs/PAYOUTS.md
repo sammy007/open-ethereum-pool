@@ -48,13 +48,13 @@ If there was a debit operation performed which is not followed by actual money t
 
 ```
 Will credit back following balances:
-Address: 0xb85150eb365e7df0941f0cf08235f987ba91506a, Amount: 166798415 Shannon, 2016-05-11 08:14:34
+Address: 0x60c9b2aa721127b5775146aa96078703549408e1, Amount: 166798415 Shannon, 2016-05-11 08:14:34
 ```
 
 followed by
 
 ```
-Credited 166798415 Shannon back to 0xb85150eb365e7df0941f0cf08235f987ba91506a
+Credited 166798415 Shannon back to 0x60c9b2aa721127b5775146aa96078703549408e1
 ```
 
 Usually every maintenance run ends with following message and halt:
@@ -80,7 +80,7 @@ ZREVRANGE "eth:payments:pending" 0 -1 WITHSCORES
 
 Result will be like this:
 
-> 1) "0xb85150eb365e7df0941f0cf08235f987ba91506a:25000000"
+> 1) "0x60c9b2aa721127b5775146aa96078703549408e1:25000000"
 
 It's a pair of `LOGIN:AMOUNT`.
 
@@ -95,7 +95,7 @@ It's a `UNIXTIME`
 ```javascript
 eth.sendTransaction({
   from: eth.coinbase,
-  to: '0xb85150eb365e7df0941f0cf08235f987ba91506a',
+  to: '0x60c9b2aa721127b5775146aa96078703549408e1',
   value: web3.toWei(25000000, 'shannon')
 })
 
@@ -109,17 +109,17 @@ eth.sendTransaction({
 Also usable for fixing missing payment entries.
 
 ```
-ZADD "eth:payments:all" 1462920526 0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331:0xb85150eb365e7df0941f0cf08235f987ba91506a:25000000
+ZADD "eth:payments:all" 1462920526 0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331:0x60c9b2aa721127b5775146aa96078703549408e1:25000000
 ```
 
 ```
-ZADD "eth:payments:0xb85150eb365e7df0941f0cf08235f987ba91506a" 1462920526 0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331:25000000
+ZADD "eth:payments:0x60c9b2aa721127b5775146aa96078703549408e1" 1462920526 0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331:25000000
 ```
 
 ### Delete Erroneous Payment Entry
 
 ```
-ZREM "eth:payments:pending" "0xb85150eb365e7df0941f0cf08235f987ba91506a:25000000"
+ZREM "eth:payments:pending" "0x60c9b2aa721127b5775146aa96078703549408e1:25000000"
 ```
 
 ### Update Internal Stats
