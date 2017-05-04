@@ -2,7 +2,7 @@
 
 module.exports = function(environment) {
   var ENV = {
-    modulePrefix: 'music-pool-claims',
+    modulePrefix: 'open-musicoin-pool',
     environment: environment,
     rootURL: '/',
     locationType: 'hash',
