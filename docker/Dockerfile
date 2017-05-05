@@ -37,7 +37,6 @@ RUN apt-get update && apt-get -y install supervisor
 ENV DEBIAN_FRONTEND noninteractive
 
 COPY nginx.conf /etc/nginx/sites-enabled/default
-COPY run.sh /run.sh
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY pool.conf /etc/security/limits.d/pool.conf
 
