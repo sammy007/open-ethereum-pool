@@ -3,7 +3,7 @@ services:
   pool:
     build: .
     ports:
-      - 8812:8008
+      - 8008:8008
     volumes:
       - ./musicoin:/root/.musicoin
     environment:
