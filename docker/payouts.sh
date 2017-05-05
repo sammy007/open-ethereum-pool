@@ -6,6 +6,7 @@ while [ -z "`netstat -tln | grep 8545`" ]; do
   sleep 1
 done
 echo 'gmc started.'
+sleep 5
 
 # Start server.
 echo 'Starting payouts...'
