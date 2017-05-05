@@ -1,5 +1,9 @@
 {
-  "unlocker": {
+	"threads": 8,
+	"coin": "music",
+	"name": "main",
+	
+  	"unlocker": {
 		"enabled": true,
 		"poolFee": 0.5,
 		"poolFeeAddress": "0x60c9b2aa721127b5775146aa96078703549408e1",
