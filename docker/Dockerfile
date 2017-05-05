@@ -39,6 +39,10 @@ ENV DEBIAN_FRONTEND noninteractive
 COPY nginx.conf /etc/nginx/sites-enabled/default
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY pool.conf /etc/security/limits.d/pool.conf
+COPY payouts.sh /payouts.sh
+COPY pool.sh /pool.sh
+
+RUN chmod a+x /payouts.sh && chmod a+x /pool.sh
 
 CMD ["/usr/bin/supervisord"]
 
