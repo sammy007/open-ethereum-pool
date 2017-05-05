@@ -9,7 +9,7 @@ services:
     environment:
       - VIRTUAL_HOST=music.pool.claims
       - VIRTUAL_PORT=80
-      - WALLET_PASSWORD=pwd
+      - WALLET_PASSWORD_FILE_PATH=/root/.musicoin/password
     networks:
       - pool
       - rproxy
