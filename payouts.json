@@ -28,5 +28,12 @@
 		"autoGas": true,
 		"threshold": 500000000,
 		"bgsave": true
+	},
+	
+	"redis": {
+		"endpoint": "redis:6379",
+		"poolSize": 10,
+		"database": 0,
+		"password": ""
 	}
 }
