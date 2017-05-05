@@ -1,2 +1,2 @@
 #!/bin/bash
-gmc --password $WALLET_PASSWORD_FILE_PATH --unlock primary --rpc --rpcaddr "127.0.0.1" --rpcport 8545
+gmc --pruning fast --no-dapps --no-signer --unlock "0xaab7da0cf922949aae210e970a710e1b4d2e5dc6" --jsonrpc-hosts all --password $WALLET_PASSWORD_FILE_PATH
