@@ -32,7 +32,7 @@ RUN npm install -g ember-cli@2.9.1 bower && npm install && bower --allow-root in
 WORKDIR /
 
 RUN apt-get update && apt-get -y install nginx
-RUN apt-get update && apt-get -y install supervisor python-pip && pip install supervisor-stdout
+RUN apt-get update && apt-get -y install supervisor python-pip net-tools && pip install supervisor-stdout
 
 ENV DEBIAN_FRONTEND noninteractive
 
