@@ -24,7 +24,7 @@
 		"timeout": "10s",
 		"address": "0x328b9cfd311c9c9e60b6826fc5311be812355168",
 		"gas": "21000",
-		"gasPrice": "50000000000",
+		"gasPrice": "20000000000",
 		"autoGas": true,
 		"threshold": 500000000,
 		"bgsave": true
