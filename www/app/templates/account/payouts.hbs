@@ -1,26 +1,28 @@
 <div class="container">
   {{#if model.payments}}
   <h4>Your Latest Payouts</h4>
-  <table class="table table-condensed table-striped">
-    <thead>
-      <tr>
-        <th>Time</th>
-        <th>Tx ID</th>
-        <th>Amount</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{#each model.payments as |tx|}}
+  <div class="table-responsive">
+    <table class="table table-condensed table-striped">
+      <thead>
         <tr>
-          <td>{{format-date-locale tx.timestamp}}</td>
-          <td>
-            <a href="https://etherscan.io/tx/{{tx.tx}}" class="hash" rel="nofollow" target="_blank">{{tx.tx}}</a>
-          </td>
-          <td>{{format-balance tx.amount}}</td>
+          <th>Time</th>
+          <th>Tx ID</th>
+          <th>Amount</th>
         </tr>
-      {{/each}}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {{#each model.payments as |tx|}}
+          <tr>
+            <td>{{format-date-locale tx.timestamp}}</td>
+            <td>
+              <a href="https://etherscan.io/tx/{{tx.tx}}" class="hash" rel="nofollow" target="_blank">{{tx.tx}}</a>
+            </td>
+            <td>{{format-balance tx.amount}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
   {{else}}
   <h3>No payouts yet</h3>
   {{/if}}
