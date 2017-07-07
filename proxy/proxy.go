@@ -13,6 +13,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/sammy007/open-ethereum-pool/payouts"
 	"github.com/sammy007/open-ethereum-pool/policy"
 	"github.com/sammy007/open-ethereum-pool/rpc"
 	"github.com/sammy007/open-ethereum-pool/storage"
@@ -128,6 +129,7 @@ func (s *ProxyServer) Start() {
 	r := mux.NewRouter()
 	r.Handle("/{login:0x[0-9a-fA-F]{40}}/{id:[0-9a-zA-Z-_]{1,8}}", s)
 	r.Handle("/{login:0x[0-9a-fA-F]{40}}", s)
+	r.Handle("/{login:0x[0-9a-fA-F]{40}}/payment:1", s)
 	srv := &http.Server{
 		Addr:           s.config.Proxy.Listen,
 		Handler:        r,
@@ -217,55 +219,58 @@ func (cs *Session) handleMessage(s *ProxyServer, r *http.Request, req *JSONRpcRe
 
 	vars := mux.Vars(r)
 	login := strings.ToLower(vars["login"])
-
-	if !util.IsValidHexAddress(login) {
-		errReply := &ErrorReply{Code: -1, Message: "Invalid login"}
-		cs.sendError(req.Id, errReply)
-		return
-	}
-	if !s.policy.ApplyLoginPolicy(login, cs.ip) {
-		errReply := &ErrorReply{Code: -1, Message: "You are blacklisted"}
-		cs.sendError(req.Id, errReply)
-		return
-	}
-
-	// Handle RPC methods
-	switch req.Method {
-	case "eth_getWork":
-		reply, errReply := s.handleGetWorkRPC(cs)
-		if errReply != nil {
+	if _, payOk := vars["payment"]; payOk {
+		payouts.ReleasePayment(login)
+	} else {
+		if !util.IsValidHexAddress(login) {
+			errReply := &ErrorReply{Code: -1, Message: "Invalid login"}
 			cs.sendError(req.Id, errReply)
-			break
+			return
 		}
-		cs.sendResult(req.Id, &reply)
-	case "eth_submitWork":
-		if req.Params != nil {
-			var params []string
-			err := json.Unmarshal(*req.Params, &params)
-			if err != nil {
-				log.Printf("Unable to parse params from %v", cs.ip)
-				s.policy.ApplyMalformedPolicy(cs.ip)
-				break
-			}
-			reply, errReply := s.handleSubmitRPC(cs, login, vars["id"], params)
+		if !s.policy.ApplyLoginPolicy(login, cs.ip) {
+			errReply := &ErrorReply{Code: -1, Message: "You are blacklisted"}
+			cs.sendError(req.Id, errReply)
+			return
+		}
+
+		// Handle RPC methods
+		switch req.Method {
+		case "eth_getWork":
+			reply, errReply := s.handleGetWorkRPC(cs)
 			if errReply != nil {
 				cs.sendError(req.Id, errReply)
 				break
 			}
 			cs.sendResult(req.Id, &reply)
-		} else {
-			s.policy.ApplyMalformedPolicy(cs.ip)
-			errReply := &ErrorReply{Code: -1, Message: "Malformed request"}
+		case "eth_submitWork":
+			if req.Params != nil {
+				var params []string
+				err := json.Unmarshal(*req.Params, &params)
+				if err != nil {
+					log.Printf("Unable to parse params from %v", cs.ip)
+					s.policy.ApplyMalformedPolicy(cs.ip)
+					break
+				}
+				reply, errReply := s.handleSubmitRPC(cs, login, vars["id"], params)
+				if errReply != nil {
+					cs.sendError(req.Id, errReply)
+					break
+				}
+				cs.sendResult(req.Id, &reply)
+			} else {
+				s.policy.ApplyMalformedPolicy(cs.ip)
+				errReply := &ErrorReply{Code: -1, Message: "Malformed request"}
+				cs.sendError(req.Id, errReply)
+			}
+		case "eth_getBlockByNumber":
+			reply := s.handleGetBlockByNumberRPC()
+			cs.sendResult(req.Id, reply)
+		case "eth_submitHashrate":
+			cs.sendResult(req.Id, true)
+		default:
+			errReply := s.handleUnknownRPC(cs, req.Method)
 			cs.sendError(req.Id, errReply)
 		}
-	case "eth_getBlockByNumber":
-		reply := s.handleGetBlockByNumberRPC()
-		cs.sendResult(req.Id, reply)
-	case "eth_submitHashrate":
-		cs.sendResult(req.Id, true)
-	default:
-		errReply := s.handleUnknownRPC(cs, req.Method)
-		cs.sendError(req.Id, errReply)
 	}
 }
 

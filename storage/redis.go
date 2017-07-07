@@ -377,6 +377,7 @@ type PendingPayment struct {
 	Timestamp int64  `json:"timestamp"`
 	Amount    int64  `json:"amount"`
 	Address   string `json:"login"`
+	Email     string `json:"email"`
 }
 
 func (r *RedisClient) GetPendingPayments() []*PendingPayment {
