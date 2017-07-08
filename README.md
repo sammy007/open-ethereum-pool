@@ -1,5 +1,5 @@
 ## Open Source Dubaicoin Mining Pool
-
+* Still in developing !!!
 
 [Open Dubaicoin DBIX Pool](http://eu2.pool.dubaicoin.org)
 
