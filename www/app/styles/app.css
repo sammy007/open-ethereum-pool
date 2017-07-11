@@ -164,7 +164,7 @@ h4.note {
 .stats:last-child{
 	width: auto;
 }
-.stats > h3 > i {
+.stats > .h3 > i {
 	width: 21px;
 }
 .stats > div{
