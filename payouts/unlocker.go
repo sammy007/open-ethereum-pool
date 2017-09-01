@@ -37,14 +37,13 @@ const minDepth = 16
 var (
     finalBlockReward *big.Int = big.NewInt(5e+18)
     slowBlockReward *big.Int     = big.NewInt(1e+18)
-    SlowStart *big.Int             = big.NewInt(1000)
+    slowStart *big.Int             = big.NewInt(1000)
     rewardBlockDivisor *big.Int    = big.NewInt(100000)
     rewardBlockFlat *big.Int       = big.NewInt(1000000)
 
     rewardDistMinerPre *big.Int = big.NewInt(67) 		// per 100
     rewardDistMinerPost *big.Int = big.NewInt(34)
     rewardDistSwitchBlock *big.Int = big.NewInt(200000)
-    rewardDistDev *big.Int = big.NewInt(33)
 )
 
 // Donate 10% from pool fees to developers
@@ -218,7 +217,7 @@ func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage
     reward := new(big.Int)
     headerRew := new(big.Int)
     headerRew.Div(block.Number, rewardBlockDivisor)
-    if (block.Number.Cmp(SlowStart)  < 1 || block.Number.Cmp(SlowStart)  == 0) {
+    if (block.Number.Cmp(slowStart)  < 1 || block.Number.Cmp(slowStart)  == 0) {
         reward = reward.Set(slowBlockReward)
     } else if (block.Number.Cmp(rewardBlockFlat) > 1) {
         reward = reward.Set(finalBlockReward)
@@ -548,7 +547,7 @@ func getUncleReward(uHeight, height int64) *big.Int {
     reward := new(big.Int)
     headerRew := new(big.Int)
     headerRew.Div(block.Number, rewardBlockDivisor)
-    if (block.Number.Cmp(SlowStart)  < 1 || block.Number.Cmp(SlowStart)  == 0) {
+    if (block.Number.Cmp(slowStart)  < 1 || block.Number.Cmp(slowStart)  == 0) {
         reward = reward.Set(slowBlockReward)
     } else if (block.Number.Cmp(rewardBlockFlat) > 1) {
         reward = reward.Set(finalBlockReward)
