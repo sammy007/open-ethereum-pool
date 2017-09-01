@@ -30,7 +30,7 @@ type UnlockerConfig struct {
 
 const minDepth = 16
 
-var constReward = math.MustParseBig256("5000000000000000000")
+// var constReward = math.MustParseBig256("5000000000000000000")
 // var uncleReward = new(big.Int).Div(constReward, new(big.Int).SetInt64(32))
 
 // WhaleCoin reward vars
@@ -44,7 +44,6 @@ var (
     rewardDistMinerPre *big.Int = big.NewInt(67) 		// per 100
     rewardDistMinerPost *big.Int = big.NewInt(34)
     rewardDistSwitchBlock *big.Int = big.NewInt(200000)
-    rewardDistFollower *big.Int = big.NewInt(33)
     rewardDistDev *big.Int = big.NewInt(33)
 )
 
