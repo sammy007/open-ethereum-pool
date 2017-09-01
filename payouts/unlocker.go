@@ -212,7 +212,7 @@ func matchCandidate(block *rpc.GetBlockReply, candidate *storage.BlockData) bool
 
 func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage.BlockData) error {
 	// Initial 5 Ether static reward
-	initialBlockReward := new(big.Int)
+    initialBlockReward := new(big.Int)
     initialBlockReward.SetString("15000000000000000000",10)
     reward := new(big.Int)
     headerRew := new(big.Int)
