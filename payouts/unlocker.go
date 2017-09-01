@@ -30,8 +30,21 @@ type UnlockerConfig struct {
 
 const minDepth = 16
 
-var constReward = math.MustParseBig256("5000000000000000000")
-var uncleReward = new(big.Int).Div(constReward, new(big.Int).SetInt64(32))
+// var constReward = math.MustParseBig256("5000000000000000000")
+// var uncleReward = new(big.Int).Div(constReward, new(big.Int).SetInt64(32))
+
+// WhaleCoin reward vars
+var (
+    finalBlockReward *big.Int = big.NewInt(5e+18)
+    slowBlockReward *big.Int     = big.NewInt(1e+18)
+    slowStart *big.Int             = big.NewInt(1000)
+    rewardBlockDivisor *big.Int    = big.NewInt(100000)
+    rewardBlockFlat *big.Int       = big.NewInt(1000000)
+
+    rewardDistMinerPre *big.Int = big.NewInt(67) 		// per 100
+    rewardDistMinerPost *big.Int = big.NewInt(34)
+    rewardDistSwitchBlock *big.Int = big.NewInt(200000)
+)
 
 // Donate 10% from pool fees to developers
 const donationFee = 10.0
@@ -199,7 +212,39 @@ func matchCandidate(block *rpc.GetBlockReply, candidate *storage.BlockData) bool
 
 func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage.BlockData) error {
 	// Initial 5 Ether static reward
-	reward := new(big.Int).Set(constReward)
+    initialBlockReward := new(big.Int)
+    initialBlockReward.SetString("15000000000000000000",10)
+    reward := new(big.Int)
+    headerRew := new(big.Int)
+    headerRew.Div(block.Number, rewardBlockDivisor)
+    if (block.Number.Cmp(slowStart)  < 1 || block.Number.Cmp(slowStart)  == 0) {
+        reward = reward.Set(slowBlockReward)
+    } else if (block.Number.Cmp(rewardBlockFlat) > 1) {
+        reward = reward.Set(finalBlockReward)
+    } else {
+    	headerRew.Mul(headerRew, slowBlockReward)
+        reward = reward.Sub(initialBlockReward, headerRew)
+    }
+    minerReward := new(big.Int)
+    rewardDivisor := big.NewInt(100)
+    uncleReward := new(big.Int).Div(reward, new(big.Int).SetInt64(32))
+    // if block.Number > 200000
+    if (block.Number.Cmp(rewardDistSwitchBlock) > 1) {
+    	uncleReward.Mul(uncleReward, rewardDistMinerPost)
+    	uncleReward.Div(uncleReward, rewardDivisor)
+
+  		// calcuting miner reward Post Switch Block
+	    reward.Mul(reward, rewardDistMinerPost)
+	    reward.Div(reward, rewardDivisor)
+	} else {
+    	uncleReward.Mul(uncleReward, rewardDistMinerPre)
+    	uncleReward.Div(uncleReward, rewardDivisor)
+
+  		// calcuting miner reward Post Switch Block
+	    reward.Mul(reward, rewardDistMinerPre)
+	    reward.Div(reward, rewardDivisor)
+	}
+	// reward := new(big.Int).Set(constReward)
 
 	correctHeight, err := strconv.ParseInt(strings.Replace(block.Number, "0x", "", -1), 16, 64)
 	if err != nil {
@@ -497,10 +542,37 @@ func weiToShannonInt64(wei *big.Rat) int64 {
 }
 
 func getUncleReward(uHeight, height int64) *big.Int {
-	reward := new(big.Int).Set(constReward)
-	reward.Mul(big.NewInt(uHeight+8-height), reward)
-	reward.Div(reward, big.NewInt(8))
-	return reward
+    initialBlockReward := new(big.Int)
+    initialBlockReward.SetString("15000000000000000000",10)
+    reward := new(big.Int)
+    headerRew := new(big.Int)
+    headerRew.Div(block.Number, rewardBlockDivisor)
+    if (block.Number.Cmp(slowStart)  < 1 || block.Number.Cmp(slowStart)  == 0) {
+        reward = reward.Set(slowBlockReward)
+    } else if (block.Number.Cmp(rewardBlockFlat) > 1) {
+        reward = reward.Set(finalBlockReward)
+    } else {
+    	headerRew.Mul(headerRew, slowBlockReward)
+        reward = reward.Sub(initialBlockReward, headerRew)
+    }
+    minerReward := new(big.Int)
+    rewardDivisor := big.NewInt(100)
+    // if block.Number > 200000
+    if (block.Number.Cmp(rewardDistSwitchBlock) > 1) {
+
+  		// calcuting miner reward Post Switch Block
+	    reward.Mul(reward, rewardDistMinerPost)
+	    reward.Div(reward, rewardDivisor)
+	} else {
+
+  		// calcuting miner reward Post Switch Block
+	    reward.Mul(reward, rewardDistMinerPre)
+	    reward.Div(reward, rewardDivisor)
+	}
+	rewardUnc := new(big.Int).Set(reward)
+	rewardUnc.Mul(big.NewInt(uHeight+8-height), rewardUnc)
+	rewardUnc.Div(rewardUnc, big.NewInt(8))
+	return rewardUnc
 }
 
 func (u *BlockUnlocker) getExtraRewardForTx(block *rpc.GetBlockReply) (*big.Int, error) {
