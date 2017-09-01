@@ -542,7 +542,7 @@ func weiToShannonInt64(wei *big.Rat) int64 {
 }
 
 func getUncleReward(uHeight, height int64) *big.Int {
-	initialBlockReward := new(big.Int)
+    initialBlockReward := new(big.Int)
     initialBlockReward.SetString("15000000000000000000",10)
     reward := new(big.Int)
     headerRew := new(big.Int)
