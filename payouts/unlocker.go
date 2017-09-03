@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/WhaleCoinOrg/WhaleCoin/common/math"
-
 	"github.com/WhaleCoinOrg/open-ethereum-pool/rpc"
 	"github.com/WhaleCoinOrg/open-ethereum-pool/storage"
 	"github.com/WhaleCoinOrg/open-ethereum-pool/util"
@@ -216,29 +215,25 @@ func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage
     initialBlockReward.SetString("15000000000000000000",10)
     reward := new(big.Int)
     headerRew := new(big.Int)
-    headerRew.Div(block.Number, rewardBlockDivisor)
-    if (block.Number.Cmp(slowStart)  == -1 || block.Number.Cmp(slowStart)  == 0) {
+    blockNum := new(big.Int)
+    blockNum.SetString(block.Number, 10)
+    headerRew.Div(blockNum, rewardBlockDivisor)
+    if (blockNum.Cmp(slowStart)  == -1 || blockNum.Cmp(slowStart)  == 0) {
         reward = reward.Set(slowBlockReward)
-    } else if (block.Number.Cmp(rewardBlockFlat) == 1) {
+    } else if (blockNum.Cmp(rewardBlockFlat) == 1) {
         reward = reward.Set(finalBlockReward)
     } else {
     	headerRew.Mul(headerRew, slowBlockReward)
         reward = reward.Sub(initialBlockReward, headerRew)
     }
-    minerReward := new(big.Int)
     rewardDivisor := big.NewInt(100)
-    uncleReward := new(big.Int).Div(reward, new(big.Int).SetInt64(32))
     // if block.Number > 200000
-    if (block.Number.Cmp(rewardDistSwitchBlock) == 1) {
-    	uncleReward.Mul(uncleReward, rewardDistMinerPost)
-    	uncleReward.Div(uncleReward, rewardDivisor)
+    if (blockNum.Cmp(rewardDistSwitchBlock) == 1) {
 
   		// calcuting miner reward Post Switch Block
 	    reward.Mul(reward, rewardDistMinerPost)
 	    reward.Div(reward, rewardDivisor)
 	} else {
-    	uncleReward.Mul(uncleReward, rewardDistMinerPre)
-    	uncleReward.Div(uncleReward, rewardDivisor)
 
   		// calcuting miner reward Post Switch Block
 	    reward.Mul(reward, rewardDistMinerPre)
@@ -263,9 +258,6 @@ func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage
 		reward.Add(reward, extraTxReward)
 	}
 
-	// Add reward for including uncles
-	rewardForUncles := big.NewInt(0).Mul(uncleReward, big.NewInt(int64(len(block.Uncles))))
-	reward.Add(reward, rewardForUncles)
 
 	candidate.Orphan = false
 	candidate.Hash = block.Hash
@@ -542,23 +534,14 @@ func weiToShannonInt64(wei *big.Rat) int64 {
 }
 
 func getUncleReward(uHeight, height int64) *big.Int {
-    initialBlockReward := new(big.Int)
-    initialBlockReward.SetString("15000000000000000000",10)
-    reward := new(big.Int)
-    headerRew := new(big.Int)
-    headerRew.Div(block.Number, rewardBlockDivisor)
-    if (block.Number.Cmp(slowStart)  < 1 || block.Number.Cmp(slowStart)  == 0) {
-        reward = reward.Set(slowBlockReward)
-    } else if (block.Number.Cmp(rewardBlockFlat) > 1) {
-        reward = reward.Set(finalBlockReward)
-    } else {
-    	headerRew.Mul(headerRew, slowBlockReward)
-        reward = reward.Sub(initialBlockReward, headerRew)
-    }
-    minerReward := new(big.Int)
+	var constReward = math.MustParseBig256("5000000000000000000")
+	reward := new(big.Int).Set(constReward)
+	reward.Mul(big.NewInt(uHeight+8-height), reward)
+	reward.Div(reward, big.NewInt(8))
+
     rewardDivisor := big.NewInt(100)
     // if block.Number > 200000
-    if (block.Number.Cmp(rewardDistSwitchBlock) > 1) {
+    if (big.NewInt(height).Cmp(rewardDistSwitchBlock) == 1) {
 
   		// calcuting miner reward Post Switch Block
 	    reward.Mul(reward, rewardDistMinerPost)
@@ -569,10 +552,8 @@ func getUncleReward(uHeight, height int64) *big.Int {
 	    reward.Mul(reward, rewardDistMinerPre)
 	    reward.Div(reward, rewardDivisor)
 	}
-	rewardUnc := new(big.Int).Set(reward)
-	rewardUnc.Mul(big.NewInt(uHeight+8-height), rewardUnc)
-	rewardUnc.Div(rewardUnc, big.NewInt(8))
-	return rewardUnc
+
+	return reward
 }
 
 func (u *BlockUnlocker) getExtraRewardForTx(block *rpc.GetBlockReply) (*big.Int, error) {

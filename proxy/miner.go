@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ethereum/ethash"
+	"github.com/WhaleCoinOrg/WhaleCoin/ethash"
 	"github.com/WhaleCoinOrg/WhaleCoin/common"
 )
 
