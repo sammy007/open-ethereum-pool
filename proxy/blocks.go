@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/WhaleCoinOrg/WhaleCoin/common"
 
 	"github.com/WhaleCoinOrg/open-ethereum-pool/rpc"
 	"github.com/WhaleCoinOrg/open-ethereum-pool/util"
