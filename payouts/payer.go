@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/WhaleCoinOrg/WhaleCoin/common/hexutil"
 
 	"github.com/WhaleCoinOrg/open-ethereum-pool/rpc"
 	"github.com/WhaleCoinOrg/open-ethereum-pool/storage"

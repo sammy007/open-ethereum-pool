@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common/math"
+	"github.com/WhaleCoinOrg/WhaleCoin/common/math"
 
 	"github.com/WhaleCoinOrg/open-ethereum-pool/rpc"
 	"github.com/WhaleCoinOrg/open-ethereum-pool/storage"
@@ -217,9 +217,9 @@ func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage
     reward := new(big.Int)
     headerRew := new(big.Int)
     headerRew.Div(block.Number, rewardBlockDivisor)
-    if (block.Number.Cmp(slowStart)  < 1 || block.Number.Cmp(slowStart)  == 0) {
+    if (block.Number.Cmp(slowStart)  == -1 || block.Number.Cmp(slowStart)  == 0) {
         reward = reward.Set(slowBlockReward)
-    } else if (block.Number.Cmp(rewardBlockFlat) > 1) {
+    } else if (block.Number.Cmp(rewardBlockFlat) == 1) {
         reward = reward.Set(finalBlockReward)
     } else {
     	headerRew.Mul(headerRew, slowBlockReward)
@@ -229,7 +229,7 @@ func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage
     rewardDivisor := big.NewInt(100)
     uncleReward := new(big.Int).Div(reward, new(big.Int).SetInt64(32))
     // if block.Number > 200000
-    if (block.Number.Cmp(rewardDistSwitchBlock) > 1) {
+    if (block.Number.Cmp(rewardDistSwitchBlock) == 1) {
     	uncleReward.Mul(uncleReward, rewardDistMinerPost)
     	uncleReward.Div(uncleReward, rewardDivisor)
 
