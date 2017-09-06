@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/WhaleCoinOrg/WhaleCoin/common/math"
 	"github.com/WhaleCoinOrg/open-ethereum-pool/rpc"
 	"github.com/WhaleCoinOrg/open-ethereum-pool/storage"
 	"github.com/WhaleCoinOrg/open-ethereum-pool/util"
@@ -534,14 +533,26 @@ func weiToShannonInt64(wei *big.Rat) int64 {
 }
 
 func getUncleReward(uHeight, height int64) *big.Int {
-	var constReward = math.MustParseBig256("5000000000000000000")
-	reward := new(big.Int).Set(constReward)
+	initialBlockReward := new(big.Int)
+    initialBlockReward.SetString("15000000000000000000",10)
+    reward := new(big.Int)
+    headerRew := new(big.Int)
+    blockNum := big.NewInt(height)
+    headerRew.Div(blockNum, rewardBlockDivisor)
+    if (blockNum.Cmp(slowStart)  == -1 || blockNum.Cmp(slowStart)  == 0) {
+        reward = reward.Set(slowBlockReward)
+    } else if (blockNum.Cmp(rewardBlockFlat) == 1) {
+        reward = reward.Set(finalBlockReward)
+    } else {
+    	headerRew.Mul(headerRew, slowBlockReward)
+        reward = reward.Sub(initialBlockReward, headerRew)
+    }
 	reward.Mul(big.NewInt(uHeight+8-height), reward)
 	reward.Div(reward, big.NewInt(8))
 
     rewardDivisor := big.NewInt(100)
     // if block.Number > 200000
-    if (big.NewInt(height).Cmp(rewardDistSwitchBlock) == 1) {
+    if (blockNum.Cmp(rewardDistSwitchBlock) == 1) {
 
   		// calcuting miner reward Post Switch Block
 	    reward.Mul(reward, rewardDistMinerPost)
