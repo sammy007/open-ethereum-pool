@@ -212,10 +212,14 @@ func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage
 	// Initial 5 Ether static reward
     initialBlockReward := new(big.Int)
     initialBlockReward.SetString("15000000000000000000",10)
+
+    correctHeight, err := strconv.ParseInt(strings.Replace(block.Number, "0x", "", -1), 16, 64)
+	if err != nil {
+		return err
+	}
     reward := new(big.Int)
     headerRew := new(big.Int)
-    blockNum := new(big.Int)
-    blockNum.SetString(block.Number, 10)
+    blockNum := big.NewInt(correctHeight)
     headerRew.Div(blockNum, rewardBlockDivisor)
     if (blockNum.Cmp(slowStart)  == -1 || blockNum.Cmp(slowStart)  == 0) {
         reward = reward.Set(slowBlockReward)
@@ -240,10 +244,6 @@ func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage
 	}
 	// reward := new(big.Int).Set(constReward)
 
-	correctHeight, err := strconv.ParseInt(strings.Replace(block.Number, "0x", "", -1), 16, 64)
-	if err != nil {
-		return err
-	}
 	candidate.Height = correctHeight
 
 	// Add TX fees
