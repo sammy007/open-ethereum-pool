@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/math"
+	"github.com/WhaleCoinOrg/WhaleCoin/common/math"
 )
 
 var Ether = math.BigPow(10, 18)
