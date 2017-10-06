@@ -39,7 +39,7 @@ First install  [go-musicoin](https://github.com/Musicoin/go-musicoin).
 Clone & compile:
 
     git config --global http.https://gopkg.in.followRedirects true
-    git clone https://github.com/bapparabi/open-ethereum-pool.git
+    git clone https://github.com/bapparabi/open-music-coin-pool.git
     cd open-ethereum-pool
     make
 
