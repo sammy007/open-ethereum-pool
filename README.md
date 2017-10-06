@@ -1,14 +1,11 @@
 ## Open Source Music coin Mining Pool
 
-![Miner's stats page](https://15254b2dcaab7f5478ab-24461f391e20b7336331d5789078af53.ssl.cf1.rackcdn.com/ethereum.vanillaforums.com/editor/pe/cf77cki0pjpt.png)
-
 [![Join the chat at https://gitter.im/sammy007/open-ethereum-pool](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sammy007/open-ethereum-pool?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/sammy007/open-ethereum-pool.svg?branch=develop)](https://travis-ci.org/sammy007/open-ethereum-pool) [![Go Report Card](https://goreportcard.com/badge/github.com/sammy007/open-ethereum-pool)](https://goreportcard.com/report/github.com/sammy007/open-ethereum-pool)
 
-[List Of Open Ethereum Pools](https://github.com/sammy007/open-ethereum-pool/wiki/List-Of-Open-Pools)
 
 ### Features
 
-**This pool is being further developed to provide an easy to use pool for Ethereum miners. This software is functional however an optimised release of the pool is expected soon. Testing and bug submissions are welcome!**
+**This pool is being further developed to provide an easy to use pool for Music Coin miners. This software is functional however an optimised release of the pool is expected soon. Testing and bug submissions are welcome!**
 
 * Support for HTTP and Stratum mining
 * Detailed block stats with luck percentage and full reward
@@ -107,7 +104,7 @@ otherwise you will get errors on start because of JSON comments.**
   // Set to the number of CPU cores of your server
   "threads": 2,
   // Prefix for keys in redis store
-  "coin": "eth",
+  "coin": "Music",
   // Give unique name to each instance
   "name": "main",
 
@@ -247,7 +244,7 @@ otherwise you will get errors on start because of JSON comments.**
     // Pool fees beneficiary address (leave it blank to disable fee withdrawals)
     "poolFeeAddress": "",
     // Donate 10% from pool fees to developers
-    "donate": true,
+    "donate": false,
     // Unlock only if this number of blocks mined back
     "depth": 120,
     // Simply don't touch this option
@@ -281,7 +278,7 @@ otherwise you will get errors on start because of JSON comments.**
     "gas": "21000",
     "gasPrice": "50000000000",
     // Send payment only if miner's balance is >= 0.5 Ether
-    "threshold": 500000000,
+    "threshold": 10000000000,
     // Perform BGSAVE on Redis after successful payouts session
     "bgsave": false
   }
@@ -319,4 +316,4 @@ Made by sammy007. Licensed under GPLv3.
 
 ### Donations
 
-ETH/ETC: 0xb85150eb365e7df0941f0cf08235f987ba91506a
+ETH/ETC: 0xe8d07BcC280C564983670dd7e8512e3A5db30593
