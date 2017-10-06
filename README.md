@@ -40,14 +40,14 @@ Clone & compile:
 
     git config --global http.https://gopkg.in.followRedirects true
     git clone https://github.com/bapparabi/open-music-coin-pool.git
-    cd open-ethereum-pool
+    cd open-music-coin-pool
     make
 
 Install redis-server.
 
 ### Running Pool
 
-    ./build/bin/open-ethereum-pool config.json
+    ./build/bin/open-music-coin-pool config.json
 
 You can use Ubuntu upstart - check for sample config in <code>upstart.conf</code>.
 
