@@ -4,8 +4,6 @@
 
 [![Join the chat at https://gitter.im/sammy007/open-ethereum-pool](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sammy007/open-ethereum-pool?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/sammy007/open-ethereum-pool.svg?branch=develop)](https://travis-ci.org/sammy007/open-ethereum-pool) [![Go Report Card](https://goreportcard.com/badge/github.com/sammy007/open-ethereum-pool)](https://goreportcard.com/report/github.com/sammy007/open-ethereum-pool)
 
-[List Of Open Ethereum Pools](https://github.com/sammy007/open-ethereum-pool/wiki/List-Of-Open-Pools)
-
 ### Features
 
 **This pool is being further developed to provide an easy to use pool for Ethereum miners. This software is functional however an optimised release of the pool is expected soon. Testing and bug submissions are welcome!**
