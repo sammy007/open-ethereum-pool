@@ -3,9 +3,9 @@ package proxy
 import "encoding/json"
 
 type JSONRpcReq struct {
-	Id     *json.RawMessage `json:"id"`
-	Method string           `json:"method"`
-	Params *json.RawMessage `json:"params"`
+	Id     json.RawMessage `json:"id"`
+	Method string          `json:"method"`
+	Params json.RawMessage `json:"params"`
 }
 
 type StratumReq struct {
@@ -22,10 +22,10 @@ type JSONPushMessage struct {
 }
 
 type JSONRpcResp struct {
-	Id      *json.RawMessage `json:"id"`
-	Version string           `json:"jsonrpc"`
-	Result  interface{}      `json:"result"`
-	Error   interface{}      `json:"error,omitempty"`
+	Id      json.RawMessage `json:"id"`
+	Version string          `json:"jsonrpc"`
+	Result  interface{}     `json:"result"`
+	Error   interface{}     `json:"error,omitempty"`
 }
 
 type SubmitReply struct {
