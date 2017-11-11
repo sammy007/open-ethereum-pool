@@ -40,6 +40,11 @@
             <i class="fa fa-users"></i> Miners
           {{/link-to}}
         {{/active-li}}
+        {{#active-li currentWhen='finders'}}
+          {{#link-to 'finders'}}
+            <i class="fa fa-diamond"></i> Finders
+          {{/link-to}}
+        {{/active-li}}
         {{#active-li currentWhen='about'}}
           {{#link-to 'about'}}
             <i class="fa fa-comments"></i> About <span class="badge alert-success">&#x2713;</span>

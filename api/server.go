@@ -103,6 +103,7 @@ func (s *ApiServer) Start() {
 
 func (s *ApiServer) listen() {
 	r := mux.NewRouter()
+	r.HandleFunc("/api/finders", s.FindersIndex)
 	r.HandleFunc("/api/stats", s.StatsIndex)
 	r.HandleFunc("/api/miners", s.MinersIndex)
 	r.HandleFunc("/api/blocks", s.BlocksIndex)
@@ -148,6 +149,25 @@ func (s *ApiServer) collectStats() {
 	}
 	s.stats.Store(stats)
 	log.Printf("Stats collection finished %s", time.Since(start))
+}
+
+func (s *ApiServer) FindersIndex(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.WriteHeader(http.StatusOK)
+
+	reply := make(map[string]interface{})
+	stats := s.getStats()
+	if stats != nil {
+		reply["now"] = util.MakeTimestamp()
+		reply["finders"] = stats["finders"]
+	}
+
+	err := json.NewEncoder(w).Encode(reply)
+	if err != nil {
+		log.Println("Error serializing API response: ", err)
+	}
 }
 
 func (s *ApiServer) StatsIndex(w http.ResponseWriter, r *http.Request) {
