@@ -6,7 +6,7 @@ export default Ember.Controller.extend({
 
   roundPercent: Ember.computed('stats', 'model', {
     get() {
-      var percent = this.get('model.roundShares') / this.get('stats.roundShares');
+      var percent = this.get('model.roundScores') / this.get('stats.roundScores');
       if (!percent) {
         return 0;
       }
