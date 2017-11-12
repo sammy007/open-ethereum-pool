@@ -147,7 +147,7 @@ span.logo-3 {
 	border-color: #ff0000;
 }
 
-h4.note {
+.h4.note {
 	margin-top: 0;
 	font-weight: 300 !important;
 }
@@ -164,7 +164,7 @@ h4.note {
 .stats:last-child{
 	width: auto;
 }
-.stats > h3 > i {
+.stats > .h3 > i {
 	width: 21px;
 }
 .stats > div{
