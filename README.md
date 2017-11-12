@@ -62,7 +62,7 @@ Change <code>ApiUrl: '//example.net/'</code> in <code>www/config/environment.js<
     npm install -g ember-cli@2.9.1
     npm install -g bower
     npm install
-    bower install
+    bower install --allow-root
     ./build.sh
 
 Configure nginx to serve API on <code>/api</code> subdirectory.
