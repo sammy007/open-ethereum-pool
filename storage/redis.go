@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"net"
 
 	"gopkg.in/redis.v3"
 
@@ -13,6 +14,7 @@ import (
 )
 
 type Config struct {
+	Network  string `json:"network"`
 	Endpoint string `json:"endpoint"`
 	Password string `json:"password"`
 	Database int64  `json:"database"`
@@ -79,12 +81,24 @@ type Worker struct {
 }
 
 func NewRedisClient(cfg *Config, prefix string) *RedisClient {
-	client := redis.NewClient(&redis.Options{
+	var client *redis.Client
+	if cfg.Network == "unix" {
+	    client = redis.NewClient(&redis.Options{
+		Dialer: func() (net.Conn, error) {
+		    return net.DialTimeout("unix", cfg.Endpoint, 1*time.Second)
+		},
+		Password: cfg.Password,
+		DB:       cfg.Database,
+		PoolSize: cfg.PoolSize,
+	    })
+	} else {
+	    client = redis.NewClient(&redis.Options{
 		Addr:     cfg.Endpoint,
 		Password: cfg.Password,
 		DB:       cfg.Database,
 		PoolSize: cfg.PoolSize,
-	})
+	    })
+	}
 	return &RedisClient{client: client, prefix: prefix}
 }
 
