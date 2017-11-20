@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common/math"
+	"github.com/expanse-org/go-expanse/common/math"
 
 	"github.com/expanse-org/open-expanse-pool/rpc"
 	"github.com/expanse-org/open-expanse-pool/storage"
@@ -97,7 +97,7 @@ type UnlockResult struct {
  * Having very likely incorrect height in database results in a weird block unlocking scheme,
  * when I have to check what the hell we actually found and traversing all the blocks with height-N and height+N
  * to make sure we will find it. We can't rely on round height here, it's just a reference point.
- * ISSUE: https://github.com/ethereum/go-ethereum/issues/2333
+ * ISSUE: https://github.com/expanse-org/go-expanse/issues/2333
  */
 func (u *BlockUnlocker) unlockCandidates(candidates []*storage.BlockData) (*UnlockResult, error) {
 	result := &UnlockResult{}
