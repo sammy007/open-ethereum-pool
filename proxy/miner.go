@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/ethereum/ethash"
-	"github.com/expanse-org/go-expanse/common"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 var hasher = ethash.New()

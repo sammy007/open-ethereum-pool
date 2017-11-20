@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/expanse-org/go-expanse/common"
+	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/expanse-org/open-expanse-pool/rpc"
 	"github.com/expanse-org/open-expanse-pool/util"

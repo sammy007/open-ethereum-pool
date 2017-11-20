@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/expanse-org/go-expanse/common/hexutil"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 
 	"github.com/expanse-org/open-expanse-pool/rpc"
 	"github.com/expanse-org/open-expanse-pool/storage"

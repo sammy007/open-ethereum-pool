@@ -15,22 +15,22 @@ module.exports = function(environment) {
 
     APP: {
       // API host and port
-      ApiUrl: '//pool.expanse.tech/',
+      ApiUrl: '//example.net/',
 
       // HTTP mining endpoint
-      HttpHost: 'http://pool.expanse.tech',
+      HttpHost: 'http://example.net',
       HttpPort: 8888,
 
       // Stratum mining endpoint
-      StratumHost: 'pool.expanse.tech',
+      StratumHost: 'example.net',
       StratumPort: 8008,
 
       // Fee and payout details
       PoolFee: '1%',
-      PayoutThreshold: '0.5 EXP',
+      PayoutThreshold: '0.5 Ether',
 
       // For network hashrate (change for your favourite fork)
-      BlockTime: 30
+      BlockTime: 14.4
     }
   };
 

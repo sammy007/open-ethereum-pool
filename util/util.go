@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/expanse-org/go-expanse/common"
-	"github.com/expanse-org/go-expanse/common/math"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/math"
 )
 
 var Ether = math.BigPow(10, 18)
