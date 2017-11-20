@@ -41,7 +41,10 @@
   <div>
     <hr/>
     <h4 class="note note-info text-center">
-      ethminer.exe -F {{config.HttpHost}}:{{config.HttpPort}}/&lt;address&gt;/&lt;worker&gt; -G
+    ethminer.exe -F {{config.HttpHost}}:{{config.HttpPort}}/&lt;address&gt;/&lt;worker&gt; -G
+    </h4>
+    <h4 class="note note-info text-center">
+    stratum+tcp://{{config.HttpHost}}:8008
     </h4>
   </div>
 </div>
