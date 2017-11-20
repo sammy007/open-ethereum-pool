@@ -2,7 +2,7 @@
 
 module.exports = function(environment) {
   var ENV = {
-    modulePrefix: 'open-ethereum-pool',
+    modulePrefix: 'open-expanse-pool',
     environment: environment,
     rootURL: '/',
     locationType: 'hash',
@@ -15,19 +15,19 @@ module.exports = function(environment) {
 
     APP: {
       // API host and port
-      ApiUrl: '//52.165.128.189/',
+      ApiUrl: '//pool.expanse.tech/',
 
       // HTTP mining endpoint
-      HttpHost: '52.165.128.189',
+      HttpHost: 'http://pool.expanse.tech',
       HttpPort: 8888,
 
       // Stratum mining endpoint
-      StratumHost: '52.165.128.189',
+      StratumHost: 'pool.expanse.tech',
       StratumPort: 8008,
 
       // Fee and payout details
       PoolFee: '1%',
-      PayoutThreshold: '0.5 Ether',
+      PayoutThreshold: '0.5 EXP',
 
       // For network hashrate (change for your favourite fork)
       BlockTime: 30

@@ -1,26 +1,28 @@
 <div class="container">
   {{#if model.workers}}
   <h4>Your Workers</h4>
-  <table class="table table-condensed table-striped">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Hashrate (rough, short average)</th>
-        <th>Hashrate (accurate, long average)</th>
-        <th>Last Share</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{#each-in model.workers as |k v|}}
-        <tr class="{{if v.offline "warning" "success"}}">
-          <td>{{k}}</td>
-          <td>{{format-hashrate v.hr}}</td>
-          <td>{{format-hashrate v.hr2}}</td>
-          <td>{{format-relative (seconds-to-ms v.lastBeat)}}</td>
+  <div class="table-responsive">
+    <table class="table table-condensed table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Hashrate (rough, short average)</th>
+          <th>Hashrate (accurate, long average)</th>
+          <th>Last Share</th>
         </tr>
-      {{/each-in}}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {{#each-in model.workers as |k v|}}
+          <tr class="{{if v.offline "warning" "success"}}">
+            <td>{{k}}</td>
+            <td>{{format-hashrate v.hr}}</td>
+            <td>{{format-hashrate v.hr2}}</td>
+            <td>{{format-relative (seconds-to-ms v.lastBeat)}}</td>
+          </tr>
+        {{/each-in}}
+      </tbody>
+    </table>
+  </div>
   {{else}}
     <h3>No workers online</h3>
   {{/if}}

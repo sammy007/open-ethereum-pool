@@ -1,21 +1,24 @@
 {{#if model.immature}}
 <h4>Immature Blocks</h4>
-<table class="table table-condensed table-striped">
-  <thead>
-    <tr>
-      <th>Height</th>
-      <th>Block Hash</th>
-      <th>Time Found</th>
-      <th>Variance</th>
-      <th>Reward</th>
-    </tr>
-  </thead>
-  <tbody>
-    {{#each model.immature as |block|}}
-      {{partial "blocks/block"}}
-    {{/each}}
-  </tbody>
-</table>
+
+<div class="table-responsive">
+  <table class="table table-condensed table-striped">
+    <thead>
+      <tr>
+        <th>Height</th>
+        <th>Block Hash</th>
+        <th>Time Found</th>
+        <th>Variance</th>
+        <th>Reward</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each model.immature as |block|}}
+        {{partial "blocks/block"}}
+      {{/each}}
+    </tbody>
+  </table>
+</div>
 {{else}}
 <h3>No immature blocks yet</h3>
 {{/if}}
