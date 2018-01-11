@@ -106,7 +106,8 @@
 		"gasPrice": "50000000000",
 		"autoGas": true,
 		"threshold": 500000000,
-		"bgsave": false
+		"bgsave": false,
+		"concurrentTx": 10
 	},
 
 	"newrelicEnabled": false,

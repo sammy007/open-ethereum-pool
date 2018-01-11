@@ -438,9 +438,13 @@ func (r *RedisClient) WritePayment(login, txHash string, amount int64) error {
 		tx.HIncrBy(r.formatKey("finances"), "pending", (amount * -1))
 		tx.HIncrBy(r.formatKey("finances"), "paid", amount)
 		tx.ZAdd(r.formatKey("payments", "all"), redis.Z{Score: float64(ts), Member: join(txHash, login, amount)})
+		tx.ZRemRangeByRank(r.formatKey("payments", "all"), 0, -10000)
 		tx.ZAdd(r.formatKey("payments", login), redis.Z{Score: float64(ts), Member: join(txHash, amount)})
+		tx.ZRemRangeByRank(r.formatKey("payments", login), 0, -100)
 		tx.ZRem(r.formatKey("payments", "pending"), join(login, amount))
 		tx.Del(r.formatKey("payments", "lock"))
+		tx.HIncrBy(r.formatKey("paymentsTotal"), "all", 1)
+		tx.HIncrBy(r.formatKey("paymentsTotal"), login, 1)
 		return nil
 	})
 	return err
@@ -576,7 +580,7 @@ func (r *RedisClient) GetMinerStats(login string, maxPayments int64) (map[string
 	cmds, err := tx.Exec(func() error {
 		tx.HGetAllMap(r.formatKey("miners", login))
 		tx.ZRevRangeWithScores(r.formatKey("payments", login), 0, maxPayments-1)
-		tx.ZCard(r.formatKey("payments", login))
+		tx.HGet(r.formatKey("paymentsTotal"), login)
 		tx.HGet(r.formatKey("shares", "roundCurrent"), login)
 		return nil
 	})
@@ -588,7 +592,7 @@ func (r *RedisClient) GetMinerStats(login string, maxPayments int64) (map[string
 		stats["stats"] = convertStringMap(result)
 		payments := convertPaymentsResults(cmds[1].(*redis.ZSliceCmd))
 		stats["payments"] = payments
-		stats["paymentsTotal"] = cmds[2].(*redis.IntCmd).Val()
+		stats["paymentsTotal"], _ = cmds[2].(*redis.StringCmd).Int64()
 		roundShares, _ := cmds[3].(*redis.StringCmd).Int64()
 		stats["roundShares"] = roundShares
 	}
@@ -666,7 +670,7 @@ func (r *RedisClient) CollectStats(smallWindow time.Duration, maxBlocks, maxPaym
 		tx.ZCard(r.formatKey("blocks", "candidates"))
 		tx.ZCard(r.formatKey("blocks", "immature"))
 		tx.ZCard(r.formatKey("blocks", "matured"))
-		tx.ZCard(r.formatKey("payments", "all"))
+		tx.HGet(r.formatKey("paymentsTotal"), "all")
 		tx.ZRevRangeWithScores(r.formatKey("payments", "all"), 0, maxPayments-1)
 		return nil
 	})
@@ -691,7 +695,7 @@ func (r *RedisClient) CollectStats(smallWindow time.Duration, maxBlocks, maxPaym
 
 	payments := convertPaymentsResults(cmds[10].(*redis.ZSliceCmd))
 	stats["payments"] = payments
-	stats["paymentsTotal"] = cmds[9].(*redis.IntCmd).Val()
+	stats["paymentsTotal"], _ = cmds[9].(*redis.StringCmd).Int64()
 
 	totalHashrate, miners := convertMinersStats(window, cmds[1].(*redis.ZSliceCmd))
 	stats["miners"] = miners
