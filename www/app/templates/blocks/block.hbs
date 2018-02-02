@@ -7,8 +7,12 @@
     {{/if}}
   </td>
   <td>
-    {{#if block.orphan}}
+    {{#if block.uncle}}
+      <a href="https://explorer.hotelbyte.org" class="hash" rel="nofollow" target="_blank">{{block.hash}}</a>
+    {{else if block.orphan}}
       <span class="label label-danger">Orphan</span>
+    {{else}}
+      <a href="https://explorer.hotelbyte.org" class="hash" rel="nofollow" target="_blank">{{block.hash}}</a>
     {{/if}}
   </td>
   <td>{{format-date-locale block.timestamp}}</td>
