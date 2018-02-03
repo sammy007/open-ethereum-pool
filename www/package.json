@@ -1,7 +1,7 @@
 {
-  "name": "open-ethereum-pool",
+  "name": "open-mining-pool",
   "version": "0.0.0",
-  "description": "Open Ethereum Pool",
+  "description": "Open Mining Pool",
   "private": true,
   "directories": {
     "doc": "doc",

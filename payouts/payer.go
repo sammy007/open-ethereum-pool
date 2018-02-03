@@ -10,9 +10,9 @@ import (
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 
-	"github.com/sammy007/open-ethereum-pool/rpc"
-	"github.com/sammy007/open-ethereum-pool/storage"
-	"github.com/sammy007/open-ethereum-pool/util"
+	"github.com/hotelbyte/open-mining-pool/rpc"
+	"github.com/hotelbyte/open-mining-pool/storage"
+	"github.com/hotelbyte/open-mining-pool/util"
 )
 
 const txCheckInterval = 5 * time.Second
@@ -145,8 +145,8 @@ func (u *PayoutsProcessor) process() {
 			break
 		}
 		if poolBalance.Cmp(amountInWei) < 0 {
-			err := fmt.Errorf("Not enough balance for payment, need %s Wei, pool has %s Wei",
-				amountInWei.String(), poolBalance.String())
+			err := fmt.Errorf("Not enough balance for payment, need %s Wei, pool has %s Wei, address %s",
+				amountInWei.String(), poolBalance.String(), u.config.Address)
 			u.halt = true
 			u.lastFail = err
 			break

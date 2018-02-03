@@ -1,16 +1,16 @@
-## Open Source Ethereum Mining Pool
+## Open Mining Pool
 
 ![Miner's stats page](https://user-images.githubusercontent.com/7374093/31591180-43c72364-b236-11e7-8d47-726cd66b876a.png)
 
-[![Join the chat at https://gitter.im/sammy007/open-ethereum-pool](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sammy007/open-ethereum-pool?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/sammy007/open-ethereum-pool.svg?branch=develop)](https://travis-ci.org/sammy007/open-ethereum-pool) [![Go Report Card](https://goreportcard.com/badge/github.com/sammy007/open-ethereum-pool)](https://goreportcard.com/report/github.com/sammy007/open-ethereum-pool)
+[![Build Status](https://travis-ci.org/hotelbyte/open-mining-pool.svg?branch=master)](https://travis-ci.org/hotelbyte/open-mining-pool) [![Go Report Card](https://goreportcard.com/badge/github.com/hotelbyte/open-mining-pool)](https://goreportcard.com/report/github.com/hotelbyte/open-mining-pool)
 
 ### Features
 
-**This pool is being further developed to provide an easy to use pool for Ethereum miners. This software is functional however an optimised release of the pool is expected soon. Testing and bug submissions are welcome!**
+**This pool is being further developed to provide an easy to use pool for Ethash miners. This software is functional however an optimised release of the pool is expected soon. Testing and bug submissions are welcome!**
 
 * Support for HTTP and Stratum mining
 * Detailed block stats with luck percentage and full reward
-* Failover geth instances: geth high availability built in
+* Failover ghbc instances: ghbc high availability built in
 * Modern beautiful Ember.js frontend
 * Separate stats for workers: can highlight timed-out workers so miners can perform maintenance of rigs
 * JSON-API for stats
@@ -22,13 +22,17 @@
 
 ### Building on Linux
 
-Dependencies:
+Platform Dependencies:
 
   * go >= 1.9
-  * geth or parity
   * redis-server >= 2.8.0
   * nodejs >= 4 LTS
   * nginx
+
+Ethash Dependencies:
+  
+  * geth or parity (for Ethereum only)
+  * ghbc or parity (for Hotelbyte only)
 
 **I highly recommend to use Ubuntu 16.04 LTS.**
 
@@ -37,15 +41,15 @@ First install  [go-ethereum](https://github.com/ethereum/go-ethereum/wiki/Instal
 Clone & compile:
 
     git config --global http.https://gopkg.in.followRedirects true
-    git clone https://github.com/sammy007/open-ethereum-pool.git
-    cd open-ethereum-pool
+    git clone https://github.com/hotelbyte/open-mining-pool.git
+    cd open-mining-pool
     make
 
 Install redis-server.
 
 ### Running Pool
 
-    ./build/bin/open-ethereum-pool config.json
+    ./build/bin/open-mining-pool config.json
 
 You can use Ubuntu upstart - check for sample config in <code>upstart.conf</code>.
 
@@ -134,7 +138,7 @@ otherwise you will get errors on start because of JSON comments.**
       "maxConn": 8192
     },
 
-    // Try to get new job from geth in this interval
+    // Try to get new job from geth/ghbc in this interval
     "blockRefreshInterval": "120ms",
     "stateUpdateInterval": "3s",
     // Require this share difficulty from miners
@@ -208,10 +212,10 @@ otherwise you will get errors on start because of JSON comments.**
     "purgeOnly": false
   },
 
-  // Check health of each geth node in this interval
+  // Check health of each geth/ghbc node in this interval
   "upstreamCheckInterval": "5s",
 
-  /* List of geth nodes to poll for new jobs. Pool will try to get work from
+  /* List of geth/ghbc nodes to poll for new jobs. Pool will try to get work from
     first alive one and check in background for failed to back up.
     Current block template of the pool is always cached in RAM indeed.
   */
@@ -256,7 +260,7 @@ otherwise you will get errors on start because of JSON comments.**
     "interval": "10m",
     // Geth instance node rpc endpoint for unlocking blocks
     "daemon": "http://127.0.0.1:8545",
-    // Rise error if can't reach geth in this amount of time
+    // Rise error if can't reach geth/ghbc in this amount of time
     "timeout": "10s"
   },
 
@@ -269,11 +273,11 @@ otherwise you will get errors on start because of JSON comments.**
     "interval": "12h",
     // Geth instance node rpc endpoint for payouts processing
     "daemon": "http://127.0.0.1:8545",
-    // Rise error if can't reach geth in this amount of time
+    // Rise error if can't reach geth/ghbc in this amount of time
     "timeout": "10s",
     // Address with pool balance
     "address": "0x0",
-    // Let geth to determine gas and gasPrice
+    // Let geth/ghbc to determine gas and gasPrice
     "autoGas": true,
     // Gas amount and price for payout tx (advanced users only)
     "gas": "21000",
@@ -305,7 +309,7 @@ I recommend this deployment strategy:
 
 ### Alternative Ethereum Implementations
 
-This pool is tested to work with [Ethcore's Parity](https://github.com/ethcore/parity). Mining and block unlocking works, but I am not sure about payouts and suggest to run *official* geth node for payments.
+This pool is tested to work with [Ethcore's Parity](https://github.com/ethcore/parity). Mining and block unlocking works, but I am not sure about payouts and suggest to run *official* geth/ghbc node for payments.
 
 ### Credits
 
@@ -313,12 +317,7 @@ Made by sammy007. Licensed under GPLv3.
 
 #### Contributors
 
-[Alex Leverington](https://github.com/subtly)
+Mofied by Hotelbyte Team creating an Blockchain Tourism Ecosystem.
 
-### Donations
+[Alex Gómez](https://github.com/lexfaraday)
 
-ETH/ETC: 0xb85150eb365e7df0941f0cf08235f987ba91506a
-
-![](https://cdn.pbrd.co/images/GP5tI1D.png)
-
-Highly appreciated.
