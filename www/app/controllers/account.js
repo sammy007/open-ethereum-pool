@@ -8,7 +8,7 @@ export default Controller.extend({
 
   roundPercent: computed('stats', 'model', {
     get() {
-      let percent = this.get('model.roundShares') / this.get('stats.roundShares');
+      let percent = this.get('model.roundShares') / this.get('stats.nShares');
       if (!percent) {
         return 0;
       }
