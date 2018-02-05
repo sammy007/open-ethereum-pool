@@ -307,6 +307,10 @@ I recommend this deployment strategy:
 
 This pool is tested to work with [Ethcore's Parity](https://github.com/ethcore/parity). Mining and block unlocking works, but I am not sure about payouts and suggest to run *official* geth node for payments.
 
+### Known API clients
+
+* Mining Pool Watcher, source on https://github.com/shineangelic/MPW and published on Play Store
+
 ### Credits
 
 Made by sammy007. Licensed under GPLv3.
