@@ -1,0 +1,20 @@
+#Edit the path below and copy to /etc/systemd/system/
+
+[Unit] 
+Description=Open-Ethereum-Pool
+
+[Service] 
+Restart=on-failure
+
+#Point to the location open-ethereum-pool files
+WorkingDirectory=/home/main/open-ethereum-pool/
+
+#Point to the location open-ethereum-pool files
+ExecStart=/home/main/open-ethereum-pool/build/bin/open-ethereum-pool /home/main/open-ethereum-pool/config.json
+
+
+ExecReload=/bin/kill -HUP $MAINPID 
+KillSignal=SIGINT 
+
+[Install] 
+WantedBy=multi-user.target
