@@ -36,6 +36,13 @@ type ProxyServer struct {
 	timeout    time.Duration
 }
 
+type jobDetails struct {
+	JobID      string
+	SeedHash   string
+	HeaderHash string
+	Height     string
+}
+
 type Session struct {
 	ip  string
 	enc *json.Encoder
@@ -44,6 +51,11 @@ type Session struct {
 	sync.Mutex
 	conn  net.Conn
 	login string
+
+	stratum        int
+	subscriptionID string
+	Extranonce     string
+	JobDetails     jobDetails
 }
 
 func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {

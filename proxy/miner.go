@@ -6,18 +6,41 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ethereum/ethash"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/hackmod/ethereum-ethash"
+
+	"github.com/sammy007/open-ethereum-pool/util"
 )
 
 var hasher = ethash.New()
 
-func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, params []string) (bool, bool) {
+func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, params []string, stratum bool) (bool, bool) {
 	nonceHex := params[0]
 	hashNoNonce := params[1]
 	mixDigest := params[2]
 	nonce, _ := strconv.ParseUint(strings.Replace(nonceHex, "0x", "", -1), 16, 64)
 	shareDiff := s.config.Proxy.Difficulty
+
+	if stratum {
+		hashNoNonceTmp := common.HexToHash(params[2])
+
+		// Block "difficulty" is BigInt
+		// NiceHash "difficulty" is float64 ...
+		// diffFloat => target; then: diffInt = 2^256 / target
+
+		_, mixDigestTmp, hashTmp := hasher.Compute(t.Height, hashNoNonceTmp, nonce)
+		shareDiffCalc := util.TargetHexToDiff(hashTmp.Hex()).Int64()
+		shareDiffFloat := util.DiffIntToFloat(shareDiffCalc)
+		if shareDiffFloat < 0.0001 {
+			log.Printf("share difficulty too low, %f < %d, from %v@%v", shareDiffFloat, t.Difficulty, login, ip)
+			return false, false
+		}
+
+		params[1] = hashNoNonceTmp.Hex()
+		params[2] = mixDigestTmp.Hex()
+		hashNoNonce = params[1]
+		mixDigest = params[2]
+	}
 
 	h, ok := t.headers[hashNoNonce]
 	if !ok {
