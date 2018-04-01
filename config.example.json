@@ -4,6 +4,7 @@
 	"name": "main",
 
 	"proxy": {
+		"hashLimit" : 240000000,
 		"enabled": true,
 		"listen": "0.0.0.0:8888",
 		"limitHeadersSize": 1024,

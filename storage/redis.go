@@ -761,6 +761,9 @@ func (r *RedisClient) CollectWorkersStats(sWindow, lWindow time.Duration, login 
 	stats["workersOffline"] = offline
 	stats["hashrate"] = totalHashrate
 	stats["currentHashrate"] = currentHashrate
+
+	tx.HSet(r.formatKey("currenthashrate", login), "hashrate", strconv.FormatInt(currentHashrate, 10))
+	tx.Expire(r.formatKey("currenthashrate", login), lWindow)
 	return stats, nil
 }
 
@@ -956,4 +959,14 @@ func convertPaymentsResults(raw *redis.ZSliceCmd) []map[string]interface{} {
 		result = append(result, tx)
 	}
 	return result
+}
+
+func (r *RedisClient) GetCurrentHashrate(login string) (int64, error) {
+	hashrate := r.client.HGet(r.formatKey("currenthashrate", login), "hashrate")
+	if hashrate.Err() == redis.Nil {
+		return 0, nil
+	} else if hashrate.Err() != nil {
+		return 0, hashrate.Err()
+	}
+	return hashrate.Int64()
 }
