@@ -79,12 +79,16 @@ type Worker struct {
 }
 
 func NewRedisClient(cfg *Config, prefix string) *RedisClient {
-	client := redis.NewClient(&redis.Options{
+	options := redis.Options{
 		Addr:     cfg.Endpoint,
 		Password: cfg.Password,
 		DB:       cfg.Database,
 		PoolSize: cfg.PoolSize,
-	})
+	}
+	if cfg.Endpoint[0:1] == "/" {
+		options.Network = "unix"
+	}
+	client := redis.NewClient(&options)
 	return &RedisClient{client: client, prefix: prefix}
 }
 
