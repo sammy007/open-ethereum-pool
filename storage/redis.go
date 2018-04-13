@@ -2,6 +2,7 @@ package storage
 
 import (
 	"fmt"
+	"math"
 	"math/big"
 	"strconv"
 	"strings"
@@ -36,6 +37,12 @@ type MinerCharts struct {
 	MinerHash      int64  `json:"minerHash"`
 	MinerLargeHash int64  `json:"minerLargeHash"`
 	WorkerOnline   string `json:"workerOnline"`
+}
+
+type PaymentCharts struct {
+	Timestamp  int64  `json:"x"`
+	TimeFormat string `json:"timeFormat"`
+	Amount     int64  `json:"amount"`
 }
 
 type BlockData struct {
@@ -236,6 +243,22 @@ func (r *RedisClient) GetMinerCharts(hashNum int64, login string) (stats []*Mine
 		return nil, err
 	}
 	stats = convertMinerChartsResults(cmds[1].(*redis.ZSliceCmd))
+	return stats, nil
+}
+
+func (r *RedisClient) GetPaymentCharts(login string) (stats []*PaymentCharts, err error) {
+
+	tx := r.client.Multi()
+	defer tx.Close()
+	cmds, err := tx.Exec(func() error {
+		tx.ZRevRangeWithScores(r.formatKey("payments", login), 0, 360)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	stats = convertPaymentChartsResults(cmds[0].(*redis.ZSliceCmd))
+	//fmt.Println(stats)
 	return stats, nil
 }
 
@@ -1078,6 +1101,37 @@ func convertPaymentsResults(raw *redis.ZSliceCmd) []map[string]interface{} {
 			tx["amount"], _ = strconv.ParseInt(fields[2], 10, 64)
 		}
 		result = append(result, tx)
+	}
+	return result
+}
+
+/*
+Timestamp  int64  `json:"x"`
+TimeFormat string `json:"timeFormat"`
+Amount     int64  `json:"amount"`
+*/
+func convertPaymentChartsResults(raw *redis.ZSliceCmd) []*PaymentCharts {
+	var result []*PaymentCharts
+	for _, v := range raw.Val() {
+		pc := PaymentCharts{}
+		pc.Timestamp = int64(v.Score)
+		tm := time.Unix(pc.Timestamp, 0)
+		pc.TimeFormat = tm.Format("2006-01-02") + " 00_00"
+		fields := strings.Split(v.Member.(string), ":")
+		pc.Amount, _ = strconv.ParseInt(fields[1], 10, 64)
+		//fmt.Printf("%d : %s : %d \n", pc.Timestamp, pc.TimeFormat, pc.Amount)
+
+		var chkAppend bool
+		for _, pcc := range result {
+			if pcc.TimeFormat == pc.TimeFormat {
+				pcc.Amount += pc.Amount
+				chkAppend = true
+			}
+		}
+		if !chkAppend {
+			pc.Timestamp -= int64(math.Mod(float64(v.Score), float64(86400)))
+			result = append(result, &pc)
+		}
 	}
 	return result
 }

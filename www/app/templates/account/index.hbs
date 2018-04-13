@@ -1,4 +1,7 @@
 <div class="container">
+{{#if config.highcharts.account.enabled}}
+  {{high-charts mode=chartMode chartOptions=chartOptions content=chartData}}
+{{/if}}
   {{#if model.workers}}
   <h3>{{t "account.your_workers"}}</h3>
   <div class="table-responsive">

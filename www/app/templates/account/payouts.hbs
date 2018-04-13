@@ -1,4 +1,7 @@
 <div class="container">
+{{#if config.highcharts.account.enabled}}
+  {{high-charts mode=chartMode chartOptions=chartPayment content=chartData}}
+{{/if}}
   {{#if model.payments}}
   <h3>{{t "payout.latest_payouts"}}</h3>
   <div class="table-responsive">
