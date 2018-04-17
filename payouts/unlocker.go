@@ -75,6 +75,15 @@ func NewBlockUnlocker(cfg *UnlockerConfig, backend *storage.RedisClient) *BlockU
 		log.Printf("Set byzantiumHardForkHeight to %v", byzantiumHardForkHeight)
 		log.Printf("Set homesteadReward to %v", homesteadReward)
 		log.Printf("Set byzantiumReward to %v", byzantiumReward)
+	} else if block.Hash == "0x82270b80fc90beb005505a9ef95039639968a0e81b2904ad30128c93d713d2c4" {
+		// CLO Network
+		log.Printf("Found genesis.hash is %v", block.Hash)
+		byzantiumHardForkHeight = 0
+		byzantiumReward = math.MustParseBig256("420000000000000000000")
+
+		log.Printf("Set byzantiumHardForkHeight(not used) to %v", byzantiumHardForkHeight)
+		log.Printf("Set homesteadReward(not used) to %v", homesteadReward)
+		log.Printf("Set byzantiumReward(CLO reward) to %v", byzantiumReward)
 	}
 	return u
 }
