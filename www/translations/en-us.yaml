@@ -54,6 +54,9 @@ account:
   last_share_submitted: Last Share Submitted
   online: Workers Online
   hashrate: Hashrate
+  earnings:
+    perday: Earnings per day
+    short_avg: short avg.
   blocks:
     found: Blocks Found
   total:

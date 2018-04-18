@@ -27,6 +27,7 @@
         <div style="display: block;"><i class="fa fa-gears"></i> {{t "account.online"}}: <span>{{format-number model.workersOnline}}</span></div>
         <div style="display: block;"><i class="fa fa-tachometer"></i> {{t "account.hashrate"}} (30m): <span>{{format-hashrate model.currentHashrate}}</span></div>
         <div style="display: block;"><i class="fa fa-tachometer"></i> {{t "account.hashrate"}} (3h): <span>{{format-hashrate model.hashrate}}</span></div>
+        <div style="display: block;"><i class="fa fa-calculator"></i> {{t "account.earnings.perday"}} (3h avg): <span>{{format-number earnPerDay}} {{config.Unit}}</span></div>
       </div>
       <div class="col-md-4 stats">
         <div style="display: block;"><i class="fa fa-tachometer"></i> {{t "account.blocks.found"}}: <span>{{format-number model.stats.blocksFound fallback='0'}}</span></div>

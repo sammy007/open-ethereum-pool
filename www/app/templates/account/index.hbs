@@ -8,6 +8,7 @@
           <th>ID</th>
           <th>{{t "account.hashrate"}} ({{t "account.short_average"}})</th>
           <th>{{t "account.hashrate"}} ({{t "account.long_average"}})</th>
+          <th>{{t "account.earnings.perday"}} ({{t "account.earnings.short_avg"}})</th>
           <th>{{t "account.last_share"}}</th>
         </tr>
       </thead>
@@ -17,6 +18,7 @@
             <td>{{k}}</td>
             <td>{{format-hashrate v.hr}}</td>
             <td>{{format-hashrate v.hr2}}</td>
+            <td>{{format-number (worker-earnperday v.hr netstats.hashrate)}}</td>
             <td>{{format-relative (seconds-to-ms v.lastBeat)}}</td>
           </tr>
         {{/each-in}}

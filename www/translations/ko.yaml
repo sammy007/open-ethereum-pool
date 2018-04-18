@@ -53,6 +53,9 @@ account:
   last_share_submitted: 마지막 쉐어 제출
   online: 작동중인 워커
   hashrate: 해시량
+  earnings:
+    perday: 하루 채굴 예상량
+    short_avg: 단기 평균
   blocks:
     found: 발견한 블록
   total:
