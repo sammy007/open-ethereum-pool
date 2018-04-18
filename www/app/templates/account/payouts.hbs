@@ -17,7 +17,7 @@
             <td>
               <a href="{{config.BlockExplorerLink}}/tx/{{tx.tx}}" class="hash" rel="nofollow" target="_blank">{{tx.tx}}</a>
             </td>
-            <td>{{format-balance tx.amount}}</td>
+            <td>{{format-balance tx.amount}} {{config.Unit}}</td>
           </tr>
         {{/each}}
       </tbody>
