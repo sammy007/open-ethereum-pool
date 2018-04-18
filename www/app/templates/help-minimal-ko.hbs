@@ -1,0 +1,16 @@
+<div class="bd-example">
+  <h3>Claymore 듀얼 마이너</h3>
+  <p>
+    <code><em>EthDcrMiner64</em> -epool <em>{{config.StratumHost}}</em>:<em>{{config.StratumPort}}</em> <em>-esm 0</em> -ewal <em>0x0000000000000000000000000000000000000000</em> -eworker <em>your-worker-1</em> -allcoins 1 -allpools 1</code>
+  </p>
+  <p><span class="label label-info">Hint</span> 리눅스/우분투의 경우 <code><em>./ethdcrminer64</em></code> 명령 사용<br />
+  </p>
+</div>
+
+<div class="bd-example">
+  <h3>Ethminer</h3>
+  <p>
+    <code>ethminer <em>-U</em> -F <em>{{config.HttpHost}}</em>:<em>{{config.HttpPort}}</em>/<em>0x0000000000000000000000000000000000000000</em>/<em>your-worker-1</em> <em>--farm-recheck 200</em></code>
+  </p>
+  <p><span class="label label-info">Hint</span> <code><em>-U</em></code> 옵션은 NVIDIA GPU 사용, <code><em>-G</em></code> 옵션은 AMD GPU 사용</p>
+</div>

@@ -17,9 +17,11 @@ Router.map(function() {
   });
 
   this.route('help');
+  this.route('help-ko');
   this.route('payments');
   this.route('miners');
   this.route('about');
+  this.route('about-ko');
 });
 
 export default Router;

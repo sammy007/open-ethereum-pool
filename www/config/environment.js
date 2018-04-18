@@ -14,6 +14,10 @@ module.exports = function(environment) {
     },
 
     APP: {
+      // PoolName
+      PoolName: 'Ethereum',
+      // PoolTitle
+      PoolTitle: 'Open Ethereum Pool',
       // API host and port
       ApiUrl: '//example.net/',
 
@@ -27,9 +31,17 @@ module.exports = function(environment) {
 
       // Fee and payout details
       PoolFee: '1%',
-      PayoutThreshold: '0.5 Ether',
+      PayoutThreshold: '1',
+      PayoutInterval: '2m',
+      Unit: 'ETH',
+      EtherUnit: 'ETH',
 
       // For network hashrate (change for your favourite fork)
+      BlockExplorerLink: 'https://myexplorer.net',
+      BlockExplorerAddrLink: 'https://myexplorer.net/addr',
+      DonationLink: false,
+      DonationAddress: '',
+      BlockReward: 5,
       BlockTime: 14.4
     }
   };
