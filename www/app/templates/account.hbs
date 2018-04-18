@@ -16,15 +16,15 @@
           <i class="fa fa-clock-o"></i> {{t "account.current"}}: <span>{{format-balance model.stats.pending}} {{config.Unit}}</span><br>
         </div>
         {{/if}}
-        <div style="display: block;"><i class="fa fa-money"></i> {{t "account.total.paid"}}: <span>{{format-balance model.stats.paid}} {{config.Unit}}</span></div>
+        <div style="display: block;"><i class="fa fa-btc"></i> {{t "account.total.paid"}}: <span>{{format-balance model.stats.paid}} {{config.Unit}}</span></div>
       </div>
       <div class="col-md-4 stats">
         {{#if model.stats.lastShare}}
-        <div style="display: block;"><i class="fa fa-clock-o"></i>
+        <div style="display: block;"><i class="fa fa-hourglass-half"></i>
           {{t "account.last_share_submitted"}}: <span>{{format-relative (seconds-to-ms (string-to-int model.stats.lastShare))}}</span>
         </div>
         {{/if}}
-        <div style="display: block;"><i class="fa fa-gears"></i> {{t "account.online"}}: <span>{{format-number model.workersOnline}}</span></div>
+        <div style="display: block;"><i class="fa fa-cogs"></i> {{t "account.online"}}: <span>{{format-number model.workersOnline}}</span></div>
         <div style="display: block;"><i class="fa fa-tachometer"></i> {{t "account.hashrate"}} (30m): <span>{{format-hashrate model.currentHashrate}}</span></div>
         <div style="display: block;"><i class="fa fa-tachometer"></i> {{t "account.hashrate"}} (3h): <span>{{format-hashrate model.hashrate}}</span></div>
         <div style="display: block;"><i class="fa fa-calculator"></i> {{t "account.earnings.perday"}} (3h avg): <span>{{format-number earnPerDay}} {{config.Unit}}</span></div>
@@ -33,11 +33,11 @@
         <div style="display: block;"><i class="fa fa-tachometer"></i> {{t "account.blocks.found"}}: <span>{{format-number model.stats.blocksFound fallback='0'}}</span></div>
         <div style="display: block;"><i class="fa fa-paper-plane-o"></i> {{t "account.total.payments"}}: <span>{{format-number model.paymentsTotal}}</span></div>
         <div style="display: block;">
-          <i class="fa fa-gears"></i> {{t "account.round_share"}}: <span>{{format-number roundPercent style='percent' maximumFractionDigits='6'}}</span><br/>
+          <i class="fa fa-percent"></i> {{t "account.round_share"}}: <span>{{format-number roundPercent style='percent' maximumFractionDigits='4'}}</span><br/>
           <small>{{t "account.round_share_description"}}</small>
         </div>
         <div style="display: block;">
-          <i class="fa fa-clock-o"></i>
+          <i class="fa fa-hourglass"></i>
           {{t "account.epoch_switch"}}: <span>{{format-relative applicationController.nextEpoch units="hour"}}</span>
         </div>
       </div>
