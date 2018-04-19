@@ -28,6 +28,7 @@ function selectLocale(selected) {
 export default Ember.Route.extend({
   intl: Ember.inject.service(),
   selectedLanguage: null,
+  poolSettings: null,
 
   beforeModel() {
     let locale = this.get('selectedLanguage');
@@ -41,6 +42,28 @@ export default Ember.Route.extend({
       Ember.$.cookie('lang', locale);
       console.log('INFO: locale selected - ' + locale);
       this.set('selectedLanguage', locale);
+    }
+
+    let settings = this.get('poolSettings');
+    if (!settings) {
+      let self = this;
+      let url = config.APP.ApiUrl + 'api/settings';
+      Ember.$.ajax({
+        url: url,
+        type: 'GET',
+        header: {
+          'Accept': 'application/json'
+        },
+        success: function(data) {
+          settings = Ember.Object.create(data);
+          self.set('poolSettings', settings);
+          console.log('INFO: pool settings loaded..');
+        },
+        error: function(request, status, e) {
+          console.log('ERROR: fail to load pool settings: ' + e);
+          self.set('poolSettings', {});
+        }
+      });
     }
   },
 
@@ -68,6 +91,8 @@ export default Ember.Route.extend({
 	},
 
   setupController: function(controller, model) {
+    let settings = this.get('poolSettings');
+    model.settings = settings;
     this._super(controller, model);
     Ember.run.later(this, this.refresh, 5000);
   }

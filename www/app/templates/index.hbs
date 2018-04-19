@@ -5,13 +5,13 @@
         <h1 style="font-size: 24px">
           <strong>{{config.PoolTitle}}</strong>
         </h1>
-        <strong>{{t "home.min_payout_threshold"}}: {{config.PayoutThreshold}} {{config.Unit}}</strong> / {{t "home.payouts_run" interval=config.PayoutInterval}}<br/>
+        <strong>{{t "home.min_payout_threshold"}}: {{PayoutThreshold}} {{config.Unit}}</strong> / {{t "home.payouts_run" interval=PayoutInterval}}<br/>
         <span class="label label-success">PROP</span> {{t "home.payout_scheme_detail"}}
       </div>
       <div class="col-md-3 stats">
         <div><i class="fa fa-users"></i> {{t "home.miners_online"}}: <span id="poolHashrate">{{format-number stats.model.minersTotal}}</span></div>
         <div><i class="fa fa-tachometer"></i> {{t "home.pool_hashrate"}}: <span id="poolHashrate">{{format-hashrate stats.model.hashrate}}</span></div>
-        <div><i class="fa fa-money"></i> {{t "home.pool_fee"}}: <span id="poolFee" class="label label-success">{{config.PoolFee}}</span></div>
+        <div><i class="fa fa-money"></i> {{t "home.pool_fee"}}: <span id="poolFee" class="label label-success">{{PoolFee}}</span></div>
         {{#if stats.model.stats.lastBlockFound}}
         <div><i class="fa fa-clock-o"></i> {{t "home.last_block_found"}}: <span>{{format-relative (seconds-to-ms stats.model.stats.lastBlockFound)}}</span></div>
         {{/if}}

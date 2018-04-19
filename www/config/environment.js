@@ -42,6 +42,7 @@ module.exports = function(environment) {
       DonationLink: false,
       DonationAddress: '',
       BlockReward: 5,
+      BlockUnlockDepth: 120,
       BlockTime: 14.4
     }
   };
