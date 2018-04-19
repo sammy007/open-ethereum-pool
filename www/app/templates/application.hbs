@@ -47,16 +47,18 @@
         {{/active-li}}
       </ul>
 
-      <form class="navbar-form navbar-right">
-        <div class="form-group">
-          <select id="selected-language" {{action 'selectLanguage' on='change'}} class="form-control" style="width: 120px;">
-            <option hidden>{{t "menu.language"}}</option>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+          <a class="nav-item nav-link dropdown-toggle" data-toggle="dropdown" id="selectedLanguage">
+          {{selectedLanguage}}
+          <b class="caret"></b></a>
+          <ul class="dropdown-menu dropdown-menu-right">
             {{#each languages as |lang|}}
-            <option value='{{lang.value}}' selected={{eq selectedLanguage lang.value}}>{{lang.name}}</option>
+            <li><a href="#" {{action 'selectLanguage' lang.value on='click'}}>{{lang.name}}</a></li>
             {{/each}}
-          </select>
-        </div>
-      </form>
+          </ul>
+        </li>
+      </ul>
     </div>
   </div>
 </div>

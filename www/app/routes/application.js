@@ -45,8 +45,8 @@ export default Ember.Route.extend({
   },
 
   actions: {
-    selectLanguage: function() {
-      let selected = Ember.$('option:selected').attr('value');
+    selectLanguage: function(lang) {
+      let selected = lang;
       if (typeof selected === 'undefined') {
         return true;
       }
@@ -54,6 +54,7 @@ export default Ember.Route.extend({
       this.get('intl').setLocale(locale);
       this.set('selectedLanguage', locale);
       Ember.$.cookie('lang', locale);
+      Ember.$('#selectedLanguage').html(locale + '<b class="caret"></b>');
 
       return true;
     }
