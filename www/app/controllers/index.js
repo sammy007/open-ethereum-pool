@@ -61,7 +61,10 @@ export default Ember.Controller.extend({
                         events: {
                             load: function() {
                                 var series = this.series[0];
-                                setInterval(function() {var x = (new Date).getTime(), y = e.getWithDefault("model.Hashrate") / 1000000; series.addPoint([x, y], true, true)}, 1090000000)
+                                setInterval(function() {
+                                    var x = (new Date()).getTime(), y = e.getWithDefault("model.Hashrate") / 1000000;
+                                    series.addPoint([x, y], true, true);
+                                }, 1090000000);
                             }
                         }
                     },
@@ -101,7 +104,7 @@ export default Ember.Controller.extend({
                     },
                     tooltip: {
                         formatter: function() {
-                            return this.y > 1000000000000 ? "<b>" + this.point.d + "<b><br>Hashrate&nbsp;" + (this.y / 1000000000000).toFixed(2) + "&nbsp;TH/s</b>" : this.y > 1000000000 ? "<b>" + this.point.d + "<b><br>Hashrate&nbsp;" + (this.y / 1000000000).toFixed(2) + "&nbsp;GH/s</b>" : this.y > 1000000 ? "<b>" + this.point.d + "<b><br>Hashrate&nbsp;" + (this.y / 1000000).toFixed(2) + "&nbsp;MH/s</b>" : "<b>" + this.point.d + "<b><br>Hashrate<b>&nbsp;" + this.y.toFixed(2) + "&nbsp;H/s</b>"
+                            return this.y > 1000000000000 ? "<b>" + this.point.d + "<b><br>Hashrate&nbsp;" + (this.y / 1000000000000).toFixed(2) + "&nbsp;TH/s</b>" : this.y > 1000000000 ? "<b>" + this.point.d + "<b><br>Hashrate&nbsp;" + (this.y / 1000000000).toFixed(2) + "&nbsp;GH/s</b>" : this.y > 1000000 ? "<b>" + this.point.d + "<b><br>Hashrate&nbsp;" + (this.y / 1000000).toFixed(2) + "&nbsp;MH/s</b>" : "<b>" + this.point.d + "<b><br>Hashrate<b>&nbsp;" + this.y.toFixed(2) + "&nbsp;H/s</b>";
                         },
                         useHTML: true
                     },
@@ -113,26 +116,31 @@ export default Ember.Controller.extend({
                         name: "Hashrate",
                         data: function() {
                             var e, a = [];
-                            if (null != t)
+                            if (null != t) {
                                 for (e = 0; e <= t.length - 1; e += 1) {
                                     var n = 0,
                                         r = 0,
                                         l = 0;
-                                    r = new Date(1e3 * t[e].x), l = r.toLocaleString(), n = t[e].y, a.push({
+                                    r = new Date(1e3 * t[e].x);
+                                    l = r.toLocaleString();
+                                    n = t[e].y; a.push({
                                         x: r,
                                         d: l,
                                         y: n
-                                    })
-                                } else a.push({
+                                    });
+                                }
+                            } else {
+                                a.push({
                                 x: 0,
                                 d: 0,
                                 y: 0
-                            });
-                            return a
+                                });
+                            }
+                            return a;
                         }()
                     }]
                 };
-            return a
+            return a;
         }
     })
 });
