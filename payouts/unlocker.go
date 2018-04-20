@@ -236,7 +236,7 @@ func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage
 		return err
 	}
 	candidate.Height = correctHeight
-	reward := getConstReward(candidate.Height)
+	reward := GetConstReward(candidate.Height)
 
 	// Add TX fees
 	extraTxReward, err := u.getExtraRewardForTx(block)
@@ -528,7 +528,7 @@ func weiToShannonInt64(wei *big.Rat) int64 {
 	return value
 }
 
-func getConstReward(height int64) *big.Int {
+func GetConstReward(height int64) *big.Int {
 	if height >= byzantiumHardForkHeight {
 		return new(big.Int).Set(byzantiumReward)
 	}
@@ -536,12 +536,12 @@ func getConstReward(height int64) *big.Int {
 }
 
 func getRewardForUncle(height int64) *big.Int {
-	reward := getConstReward(height)
+	reward := GetConstReward(height)
 	return new(big.Int).Div(reward, new(big.Int).SetInt64(32))
 }
 
 func getUncleReward(uHeight, height int64) *big.Int {
-	reward := getConstReward(height)
+	reward := GetConstReward(height)
 	k := height - uHeight
 	reward.Mul(big.NewInt(8-k), reward)
 	reward.Div(reward, big.NewInt(8))

@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -14,6 +15,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/robfig/cron"
 
+	"github.com/sammy007/open-ethereum-pool/payouts"
 	"github.com/sammy007/open-ethereum-pool/rpc"
 	"github.com/sammy007/open-ethereum-pool/storage"
 	"github.com/sammy007/open-ethereum-pool/util"
@@ -247,6 +249,11 @@ func (s *ApiServer) StatsIndex(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Failed to get nodes stats from backend: %v", err)
 	}
 	reply["nodes"] = nodes
+	if nodes[0] != nil {
+		height := nodes[0]["height"].(string)
+		number, _ := strconv.ParseInt(height, 10, 64)
+		reply["blockReward"] = payouts.GetConstReward(number).String()
+	}
 
 	stats := s.getStats()
 	if stats != nil {
