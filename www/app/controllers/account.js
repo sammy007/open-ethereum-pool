@@ -19,10 +19,17 @@ export default Ember.Controller.extend({
                             load: function() {
                                 var series = this.series[0];
                                 setInterval(function() {
-                                    var x = (new Date()).getTime(),
-                                        y = e.getWithDefault("model.currentHashrate") / 1000000;
-                                    series.addPoint([x, y], true, true);
-                                }, 109000000);
+                                    var now = new Date();
+                                    var shift = false;
+                                    if (now - series.data[0].x > 6*60*60*1000) {
+                                        shift = true;
+                                    }
+
+                                    var x = now,
+                                        y = e.getWithDefault("model.currentHashrate");
+                                    var d = x.toLocaleString();
+                                    series.addPoint({x:x, y:y, d:d}, true, shift);
+                                }, 10000);
                             }
                         }
                     },

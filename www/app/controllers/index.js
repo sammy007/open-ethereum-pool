@@ -50,6 +50,7 @@ export default Ember.Controller.extend({
   }),
   chartOptions: Ember.computed("model.hashrate", {
         get() {
+            var now = new Date();
             var e = this,
                 t = e.getWithDefault("stats.model.poolCharts"),
                 a = {
@@ -60,11 +61,18 @@ export default Ember.Controller.extend({
                         marginRight: 10,
                         events: {
                             load: function() {
-                                var series = this.series[0];
+                                var self = this;
                                 setInterval(function() {
-                                    var x = (new Date()).getTime(), y = e.getWithDefault("model.Hashrate") / 1000000;
-                                    series.addPoint([x, y], true, true);
-                                }, 1090000000);
+                                    var series = self.series[0];
+                                    var now = new Date();
+                                    var shift = false;
+                                    if (series && series.data && now - series.data[0].x > 6*60*60*1000) {
+                                        shift = true;
+                                    }
+                                    var x = now, y = e.getWithDefault("model.hashrate");
+                                    var d = x.toLocaleString();
+                                    series.addPoint({x: x, y: y, d:d}, true, shift);
+                                }, e.get('config.highcharts.main.interval') || 60000);
                             }
                         }
                     },
@@ -115,26 +123,21 @@ export default Ember.Controller.extend({
                         color: "#15BD27",
                         name: "Hashrate",
                         data: function() {
-                            var e, a = [];
+                            var a = [];
                             if (null != t) {
-                                for (e = 0; e <= t.length - 1; e += 1) {
-                                    var n = 0,
-                                        r = 0,
-                                        l = 0;
-                                    r = new Date(1e3 * t[e].x);
-                                    l = r.toLocaleString();
-                                    n = t[e].y; a.push({
-                                        x: r,
-                                        d: l,
-                                        y: n
-                                    });
-                                }
-                            } else {
-                                a.push({
-                                x: 0,
-                                d: 0,
-                                y: 0
+                                t.forEach(function(d) {
+                                    var x = new Date(1000 * d.x);
+                                    var l = x.toLocaleString();
+                                    var y = d.y;
+                                    a.push({x: x, y: y, d: l});
                                 });
+                            }
+                            var l = now.toLocaleString();
+                            var y = e.getWithDefault("model.hashrate");
+                            var last = {x: now, y: y, d: l};
+                            var interval = e.get('config.highcharts.main.interval') || 60000;
+                            if (a.length > 0 && now - a[a.length - 1].x > interval) {
+                                a.push(last);
                             }
                             return a;
                         }()

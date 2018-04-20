@@ -28,12 +28,18 @@ export default Ember.Controller.extend({
                     height: 200,
                     events: {
                         load: function() {
-                            var series = this.series[0];
+                            var self = this;
                             setInterval(function() {
-                                var x = (new Date()).getDate(),
-                                    y = e.getWithDefault("model.paymentCharts");
-                                series.addPoint([x, y], true, true);
-                            }, 1090000000);
+                                t = e.getWithDefault("model.paymentCharts");
+                                var data = [];
+                                t.forEach(function(d) {
+                                    var r = new Date(1000 * d.x);
+                                    var l = r.toLocaleString();
+                                    var n = e.amount / 1000000000;
+                                    data.push({x: r, d: l, y: n});
+                                });
+                                self.series[0].setData(data, true, {}, true);
+                            }, e.get('config.highcharts.account.paymentInterval') || 120000);
                         }
                     }
                 },
@@ -65,7 +71,7 @@ export default Ember.Controller.extend({
                 },
                 tooltip: {
                     formatter: function() {
-                        return "<b>" + Highcharts.dateFormat('%Y-%m-%d', new Date(this.x)) + "<b><br>Payment&nbsp;<b>" + this.y.toFixed(4) + "&nbsp;ESN</b>";
+                        return "<b>" + Highcharts.dateFormat('%Y-%m-%d', new Date(this.x)) + "<b><br>Payment&nbsp;<b>" + this.y.toFixed(4) + "&nbsp;" + e.get('config.Unit') + "</b>";
                     },
                     useHTML: true
                 },
@@ -76,27 +82,14 @@ export default Ember.Controller.extend({
                     color: "#E99002",
                     name: "Payment Series",
                     data: function() {
-                        var e, a = [];
+                        var a = [];
                         if (null != t) {
-                            for (e = 0; e <= t.length - 1; e += 1) {
-                                var n = 0,
-                                    r = 0,
-                                    l = 0;
-                                    r = new Date(1e3 * t[e].x);
-                                    l = r.toLocaleString();
-                                    n = t[e].amount / 1000000000;
-                                    a.push({
-                                        x: r,
-                                        d: l,
-                                        y: n
-                                    });
-                            }
-                        } else {
-                            a.push({
-                                x: 0,
-                                d: 0,
-                                y: 0
-                           });
+                            t.forEach(function(d) {
+                                var r = new Date(1000 * d.x);
+                                var l = r.toLocaleString();
+                                var n = d.amount / 1000000000;
+                                a.push({x: r, d: l, y: n});
+                            });
                         }
                         return a;
                     }()

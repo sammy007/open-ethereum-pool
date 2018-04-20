@@ -52,6 +52,7 @@ module.exports = function(environment) {
           color: '',
           title: '',
           ytitle: '',
+          interval: 180000
         },
         account: {
           enabled: true,
@@ -60,6 +61,8 @@ module.exports = function(environment) {
           color: [ '', '' ],
           title: '',
           ytitle: '',
+          interval: 180000,
+          paymentInterval: 300000
         }
       }
     }
