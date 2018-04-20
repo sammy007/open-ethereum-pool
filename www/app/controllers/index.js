@@ -63,6 +63,9 @@ export default Ember.Controller.extend({
                             load: function() {
                                 var self = this;
                                 setInterval(function() {
+                                    if (!self.series) {
+                                        return; // FIXME
+                                    }
                                     var series = self.series[0];
                                     var now = new Date();
                                     var shift = false;

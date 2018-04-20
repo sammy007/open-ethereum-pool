@@ -30,6 +30,9 @@ export default Ember.Controller.extend({
                         load: function() {
                             var self = this;
                             setInterval(function() {
+                                if (!self.series) {
+                                    return; // FIXME
+                                }
                                 t = e.getWithDefault("model.paymentCharts");
                                 var data = [];
                                 t.forEach(function(d) {

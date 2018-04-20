@@ -22,6 +22,9 @@ export default Ember.Controller.extend({
                                 var self = this;
                                 setInterval(function() {
                                     var series = self.series;
+                                    if (!series) {
+                                        return; // FIXME
+                                    }
                                     var now = new Date();
                                     var shift = false;
                                     if (series && series[0] && series[0].data && series[0].data[0] && now - series[0].data[0].x > 6*60*60*1000) {
