@@ -26,9 +26,11 @@
   </div>
 </div>
 
+{{#if config.highcharts.main.enabled}}
 <div class="container">
   {{high-charts mode=chartMode chartOptions=chartOptions content=chartData}}
 </div>
+{{/if}}
 
 <div class="container">
   <div class="stats">

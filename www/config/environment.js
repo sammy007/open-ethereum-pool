@@ -43,7 +43,25 @@ module.exports = function(environment) {
       DonationAddress: '',
       BlockReward: 5,
       BlockUnlockDepth: 120,
-      BlockTime: 14.4
+      BlockTime: 14.4,
+      highcharts: {
+        main: {
+          enabled: true,
+          height: 200,
+          type: 'spline',
+          color: '',
+          title: '',
+          ytitle: '',
+        },
+        account: {
+          enabled: true,
+          height: 200,
+          type: 'spline',
+          color: [ '', '' ],
+          title: '',
+          ytitle: '',
+        }
+      }
     }
   };
 

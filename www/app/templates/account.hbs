@@ -47,7 +47,9 @@
 
 <div class="container">
 
+{{#if config.highcharts.account.enabled}}
 {{high-charts mode=chartMode chartOptions=chartOptions content=chartData}}
+{{/if}}
 
   <ul class="nav nav-tabs">
     {{#active-li currentWhen='account.index' role='presentation'}}
