@@ -53,6 +53,7 @@ type ApiServer struct {
 type Entry struct {
 	stats     map[string]interface{}
 	updatedAt int64
+	hasChart  bool
 }
 
 func NewApiServer(cfg *ApiConfig, settings map[string]interface{}, backend *storage.RedisClient) *ApiServer {
@@ -182,11 +183,13 @@ func (s *ApiServer) collectMinerCharts(login string, hash int64, largeHash int64
 func (s *ApiServer) listen() {
 	r := mux.NewRouter()
 	r.HandleFunc("/api/stats", s.StatsIndex)
+	r.HandleFunc("/api/stats/{chart:charts?}", s.StatsIndex)
 	r.HandleFunc("/api/miners", s.MinersIndex)
 	r.HandleFunc("/api/blocks", s.BlocksIndex)
 	r.HandleFunc("/api/payments", s.PaymentsIndex)
 	r.HandleFunc("/api/settings", s.Settings)
 	r.HandleFunc("/api/accounts/{login:0x[0-9a-fA-F]{40}}", s.AccountIndex)
+	r.HandleFunc("/api/accounts/{login:0x[0-9a-fA-F]{40}}/{chart:charts?}", s.AccountIndex)
 	r.NotFoundHandler = http.HandlerFunc(notFound)
 	err := http.ListenAndServe(s.config.Listen, r)
 	if err != nil {
@@ -236,6 +239,8 @@ func (s *ApiServer) StatsIndex(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache")
 	w.WriteHeader(http.StatusOK)
 
+	chart := strings.ToLower(mux.Vars(r)["chart"])
+
 	reply := make(map[string]interface{})
 	nodes, err := s.backend.GetNodeStates()
 	if err != nil {
@@ -247,7 +252,9 @@ func (s *ApiServer) StatsIndex(w http.ResponseWriter, r *http.Request) {
 	if stats != nil {
 		reply["now"] = util.MakeTimestamp()
 		reply["stats"] = stats["stats"]
-		reply["poolCharts"] = stats["poolCharts"]
+		if chart != "" {
+			reply["poolCharts"] = stats["poolCharts"]
+		}
 		reply["hashrate"] = stats["hashrate"]
 		reply["minersTotal"] = stats["minersTotal"]
 		reply["maturedTotal"] = stats["maturedTotal"]
@@ -331,6 +338,8 @@ func (s *ApiServer) AccountIndex(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache")
 
 	login := strings.ToLower(mux.Vars(r)["login"])
+	chart := strings.ToLower(mux.Vars(r)["chart"])
+	useChart := chart != ""
 	s.minersMu.Lock()
 	defer s.minersMu.Unlock()
 
@@ -338,7 +347,7 @@ func (s *ApiServer) AccountIndex(w http.ResponseWriter, r *http.Request) {
 	now := util.MakeTimestamp()
 	cacheIntv := int64(s.statsIntv / time.Millisecond)
 	// Refresh stats if stale
-	if !ok || reply.updatedAt < now-cacheIntv {
+	if !ok || reply.updatedAt < now-cacheIntv || (useChart && !reply.hasChart) {
 		exist, err := s.backend.IsMinerExists(login)
 		if !exist {
 			w.WriteHeader(http.StatusNotFound)
@@ -366,9 +375,23 @@ func (s *ApiServer) AccountIndex(w http.ResponseWriter, r *http.Request) {
 			stats[key] = value
 		}
 		stats["pageSize"] = s.config.Payments
-		stats["minerCharts"], err = s.backend.GetMinerCharts(s.config.MinerChartsNum, login)
-		stats["paymentCharts"], err = s.backend.GetPaymentCharts(login)
-		reply = &Entry{stats: stats, updatedAt: now}
+		if useChart {
+			charts, err := s.backend.GetMinerCharts(s.config.MinerChartsNum, login)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				log.Printf("Failed to fetch charts from backend: %v", err)
+				return
+			}
+			stats["minerCharts"] = charts
+			payments, err := s.backend.GetPaymentCharts(login)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				log.Printf("Failed to fetch payments from backend: %v", err)
+				return
+			}
+			stats["paymentCharts"] = payments
+		}
+		reply = &Entry{stats: stats, updatedAt: now, hasChart: useChart}
 		s.miners[login] = reply
 	}
 
