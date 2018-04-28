@@ -94,6 +94,13 @@ export default Ember.Controller.extend({
                                 a.push({x: r, d: l, y: n});
                             });
                         }
+                        var now = new Date();
+                        var l = now.toLocaleString();
+                        var last = {x: now, d: l, y: 0};
+                        var interval = e.get('config.highcharts.account.interval') || 120000;
+                        if (a.length > 0 && now - a[a.length - 1].x > interval) {
+                            a.push(last);
+                        }
                         return a;
                     }()
                 }]
