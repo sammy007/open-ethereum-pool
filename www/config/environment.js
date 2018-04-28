@@ -52,7 +52,8 @@ module.exports = function(environment) {
           color: '',
           title: '',
           ytitle: '',
-          interval: 180000
+          interval: 180000,
+          chartInterval: 900000
         },
         account: {
           enabled: true,
@@ -62,6 +63,7 @@ module.exports = function(environment) {
           title: '',
           ytitle: '',
           interval: 180000,
+          chartInterval: 900000,
           paymentInterval: 300000
         }
       }

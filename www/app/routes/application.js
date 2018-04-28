@@ -30,6 +30,7 @@ export default Ember.Route.extend({
   selectedLanguage: null,
   poolSettings: null,
   poolCharts: null,
+  chartTimestamp: 0,
 
   beforeModel() {
     let locale = this.get('selectedLanguage');
@@ -87,13 +88,15 @@ export default Ember.Route.extend({
 	model: function() {
     var url = config.APP.ApiUrl + 'api/stats';
     let charts = this.get('poolCharts');
-    if (!charts) {
+    if (!charts || new Date().getTime() - this.getWithDefault('chartTimestamp', 0) > (config.APP.highcharts.main.chartInterval || 900000 /* 15 min */)) {
       url += '/chart';
+      charts = null;
     }
     let self = this;
     return Ember.$.getJSON(url).then(function(data) {
       if (!charts) {
         self.set('poolCharts', data.poolCharts);
+        self.set('chartTimestamp', new Date().getTime());
       } else {
         data.poolCharts = self.get('poolCharts');
       }
