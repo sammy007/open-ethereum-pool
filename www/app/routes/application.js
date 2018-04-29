@@ -28,6 +28,7 @@ function selectLocale(selected) {
 export default Ember.Route.extend({
   intl: Ember.inject.service(),
   selectedLanguage: null,
+  languages: null,
   poolSettings: null,
   poolCharts: null,
   chartTimestamp: 0,
@@ -45,6 +46,12 @@ export default Ember.Route.extend({
       console.log('INFO: locale selected - ' + locale);
       this.set('selectedLanguage', locale);
     }
+
+    let intl = this.get('intl');
+    this.set('languages', [
+      { name: intl.t('lang.korean'), value: 'ko'},
+      { name: intl.t('lang.english'), value: 'en-us'}
+    ]);
 
     let settings = this.get('poolSettings');
     if (!settings) {
@@ -79,7 +86,13 @@ export default Ember.Route.extend({
       this.get('intl').setLocale(locale);
       this.set('selectedLanguage', locale);
       Ember.$.cookie('lang', locale);
-      Ember.$('#selectedLanguage').html(locale + '<b class="caret"></b>');
+      let languages = this.get('languages');
+      for (var i = 0; i < languages.length; i++) {
+        if (languages[i].value == locale) {
+          Ember.$('#selectedLanguage').html(languages[i].name + '<b class="caret"></b>');
+          break;
+        }
+      }
 
       return true;
     }
@@ -107,6 +120,7 @@ export default Ember.Route.extend({
   setupController: function(controller, model) {
     let settings = this.get('poolSettings');
     model.settings = settings;
+    model.languages = this.get('languages');
     this._super(controller, model);
     Ember.run.later(this, this.refresh, 5000);
   }
