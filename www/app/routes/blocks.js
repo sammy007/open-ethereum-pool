@@ -27,6 +27,5 @@ export default Ember.Route.extend({
 
   setupController: function(controller, model) {
     this._super(controller, model);
-    Ember.run.later(this, this.refresh, 5000);
   }
 });
