@@ -1,18 +1,18 @@
 <tr>
   <td>
     {{#if block.uncle}}
-      <a href="https://etherscan.io/uncle/{{block.uncleHeight}}" rel="nofollow" target="_blank">{{format-number block.height}}</a>
+      <a href="{{config.BlockExplorerLink}}/uncle/{{block.uncleHeight}}" rel="nofollow">{{format-number block.height}}</a>
     {{else}}
-      <a href="https://etherscan.io/block/{{block.height}}" rel="nofollow" target="_blank">{{format-number block.height}}</a>
+      <a href="{{config.BlockExplorerLink}}/block/{{block.height}}" rel="nofollow">{{format-number block.height}}</a>
     {{/if}}
   </td>
   <td>
     {{#if block.uncle}}
-      <a href="https://etherscan.io/uncle/{{block.hash}}" class="hash" rel="nofollow" target="_blank">{{block.hash}}</a>
+      <a href="{{config.BlockExplorerLink}}/uncle/{{block.hash}}" class="hash" rel="nofollow">{{block.hash}}</a>
     {{else if block.orphan}}
-      <span class="label label-danger">Orphan</span>
+      <span class="label label-danger">{{t "block.orphan"}}</span>
     {{else}}
-      <a href="https://etherscan.io/block/{{block.hash}}" class="hash" rel="nofollow" target="_blank">{{block.hash}}</a>
+      <a href="{{config.BlockExplorerLink}}/block/{{block.hash}}" class="hash" rel="nofollow">{{block.hash}}</a>
     {{/if}}
   </td>
   <td>{{format-date-locale block.timestamp}}</td>

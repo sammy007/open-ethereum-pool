@@ -130,6 +130,14 @@ span.logo-3 {
 	font-weight: 200;
 }
 
+h1, h2, h3, h4, h4, h6 {
+	margin-top: 0px;
+}
+
+.container>h2, .container>h3 {
+	margin-top:2.0rem;
+}
+
 .note {
 	margin: 0 0 20px 0;
 	padding: 15px 30px 15px 15px;
@@ -140,6 +148,12 @@ span.logo-3 {
 .note-info {
 	background-color: #E8F6FC;
 	border-color: #57b5e3;
+}
+
+.note code {
+	background-color: transparent;
+	font-size: 16px;
+	color: #000;
 }
 
 .note-danger {
@@ -175,4 +189,23 @@ h4.note {
 }
 .stats > div > span:first-of-type{
 	font-weight: bold;
+}
+
+/* tabs */
+.tab-content>.tab-pane {
+	background-color: #ffffff;
+	padding: 1em;
+	border-radius: 0 0 5px 5px;
+	border: 1px #eeeeee solid;
+	border-width: 0 1px 1px 1px;
+}
+
+code {
+	font-size: 100%;
+	/* color: #444f67; /* */
+	background-color: #f7f7f7;
+}
+
+code em {
+	color: #3b9218;
 }

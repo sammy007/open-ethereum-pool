@@ -1,20 +1,20 @@
 <div class="jumbotron">
   <div class="container">
-    <p class="lead">Pool always pay tx fees from it's own pocket for now.</p>
-    <strong>Total payments sent:</strong> <span class="label label-info">{{model.paymentsTotal}}</span>
+    <p class="lead">{{t "payments.pay_tx"}}</p>
+    <strong>{{t "payments.total_payments_sent"}}:</strong> <span class="label label-info">{{model.paymentsTotal}}</span>
   </div>
 </div>
 <div class="container">
   {{#if model.payments}}
-  <h4>Latest Payouts</h4>
+  <h3>{{t "payments.latest_payouts"}}</h3>
   <div class="table-responsive">
     <table class="table table-condensed table-striped">
       <thead>
         <tr>
-          <th>Time</th>
-          <th>Amount</th>
-          <th>Address</th>
-          <th>Tx ID</th>
+          <th>{{t "payments.time"}}</th>
+          <th>{{t "payments.amount"}}</th>
+          <th>{{t "payments.address"}}</th>
+          <th>{{t "payments.txid"}}</th>
         </tr>
       </thead>
       <tbody>
@@ -23,10 +23,10 @@
             <td>{{format-date-locale tx.timestamp}}</td>
             <td>{{format-number tx.formatAmount}}</td>
             <td>
-              <a href="https://etherscan.io/address/{{tx.address}}" class="hash" rel="nofollow" target="_blank">{{tx.address}}</a>
+              <a href="{{config.BlockExplorerAddrLink}}/{{tx.address}}" class="hash" rel="nofollow">{{tx.address}}</a>
             </td>
             <td>
-              <a href="https://etherscan.io/tx/{{tx.tx}}" class="hash" rel="nofollow" target="_blank">{{format-tx tx.tx}}</a>
+              <a href="{{config.BlockExplorerLink}}/tx/{{tx.tx}}" class="hash" rel="nofollow">{{format-tx tx.tx}}</a>
             </td>
           </tr>
         {{/each}}
@@ -34,6 +34,6 @@
     </table>
   </div>
   {{else}}
-  <h3>No payouts yet</h3>
+  <h3>{{t "payments.no_payouts_yet"}}</h3>
   {{/if}}
 </div>

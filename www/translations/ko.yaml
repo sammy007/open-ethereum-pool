@@ -1,0 +1,133 @@
+product:
+  info: '{product} will cost {price, number, USD} if ordered by {deadline, date, time}'
+  title: 'Hello world!'
+  html:
+    info: '<strong>{product}</strong> will cost <em>{price, number, USD}</em> if ordered by {deadline, date, time}'
+
+menu:
+  home: 홈
+  help: 도움말
+  pool_blocks: 블록 정보
+  payments: 지급현황
+  miners: 채굴현황
+  about: 이곳은..
+  i18n:
+    about: about-ko
+    help: help-ko
+  language: 언어
+
+lang:
+  korean: 한국어
+  english: English
+
+home:
+  min_payout_threshold: 최소 지급량
+  payouts_run: 지급은 매 {interval} 간격으로 이루어집니다.
+  payout_scheme_detail: 정기적인 지급으로 안정적이고 수익성있는 풀입니다.
+  miners_online: 접속된 마이너
+  pool_hashrate: 풀 해시
+  pool_fee: 수수료
+  last_block_found: 마지막 발견 블록
+  network_difficulty: 네트워크 난이도
+  network_hashrate: 네트워크 총해시
+  blockchain_height: 블록체인 높이
+  current_round_variance: 라운드 쉐어 분산도
+
+  query_history: 채굴현황 및 지급내역 조회하기
+  input:
+    enter_your_wallet_address: 조회할 지갑 주소를 넣으세요
+
+  button:
+    lookup: 보기
+  help:
+    minimal: help-minimal-ko
+
+account:
+  immature:
+    balance: 미승인 잔고
+    description: 블록이 성숙되기를 기다리는 미승인 잔고입니다.
+  pending:
+    balance: 지급대기 잔고
+    description: 지급 대기중인 잔고입니다.
+  current: 현 출금량
+  last_share_submitted: 마지막 쉐어 제출
+  online: 작동중인 워커
+  hashrate: 해시량
+  earnings:
+    perday: 하루 채굴 예상량
+    short_avg: 단기 평균
+  blocks:
+    found: 발견한 블록
+  total:
+    payments: 총 출금회수
+    paid: 총 출금량
+  round_share: 라운드 쉐어율
+  round_share_description: 현재 라운드에 대한 쉐어 비율.
+  epoch_switch: 에폭 전환
+  workers: 워커현황
+  payouts: 출금내역
+
+  your_workers: 워커 목록
+  last_share: 마지막 쉐어
+  short_average: 짧은 구간 평균
+  long_average: 긴구간 평균
+  no_workers_online: 작동중인 워커가 없습니다
+  notice: 주의사항
+  notice_html: 해시 평균값은 평가 구간안에서 쉐어가 충분히 제출되면 매끄럽게 조정됩니다.<br/>여기서 두가지의 평가구간, 긴 구간과 짧은 구간이 있는데, 짧은 구간은 30분, 긴 구간은 3시간 구간입니다.<br/>문제있는 워커는 짧은 구간에서 1/2의 쉐어가 제출되지 않는 경우이며 강조되어 표시되고, 해당 워커를 확인하셔야 할 필요가 있습니다.
+  json_api_url: 워커 상태에 대한 JSON API 링크
+
+payout:
+  latest_payouts: 최근 출금 기록
+  time: 시간
+  txid: 트랜젝션 ID
+  amount: 출금량
+  no_payouts_yet: 출금기록이 아직 없습니다
+
+block:
+  pool_rewards: 이 풀은 TX 수수료 및 엉클 블록에 대한 모든 블록 보상을 하고 있습니다.
+  pool_notice:
+    html: 블록 확정은 <em style="text-decoration:underline">최대</em> <span class="label label-success">{success}</span> 블록이 발견되어야 하며, 보통은 그 이전에 확정됩니다.
+  blocks: 블록
+  immature: 미성숙
+  new: 새 블록
+  orphan: 외토리블록
+  no_matured_blocks_yet: 완성된 블록이 없습니다
+  reward: 보상
+  height: 높이
+  hash: 해시
+  time_found: 발견된 시간
+  variance: 쉐어 분산(쉐어/난이도)
+  matured: 확정된 블록
+  immature_blocks: 미성숙 블록
+  no_immature_blocks_yet: 미성숙 블록이 아직 없습니다
+  no_new_blocks_yet: 새로운 블록이 없습니다
+  recently_found_blocks: 최근에 발견된 블록들
+
+luck:
+  blocks: 블록수
+  shares_diff: 쉐어/난이도
+  uncle_rate: 엉클 비율
+  orphan_rate: 외토리 비율
+
+payments:
+  pay_tx: 현재 전송 수수료를 이 풀에서 지급하고 있습니다.
+  total_payments_sent: 전체 출금건수
+  latest_payouts: 최근 출금 내역
+  time: 시간
+  amount: 수량
+  address: 주소
+  txid: 전송 ID
+  no_payouts_yet: 출금이 아직 없습니다
+
+miners:
+  total_hashrate: 전체 풀 해시
+  total_miners: 접속중인 마이너
+  login: 계정/지갑주소
+  hashrate: 해시량
+  last_beat: 최근 작동시간
+  no_miners: 마이너가 없습니다
+  miners: 마이너 현황
+
+wallet:
+  dapp_html: <a href="https://ethereum.org/">https://ethereum.org/</a>
+  online_html: <a href="https://www.myetherwallet.com/">https://www.myetherwallet.com</a> myetherwallet.com에서 제공하는 온라인 지갑

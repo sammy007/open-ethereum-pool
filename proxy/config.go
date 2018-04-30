@@ -29,6 +29,7 @@ type Config struct {
 }
 
 type Proxy struct {
+	HashLimit            int64  `json:"hashLimit"`
 	Enabled              bool   `json:"enabled"`
 	Listen               string `json:"listen"`
 	LimitHeadersSize     int    `json:"limitHeadersSize"`

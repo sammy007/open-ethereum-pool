@@ -29,7 +29,8 @@ type UnlockerConfig struct {
 }
 
 const minDepth = 16
-const byzantiumHardForkHeight = 4370000
+
+var byzantiumHardForkHeight int64 = 4370000
 
 var homesteadReward = math.MustParseBig256("5000000000000000000")
 var byzantiumReward = math.MustParseBig256("3000000000000000000")
@@ -58,6 +59,32 @@ func NewBlockUnlocker(cfg *UnlockerConfig, backend *storage.RedisClient) *BlockU
 	}
 	u := &BlockUnlocker{config: cfg, backend: backend}
 	u.rpc = rpc.NewRPCClient("BlockUnlocker", cfg.Daemon, cfg.Timeout)
+
+	block, err := u.rpc.GetBlockByHeight(0)
+	if err != nil || block == nil {
+		log.Fatalf("Error while retrieving genesis block from node: %v", err)
+	}
+
+	// EtherSocial Network
+	if block.Hash == "0x310dd3c4ae84dd89f1b46cfdd5e26c8f904dfddddc73f323b468127272e20e9f" {
+		log.Printf("Found genesis.hash is %v", block.Hash)
+		byzantiumHardForkHeight = 600000
+		homesteadReward = math.MustParseBig256("9000000000000000000")
+		byzantiumReward = math.MustParseBig256("5000000000000000000")
+
+		log.Printf("Set byzantiumHardForkHeight to %v", byzantiumHardForkHeight)
+		log.Printf("Set homesteadReward to %v", homesteadReward)
+		log.Printf("Set byzantiumReward to %v", byzantiumReward)
+	} else if block.Hash == "0x82270b80fc90beb005505a9ef95039639968a0e81b2904ad30128c93d713d2c4" {
+		// CLO Network
+		log.Printf("Found genesis.hash is %v", block.Hash)
+		byzantiumHardForkHeight = 0
+		byzantiumReward = math.MustParseBig256("420000000000000000000")
+
+		log.Printf("Set byzantiumHardForkHeight(not used) to %v", byzantiumHardForkHeight)
+		log.Printf("Set homesteadReward(not used) to %v", homesteadReward)
+		log.Printf("Set byzantiumReward(CLO reward) to %v", byzantiumReward)
+	}
 	return u
 }
 
@@ -209,7 +236,7 @@ func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage
 		return err
 	}
 	candidate.Height = correctHeight
-	reward := getConstReward(candidate.Height)
+	reward := GetConstReward(candidate.Height)
 
 	// Add TX fees
 	extraTxReward, err := u.getExtraRewardForTx(block)
@@ -501,7 +528,7 @@ func weiToShannonInt64(wei *big.Rat) int64 {
 	return value
 }
 
-func getConstReward(height int64) *big.Int {
+func GetConstReward(height int64) *big.Int {
 	if height >= byzantiumHardForkHeight {
 		return new(big.Int).Set(byzantiumReward)
 	}
@@ -509,12 +536,12 @@ func getConstReward(height int64) *big.Int {
 }
 
 func getRewardForUncle(height int64) *big.Int {
-	reward := getConstReward(height)
+	reward := GetConstReward(height)
 	return new(big.Int).Div(reward, new(big.Int).SetInt64(32))
 }
 
 func getUncleReward(uHeight, height int64) *big.Int {
-	reward := getConstReward(height)
+	reward := GetConstReward(height)
 	k := height - uHeight
 	reward.Mul(big.NewInt(8-k), reward)
 	reward.Div(reward, big.NewInt(8))

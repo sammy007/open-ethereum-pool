@@ -3,45 +3,47 @@
     <div class="row">
       <div class="col-md-5">
         <h1 style="font-size: 24px">
-          <strong>Open Ethereum Pool</strong>
+          <strong>{{config.PoolTitle}}</strong>
         </h1>
-        <strong>Min. payout threshold: {{config.PayoutThreshold}}</strong>, Payouts run twice per day.<br/>
-        <span class="label label-success">PROP</span> Stable and profitable pool with regular payouts.
+        <strong>{{t "home.min_payout_threshold"}}: {{PayoutThreshold}} {{config.Unit}}</strong> / {{t "home.payouts_run" interval=PayoutInterval}}<br/>
+        <span class="label label-success">PROP</span> {{t "home.payout_scheme_detail"}}
       </div>
       <div class="col-md-3 stats">
-        <div><i class="fa fa-users"></i> Miners Online: <span id="poolHashrate">{{format-number stats.model.minersTotal}}</span></div>
-        <div><i class="fa fa-tachometer"></i> Pool Hash Rate: <span id="poolHashrate">{{format-hashrate stats.model.hashrate}}</span></div>
-        <div><i class="fa fa-money"></i> Pool Fee: <span id="poolFee" class="label label-success">{{config.PoolFee}}</span></div>
+        <div><i class="fa fa-users"></i> {{t "home.miners_online"}}: <span id="poolHashrate">{{format-number stats.model.minersTotal}}</span></div>
+        <div><i class="fa fa-tachometer"></i> {{t "home.pool_hashrate"}}: <span id="poolHashrate">{{format-hashrate stats.model.hashrate}}</span></div>
+        <div><i class="fa fa-money"></i> {{t "home.pool_fee"}}: <span id="poolFee" class="label label-success">{{PoolFee}}</span></div>
         {{#if stats.model.stats.lastBlockFound}}
-        <div><i class="fa fa-clock-o"></i> Last Block Found: <span>{{format-relative (seconds-to-ms stats.model.stats.lastBlockFound)}}</span></div>
+        <div><i class="fa fa-clock-o"></i> {{t "home.last_block_found"}}: <span>{{format-relative (seconds-to-ms stats.model.stats.lastBlockFound)}}</span></div>
         {{/if}}
       </div>
       <div class="col-md-4 stats">
-        <div><i class="fa fa-unlock-alt"></i> Network Difficulty: <span>{{with-metric-prefix stats.difficulty}}</span></div>
-        <div><i class="fa fa-tachometer"></i> Network Hash Rate: <span>{{format-hashrate stats.hashrate}}</span></div>
-        <div><i class="fa fa-bars"></i> Blockchain Height: <span>{{format-number stats.height}}</span></div>
-        <div><i class="fa fa-clock-o"></i> Current Round Variance: <span>{{format-number stats.roundVariance style='percent'}}</span></div>
+        <div><i class="fa fa-unlock-alt"></i> {{t "home.network_difficulty"}}: <span>{{with-metric-prefix stats.difficulty}}</span></div>
+        <div><i class="fa fa-tachometer"></i> {{t "home.network_hashrate"}}: <span>{{format-hashrate stats.hashrate}}</span></div>
+        <div><i class="fa fa-bars"></i> {{t "home.blockchain_height"}}: <span>{{format-number stats.height}}</span></div>
+        <div><i class="fa fa-clock-o"></i> {{t "home.current_round_variance"}}: <span>{{format-number stats.roundVariance style='percent'}}</span></div>
       </div>
     </div>
   </div>
 </div>
 
+{{#if config.highcharts.main.enabled}}
+<div class="container">
+  {{high-charts mode=chartMode chartOptions=chartOptions content=chartData}}
+</div>
+{{/if}}
+
 <div class="container">
   <div class="stats">
-    <h4>Your Stats &amp; Payment History</h4>
+    <h3>{{t "home.query_history"}}</h3>
     <div class="input-group">
-      {{input value=cachedLogin class="form-control" placeholder="Enter Your Ethereum Address"}}
+      {{input value=cachedLogin class="form-control" placeholder=(t "home.input.enter_your_wallet_address")}}
       <span class="input-group-btn">
         <button class="btn btn-primary" type="button" {{action 'lookup' cachedLogin}}>
-          <span style="display: inline;"><i class="fa fa-search"></i> Lookup</span>
+          <span style="display: inline;"><i class="fa fa-search"></i> {{t "home.button.lookup"}}</span>
         </button>
       </span>
     </div>
   </div>
-  <div>
-    <hr/>
-    <h4 class="note note-info text-center">
-      ethminer.exe -F {{config.HttpHost}}:{{config.HttpPort}}/&lt;address&gt;/&lt;worker&gt; -G
-    </h4>
-  </div>
+
+  {{partial (t "home.help.minimal")}}
 </div>

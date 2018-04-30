@@ -2,6 +2,7 @@ import Ember from 'ember';
 import config from '../config/environment';
 
 export default Ember.Controller.extend({
+  intl: Ember.inject.service(),
   get config() {
     return config.APP;
   },
@@ -62,6 +63,25 @@ export default Ember.Controller.extend({
   lastBlockFound: Ember.computed('model', {
     get() {
       return parseInt(this.get('model.lastBlockFound')) || 0;
+    }
+  }),
+
+  languages: Ember.computed('model', {
+    get() {
+      return this.get('model.languages');
+    }
+  }),
+
+  selectedLanguage: Ember.computed({
+    get() {
+      var langs = this.get('languages');
+      var lang = Ember.$.cookie('lang');
+      for (var i = 0; i < langs.length; i++) {
+        if (langs[i].value == lang) {
+          return langs[i].name;
+        }
+      }
+      return lang;
     }
   }),
 

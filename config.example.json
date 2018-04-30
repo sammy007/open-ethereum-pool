@@ -4,6 +4,7 @@
 	"name": "main",
 
 	"proxy": {
+		"hashLimit" : 240000000,
 		"enabled": true,
 		"listen": "0.0.0.0:8888",
 		"limitHeadersSize": 1024,
@@ -56,7 +57,11 @@
 		"hashrateLargeWindow": "3h",
 		"luckWindow": [64, 128, 256],
 		"payments": 30,
-		"blocks": 50
+		"blocks": 50,
+		"poolCharts":"0 */20 * * * *",
+		"poolChartsNum":74,
+		"minerCharts":"0 */20 * * * *",
+		"minerChartsNum":74
 	},
 
 	"upstreamCheckInterval": "5s",
