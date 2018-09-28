@@ -133,7 +133,10 @@ otherwise you will get errors on start because of JSON comments.**
       // Bind stratum mining socket to this IP:PORT
       "listen": "0.0.0.0:8008",
       "timeout": "120s",
-      "maxConn": 8192
+      "maxConn": 8192,
+      "tls": false,
+      "certFile": "/path/to/cert.pem",
+      "keyFile": "/path/to/key.pem"
     },
 
     // Try to get new job from node in this interval
