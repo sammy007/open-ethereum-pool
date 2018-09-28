@@ -1,14 +1,14 @@
-import Ember from 'ember';
+import { helper as buildHelper } from '@ember/component/helper';
 
 export function withMetricPrefix(params/*, hash*/) {
-  var n = params[0];
+  let n = params[0];
 
   if (n < 1000) {
     return n;
   }
 
-  var i = 0;
-  var units = ['K', 'M', 'G', 'T', 'P'];
+  let i = 0;
+  let units = ['K', 'M', 'G', 'T', 'P'];
   while (n > 1000) {
     n = n / 1000;
     i++;
@@ -16,4 +16,4 @@ export function withMetricPrefix(params/*, hash*/) {
   return n.toFixed(3) + ' ' + units[i - 1];
 }
 
-export default Ember.Helper.helper(withMetricPrefix);
+export default buildHelper(withMetricPrefix);

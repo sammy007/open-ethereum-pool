@@ -1,16 +1,19 @@
-import Ember from 'ember';
+import Controller from '@ember/controller';
+import { inject } from '@ember/controller';
+import { computed } from '@ember/object';
+import $ from 'jquery';
 
-export default Ember.Controller.extend({
-  applicationController: Ember.inject.controller('application'),
-  stats: Ember.computed.reads('applicationController'),
-  config: Ember.computed.reads('applicationController.config'),
+export default Controller.extend({
+  applicationController: inject('application'),
+  stats: computed.reads('applicationController'),
+  config: computed.reads('applicationController.config'),
 
-	cachedLogin: Ember.computed('login', {
+  cachedLogin: computed('login', {
     get() {
-      return this.get('login') || Ember.$.cookie('login');
+      return this.get('login') || $.cookie('login');
     },
     set(key, value) {
-      Ember.$.cookie('login', value);
+      $.cookie('login', value);
       this.set('model.login', value);
       return value;
     }

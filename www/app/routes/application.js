@@ -1,22 +1,26 @@
-import Ember from 'ember';
+import Route from '@ember/routing/route';
+import EmberObject from '@ember/object';
+import { inject } from '@ember/service';
+import { later } from '@ember/runloop';
+import $ from 'jquery';
 import config from '../config/environment';
 
-export default Ember.Route.extend({
-  intl: Ember.inject.service(),
+export default Route.extend({
+  intl: inject(),
 
   beforeModel() {
     this.get('intl').setLocale('en-us');
   },
 
 	model: function() {
-    var url = config.APP.ApiUrl + 'api/stats';
-    return Ember.$.getJSON(url).then(function(data) {
-      return Ember.Object.create(data);
+    let url = config.APP.ApiUrl + 'api/stats';
+    return $.getJSON(url).then(function(data) {
+      return EmberObject.create(data);
     });
 	},
 
   setupController: function(controller, model) {
     this._super(controller, model);
-    Ember.run.later(this, this.refresh, 5000);
+    later(this, this.refresh, 5000);
   }
 });
