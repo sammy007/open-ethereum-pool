@@ -23,7 +23,8 @@ func (s *ProxyServer) ListenTCP() {
 	var err error
 	var server net.Listener
 	if s.config.Proxy.Stratum.TLS {
-		cert, err := tls.LoadX509KeyPair(s.config.Proxy.Stratum.CertFile, s.config.Proxy.Stratum.KeyFile)
+		var cert tls.Certificate
+		cert, err = tls.LoadX509KeyPair(s.config.Proxy.Stratum.CertFile, s.config.Proxy.Stratum.KeyFile)
 		if err != nil {
 			log.Fatalln("Error loading certificate:", err)
 		}
