@@ -111,6 +111,19 @@ func (r *RPCClient) GetLatestBlock() (*GetBlockReplyPart, error) {
 	return nil, nil
 }
 
+func (r *RPCClient) GetPendingBlock() (*GetBlockReplyPart, error) {
+	rpcResp, err := r.doPost(r.Url, "eth_getBlockByNumber", []interface{}{"pending", false})
+	if err != nil {
+		return nil, err
+	}
+	if rpcResp.Result != nil {
+		var reply *GetBlockReplyPart
+		err = json.Unmarshal(*rpcResp.Result, &reply)
+		return reply, err
+	}
+	return nil, nil
+}
+
 func (r *RPCClient) GetBlockByHeight(height int64) (*GetBlockReply, error) {
 	params := []interface{}{fmt.Sprintf("0x%x", height), true}
 	return r.getBlockBy("eth_getBlockByNumber", params)
