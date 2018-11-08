@@ -65,7 +65,20 @@ func TestWeiToShannonInt64(t *testing.T) {
 		t.Error("Must charge original value")
 	}
 }
-
+func TestGetClassicUncleReward(t *testing.T) {
+	rewards := make(map[int64]string)
+	expectedRewards := map[int64]string{
+		1: "125000000000000000",
+	}
+	for i := int64(1); i < 2; i++ {
+		rewards[i] = getUncleReward(1, i+1, true).String()
+	}
+	for i, reward := range rewards {
+		if expectedRewards[i] != rewards[i] {
+			t.Errorf("Incorrect uncle reward for %v, expected %v vs %v", i, expectedRewards[i], reward)
+		}
+	}
+}
 func TestGetUncleReward(t *testing.T) {
 	rewards := make(map[int64]string)
 	expectedRewards := map[int64]string{
@@ -78,7 +91,7 @@ func TestGetUncleReward(t *testing.T) {
 		7: "625000000000000000",
 	}
 	for i := int64(1); i < 8; i++ {
-		rewards[i] = getUncleReward(1, i+1).String()
+		rewards[i] = getUncleReward(1, i+1, false).String()
 	}
 	for i, reward := range rewards {
 		if expectedRewards[i] != rewards[i] {
@@ -99,7 +112,7 @@ func TestGetByzantiumUncleReward(t *testing.T) {
 		7: "375000000000000000",
 	}
 	for i := int64(1); i < 8; i++ {
-		rewards[i] = getUncleReward(byzantiumHardForkHeight, byzantiumHardForkHeight+i).String()
+		rewards[i] = getUncleReward(byzantiumHardForkHeight, byzantiumHardForkHeight+i, false).String()
 	}
 	for i, reward := range rewards {
 		if expectedRewards[i] != rewards[i] {
@@ -109,7 +122,7 @@ func TestGetByzantiumUncleReward(t *testing.T) {
 }
 
 func TestGetRewardForUngle(t *testing.T) {
-	reward := getRewardForUncle(1).String()
+	reward := getRewardForUncle(1, false).String()
 	expectedReward := "156250000000000000"
 	if expectedReward != reward {
 		t.Errorf("Incorrect uncle bonus for height %v, expected %v vs %v", 1, expectedReward, reward)
@@ -117,7 +130,7 @@ func TestGetRewardForUngle(t *testing.T) {
 }
 
 func TestGetByzantiumRewardForUngle(t *testing.T) {
-	reward := getRewardForUncle(byzantiumHardForkHeight).String()
+	reward := getRewardForUncle(byzantiumHardForkHeight, false).String()
 	expectedReward := "93750000000000000"
 	if expectedReward != reward {
 		t.Errorf("Incorrect uncle bonus for height %v, expected %v vs %v", byzantiumHardForkHeight, expectedReward, reward)
