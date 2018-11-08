@@ -1,0 +1,54 @@
+version: '2'
+services: 
+  proxy:
+    build: pool/open-ethereum-pool/
+    restart: always
+    ports:
+      - 3333:3333
+    volumes:
+      - ./proxy.json:/app/config.json
+    links:
+      - redis
+
+  api:
+    build: ./
+    restart: always
+    ports:
+      - 8181:8181
+    volumes:
+      - ./api.json:/app/config.json
+
+  unlocker:
+    build: pool/open-ethereum-pool/
+    restart: always
+    volumes:
+      - ./unlocker.json:/app/config.json
+
+  payouts:
+    build: pool/open-ethereum-pool/
+    restart: always
+    volumes:
+      - ./payouts.json:/app/config.json
+
+  web-builder:
+    build: www/
+    volumes:
+      - ./www-dist:/app/dist
+
+  web-development:
+    build: www/
+    volumes:
+      - ./www:/app
+    command: ember server --port 8082 --environment development
+
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - 6379:6379
+    volumes:
+      - redis:/data 
+    command: redis-server --appendonly yes
+
+volumes:
+  redis:
