@@ -30,10 +30,10 @@
   <div class="stats">
     <h4>{{t 'Your.Stats' htmlSafe=true}} &amp; {{t 'Your.PayHistory' htmlSafe=true}}</h4>
     <div class="input-group">
-      {{input value=cachedLogin class="form-control" placeholder= (t 'Ethereum.AddressSearch') }}
+      {{input value=cachedLogin class="form-control" placeholder= (t 'Search.Address') }}
       <span class="input-group-btn">
         <button class="btn btn-primary" type="button" {{action 'lookup' cachedLogin}}>
-          <span style="display: inline;"><i class="fa fa-search"></i>{{t 'Search.Lookup'}}</span>
+          <span style="display: inline;"><i class="fa fa-search"></i> {{t 'Search.Lookup'}}</span>
         </button>
       </span>
     </div>
