@@ -26,6 +26,7 @@ type UnlockerConfig struct {
 	Interval       string  `json:"interval"`
 	Daemon         string  `json:"daemon"`
 	Timeout        string  `json:"timeout"`
+	Classic        bool    `json:"classic"`
 }
 
 const minDepth = 16
@@ -33,6 +34,7 @@ const byzantiumHardForkHeight = 4370000
 
 var homesteadReward = math.MustParseBig256("5000000000000000000")
 var byzantiumReward = math.MustParseBig256("3000000000000000000")
+var classicReward = math.MustParseBig256("4000000000000000000")
 
 // Donate 10% from pool fees to developers
 const donationFee = 10.0
@@ -159,7 +161,7 @@ func (u *BlockUnlocker) unlockCandidates(candidates []*storage.BlockData) (*Unlo
 					orphan = false
 					result.uncles++
 
-					err := handleUncle(height, uncle, candidate)
+					err := handleUncle(height, uncle, candidate, u.config.Classic)
 					if err != nil {
 						u.halt = true
 						u.lastFail = err
@@ -209,7 +211,7 @@ func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage
 		return err
 	}
 	candidate.Height = correctHeight
-	reward := getConstReward(candidate.Height)
+	reward := getConstReward(candidate.Height, u.config.Classic)
 
 	// Add TX fees
 	extraTxReward, err := u.getExtraRewardForTx(block)
@@ -223,7 +225,7 @@ func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage
 	}
 
 	// Add reward for including uncles
-	uncleReward := getRewardForUncle(candidate.Height)
+	uncleReward := getRewardForUncle(candidate.Height, u.config.Classic)
 	rewardForUncles := big.NewInt(0).Mul(uncleReward, big.NewInt(int64(len(block.Uncles))))
 	reward.Add(reward, rewardForUncles)
 
@@ -233,12 +235,12 @@ func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage
 	return nil
 }
 
-func handleUncle(height int64, uncle *rpc.GetBlockReply, candidate *storage.BlockData) error {
+func handleUncle(height int64, uncle *rpc.GetBlockReply, candidate *storage.BlockData, isClassic bool) error {
 	uncleHeight, err := strconv.ParseInt(strings.Replace(uncle.Number, "0x", "", -1), 16, 64)
 	if err != nil {
 		return err
 	}
-	reward := getUncleReward(uncleHeight, height)
+	reward := getUncleReward(uncleHeight, height, isClassic)
 	candidate.Height = height
 	candidate.UncleHeight = uncleHeight
 	candidate.Orphan = false
@@ -501,24 +503,35 @@ func weiToShannonInt64(wei *big.Rat) int64 {
 	return value
 }
 
-func getConstReward(height int64) *big.Int {
-	if height >= byzantiumHardForkHeight {
-		return new(big.Int).Set(byzantiumReward)
+func getConstReward(height int64, isClassic bool) *big.Int {
+	if !isClassic {
+		if height >= byzantiumHardForkHeight {
+			return new(big.Int).Set(byzantiumReward)
+		}
+		return new(big.Int).Set(homesteadReward)
+	} else {
+		return new(big.Int).Set(classicReward)
 	}
-	return new(big.Int).Set(homesteadReward)
 }
 
-func getRewardForUncle(height int64) *big.Int {
-	reward := getConstReward(height)
+func getRewardForUncle(height int64, isClassic bool) *big.Int {
+	reward := getConstReward(height, isClassic)
 	return new(big.Int).Div(reward, new(big.Int).SetInt64(32))
 }
 
-func getUncleReward(uHeight, height int64) *big.Int {
-	reward := getConstReward(height)
-	k := height - uHeight
-	reward.Mul(big.NewInt(8-k), reward)
-	reward.Div(reward, big.NewInt(8))
-	return reward
+func getUncleReward(uHeight, height int64, isClassic bool) *big.Int {
+	if !isClassic {
+		reward := getConstReward(height, isClassic)
+		k := height - uHeight
+		reward.Mul(big.NewInt(8-k), reward)
+		reward.Div(reward, big.NewInt(8))
+		return reward
+	} else {
+		reward := getConstReward(height, isClassic)
+		reward.Mul(reward, big.NewInt(3125))
+		reward.Div(reward, big.NewInt(100000))
+		return reward
+	}
 }
 
 func (u *BlockUnlocker) getExtraRewardForTx(block *rpc.GetBlockReply) (*big.Int, error) {
