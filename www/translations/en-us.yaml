@@ -1,5 +1,33 @@
-product:
-  info: '{product} will cost {price, number, USD} if ordered by {deadline, date, time}'
-  title: 'Hello world!'
-  html:
-    info: '<strong>{product}</strong> will cost <em>{price, number, USD}</em> if ordered by {deadline, date, time}'
+# product:
+#   info: '{product} will cost {price, number, USD} if ordered by {deadline, date, time}'
+#   title: 'Hello world!'
+#   html:
+#     info: '<strong>{product}</strong> will cost <em>{price, number, USD}</em> if ordered by {deadline, date, time}'
+Network:
+  Difficulty: 'Network Difficulty'
+  HashRate: 'Network Hash Rate'
+  RoundVariance: 'Current Round Variance'
+
+Pool:
+  HashRate: 'Pool Hash Rate'
+  Fee: 'Pool Fee'
+
+Block:
+  Height: 'Blockchain Height'
+  LastFound: 'Last Block Found'
+
+Miners:
+  Online: 'Miners Online'
+
+Your:
+  Stats: 'Your Stats'
+  PayHistory: 'Payment History'
+
+Payout:
+  Minimum: 'Min. payout threshold'
+  Run: 'Payouts run twicer per day'
+  Description: 'Stable and profitable pool with regular payouts'
+
+Search:
+  Address: 'Enter Your Ethereum Address'
+  Lookup: 'Lookup'
