@@ -19,6 +19,7 @@ type Config struct {
 	Limits          Limits  `json:"limits"`
 	ResetInterval   string  `json:"resetInterval"`
 	RefreshInterval string  `json:"refreshInterval"`
+	WhiteListOnly   bool    `json:"whiteListOnly"`
 }
 
 type Limits struct {
@@ -186,6 +187,9 @@ func (s *PolicyServer) BanClient(ip string) {
 }
 
 func (s *PolicyServer) IsBanned(ip string) bool {
+	if(s.config.whiteListOnly){
+		return !s.InWhiteList(ip)
+	}
 	x := s.Get(ip)
 	return atomic.LoadInt32(&x.Banned) > 0
 }
