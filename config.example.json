@@ -42,7 +42,8 @@
 				"limit": 30,
 				"grace": "5m",
 				"limitJump": 10
-			}
+			},
+			"whiteListOnly": true
 		}
 	},
 

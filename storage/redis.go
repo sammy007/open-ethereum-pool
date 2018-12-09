@@ -957,3 +957,11 @@ func convertPaymentsResults(raw *redis.ZSliceCmd) []map[string]interface{} {
 	}
 	return result
 }
+
+func (r *RedisClient) AddToWhiteList(ip string) error {
+	cmd := r.client.SAdd(r.formatKey("whitelist"), ip)
+	if cmd.Err() != nil {
+		return cmd.Err()
+	}
+	return nil
+}
