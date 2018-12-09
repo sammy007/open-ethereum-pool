@@ -10,6 +10,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	"fmt"
+	"regexp"
+
 	"github.com/gorilla/mux"
 
 	"github.com/sammy007/open-ethereum-pool/storage"
@@ -43,6 +46,10 @@ type ApiServer struct {
 type Entry struct {
 	stats     map[string]interface{}
 	updatedAt int64
+}
+
+type WhiteList struct {
+	IPs []string `json:"ips"`
 }
 
 func NewApiServer(cfg *ApiConfig, backend *storage.RedisClient) *ApiServer {
@@ -108,10 +115,48 @@ func (s *ApiServer) listen() {
 	r.HandleFunc("/api/blocks", s.BlocksIndex)
 	r.HandleFunc("/api/payments", s.PaymentsIndex)
 	r.HandleFunc("/api/accounts/{login:0x[0-9a-fA-F]{40}}", s.AccountIndex)
+	r.HandleFunc("/api/whitelist/", s.AddToWhiteListIndex)
 	r.NotFoundHandler = http.HandlerFunc(notFound)
 	err := http.ListenAndServe(s.config.Listen, r)
 	if err != nil {
 		log.Fatalf("Failed to start API: %v", err)
+	}
+}
+
+func (s *ApiServer) AddToWhiteListIndex(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Cache-Control", "no-cache")
+
+		reply := make(map[string]interface{})
+		decoder := json.NewDecoder(r.Body)
+		var whiteList WhiteList
+		err := decoder.Decode(&whiteList)
+
+		if err != nil {
+			reply["success"] = false
+			reply["message"] = fmt.Sprintf("Error occured: %v", err)
+            err := json.NewEncoder(w).Encode(reply)
+            if err != nil {
+                log.Println("Error serializing API response: ", err)
+            }
+            w.WriteHeader(http.StatusUnprocessableEntity)
+            return
+		}
+		reg, _ := regexp.Compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}")
+		for _, ip := range whiteList.IPs {
+			if reg.MatchString(ip){
+				err = s.backend.AddToWhiteList(ip)
+				if err != nil {
+					log.Println(err)
+				}
+			}
+		}
+		reply["success"] = true
+		reply["message"] = fmt.Sprintf("Add to IP white list successful.")
+	}else{
+		http.Error(w, "Invalid request method.", http.StatusMethodNotAllowed)
 	}
 }
 
