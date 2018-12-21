@@ -388,6 +388,7 @@ func (cs *Session) pushNewJob(s *ProxyServer, result interface{}) error {
 		if cs.JobDetails.SeedHash[0:2] == "0x" {
 			cs.JobDetails.SeedHash = cs.JobDetails.SeedHash[2:]
 			cs.JobDetails.HeaderHash = cs.JobDetails.HeaderHash[2:]
+			cs.JobDetails.Height = cs.JobDetails.Height[2:]
 		}
 
 		resp := JSONStratumReq{
@@ -396,6 +397,7 @@ func (cs *Session) pushNewJob(s *ProxyServer, result interface{}) error {
 				cs.JobDetails.JobID,
 				cs.JobDetails.SeedHash,
 				cs.JobDetails.HeaderHash,
+				cs.JobDetails.Height,
 				// If set to true, then miner needs to clear queue of jobs and immediatelly
 				// start working on new provided job, because all old jobs shares will
 				// result with stale share error.
@@ -490,6 +492,7 @@ func (cs *Session) sendJob(s *ProxyServer, id json.RawMessage, newjob bool) erro
 		if cs.JobDetails.SeedHash[0:2] == "0x" {
 			cs.JobDetails.SeedHash = cs.JobDetails.SeedHash[2:]
 			cs.JobDetails.HeaderHash = cs.JobDetails.HeaderHash[2:]
+			cs.JobDetails.Height = cs.JobDetails.Height[2:]
 		}
 	}
 
@@ -499,6 +502,7 @@ func (cs *Session) sendJob(s *ProxyServer, id json.RawMessage, newjob bool) erro
 			cs.JobDetails.JobID,
 			cs.JobDetails.SeedHash,
 			cs.JobDetails.HeaderHash,
+			cs.JobDetails.Height,
 			true,
 		},
 	}
