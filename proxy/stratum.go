@@ -17,12 +17,14 @@ import (
 )
 
 const (
-	MaxReqSize = 1024
+	MaxReqSize        = 1024
+	epochLength int64 = 30000
 )
 
 const (
 	EthProxy int = iota
 	NiceHash
+	Stratum2
 )
 
 func (s *ProxyServer) ListenTCP() {
@@ -123,6 +125,9 @@ func (cs *Session) setStratumMode(str string) error {
 	case "EthereumStratum/1.0.0":
 		cs.stratum = NiceHash
 		break
+	case "EthereumStratum/2.0.0":
+		cs.stratum = Stratum2
+		break
 	default:
 		cs.stratum = EthProxy
 		break
@@ -156,8 +161,19 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 		var params []string
 		err := json.Unmarshal(req.Params, &params)
 		if err != nil || len(params) < 2 {
-			log.Println("Malformed stratum request params from", cs.ip)
-			return err
+			if cs.stratumMode() != Stratum2 {
+				log.Println("Malformed stratum request params from", cs.ip)
+				return err
+			}
+			// always set session Id FIXME
+			sessionId := randomHex(32)
+			if len(params) > 0 {
+				// old sessionId: params[0]
+				return cs.sendStratumResult(req.Id, sessionId)
+			}
+
+			cs.subscriptionID = sessionId
+			return cs.sendStratumResult(req.Id, sessionId)
 		}
 
 		if params[1] != "EthereumStratum/1.0.0" {
@@ -170,15 +186,130 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 		result := cs.getNotificationResponse(s)
 		return cs.sendStratumResult(req.Id, result)
 
+	case "mining.hello":
+		var params map[string]string
+		err := json.Unmarshal(req.Params, &params)
+		if err != nil || len(params) < 2 {
+			log.Println("Malformed stratum request params from", cs.ip)
+			return err
+		}
+
+		if params["proto"] != "EthereumStratum/2.0.0" {
+			log.Println("Unsupported stratum version from ", cs.ip)
+			return cs.sendStratumError(req.Id, "unsupported stratum version")
+		}
+
+		log.Println("EthereumStratum/2.0.0 hello", cs.ip)
+		result := map[string]interface{}{
+			"proto":     "EthereumStratum/2.0.0",
+			"encoding":  "plain",
+			"resume":    "1",
+			"timeout":   "b4", // 180 sec
+			"maxerrors": "5",
+			"node":      "Open-Ethreum-Pool",
+		}
+		cs.setStratumMode("EthereumStratum/2.0.0")
+		return cs.sendStratumResult(req.Id, result)
 	default:
 		switch cs.stratumMode() {
-		case 0:
+		case EthProxy:
 			break
-		case 1:
+		case NiceHash:
+			break
+		case Stratum2:
 			break
 		default:
 			errReply := s.handleUnknownRPC(cs, req.Method)
 			return cs.sendTCPError(req.Id, errReply)
+		}
+	}
+
+	if cs.stratumMode() == Stratum2 {
+		switch req.Method {
+		case "mining.noop":
+			return nil
+
+		case "mining.authorize":
+			var params []string
+			err := json.Unmarshal(req.Params, &params)
+			if err != nil || len(params) < 1 {
+				return errors.New("invalid params")
+			}
+			splitData := strings.Split(params[0], ".")
+			params[0] = splitData[0]
+			_, errReply := s.handleLoginRPC(cs, params, req.Worker)
+			if errReply != nil {
+				return cs.sendStratumError(req.Id, []string{
+					string(errReply.Code),
+					errReply.Message,
+				})
+			}
+
+			// send worker
+			if err := cs.sendStratumResult(req.Id, splitData[1]); err != nil {
+				return err
+			}
+
+			return cs.sendJob(s, req.Id, true)
+
+		case "mining.submit":
+			var params []string
+			err := json.Unmarshal(req.Params, &params)
+			if err != nil || len(params) < 3 {
+				log.Println("mining.submit: json.Unmarshal fail")
+				return err
+			}
+
+			// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1571.md
+			// params[0] = JobId
+			// params[1] = MinerNonce
+			// params[2] = Worker
+
+			id := params[2]
+
+			if cs.JobDetails.JobID != params[0] {
+				stale, ok := cs.staleJobs[params[0]]
+				if ok {
+					log.Printf("Cached stale JobID %s", params[0])
+					params = []string{
+						cs.Extranonce + params[1],
+						stale.SeedHash,
+						stale.HeaderHash,
+					}
+				} else {
+					log.Printf("Stale share (mining.submit JobID received %s != current %s)", params[0], cs.JobDetails.JobID)
+					if err := cs.sendStratumError(req.Id, map[string]string{"code": "202", "message": "Stale share."}); err != nil {
+						return err
+					}
+					return cs.sendJob(s, req.Id, false)
+				}
+			} else {
+				nonce := cs.Extranonce + params[1]
+
+				params = []string{
+					nonce,
+					cs.JobDetails.SeedHash,
+					cs.JobDetails.HeaderHash,
+				}
+			}
+
+			reply, errReply := s.handleTCPSubmitRPC(cs, id, params)
+			if errReply != nil {
+				log.Println("mining.submit: handleTCPSubmitRPC failed")
+				return cs.sendStratumError(req.Id, []string{
+					strconv.Itoa(errReply.Code),
+					errReply.Message,
+				})
+			}
+
+			return cs.sendStratumResult(req.Id, reply)
+
+		default:
+			errReply := s.handleUnknownRPC(cs, req.Method)
+			return cs.sendStratumError(req.Id, []string{
+				strconv.Itoa(errReply.Code),
+				errReply.Message,
+			})
 		}
 	}
 
@@ -411,6 +542,39 @@ func (cs *Session) pushNewJob(s *ProxyServer, result interface{}) error {
 		}
 		return cs.enc.Encode(&resp)
 	}
+
+	if cs.stratumMode() == Stratum2 {
+		cs.cacheStales(10, 3)
+
+		t := result.(*[]string)
+		cs.JobDetails = jobDetails{
+			JobID:      randomHex(8),
+			SeedHash:   (*t)[1],
+			HeaderHash: (*t)[0],
+			Height:     (*t)[3],
+		}
+
+		// strip 0x prefix
+		if cs.JobDetails.SeedHash[0:2] == "0x" {
+			cs.JobDetails.SeedHash = cs.JobDetails.SeedHash[2:]
+			cs.JobDetails.HeaderHash = cs.JobDetails.HeaderHash[2:]
+			cs.JobDetails.Height = cs.JobDetails.Height[2:]
+		}
+
+		resp := JSONStratumReq{
+			Method: "mining.notify",
+			Params: []interface{}{
+				cs.JobDetails.JobID,
+				cs.JobDetails.Height,
+				cs.JobDetails.HeaderHash,
+				// If set to true, then miner needs to clear queue of jobs and immediatelly
+				// start working on new provided job, because all old jobs shares will
+				// result with stale share error.
+				"1",
+			},
+		}
+		return cs.enc.Encode(&resp)
+	}
 	// FIXME: Temporarily add ID for Claymore compliance
 	message := JSONPushMessage{Version: "2.0", Result: result, Id: 0}
 	return cs.enc.Encode(&message)
@@ -496,17 +660,45 @@ func (cs *Session) sendJob(s *ProxyServer, id json.RawMessage, newjob bool) erro
 		}
 	}
 
-	resp := JSONStratumReq{
-		Method: "mining.notify",
-		Params: []interface{}{
-			cs.JobDetails.JobID,
-			cs.JobDetails.SeedHash,
-			cs.JobDetails.HeaderHash,
-			cs.JobDetails.Height,
-			true,
-		},
+	var resp JSONStratumReq
+	if cs.stratumMode() == NiceHash {
+		resp = JSONStratumReq{
+			Method: "mining.notify",
+			Params: []interface{}{
+				cs.JobDetails.JobID,
+				cs.JobDetails.SeedHash,
+				cs.JobDetails.HeaderHash,
+				cs.JobDetails.Height,
+				true,
+			},
+		}
 	}
 
+	if cs.stratumMode() == Stratum2 {
+		target := util.GetTargetHex(s.config.Proxy.Difficulty)[2:]
+		height, _ := strconv.ParseInt(cs.JobDetails.Height, 16, 64)
+
+		result := map[string]interface{}{
+			"epoch":      util.ToHex(int64(height / epochLength))[2:],
+			"target":     target,
+			"extranonce": cs.Extranonce,
+		}
+		resp = JSONStratumReq{
+			Method: "mining.set",
+			Params: result,
+		}
+		cs.sendTCPReq(resp)
+
+		resp = JSONStratumReq{
+			Method: "mining.notify",
+			Params: []interface{}{
+				cs.JobDetails.JobID,
+				cs.JobDetails.Height,
+				cs.JobDetails.HeaderHash,
+				"1",
+			},
+		}
+	}
 	return cs.sendTCPReq(resp)
 }
 

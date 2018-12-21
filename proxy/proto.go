@@ -11,7 +11,7 @@ type JSONRpcReq struct {
 type JSONStratumReq struct  {
 	Method string      `json:"method"`
 	Params interface{} `json:"params"`
-	Id     interface{} `json:"id"`
+	Id     interface{} `json:"id,omitempty"`
 }
 
 type StratumReq struct {
@@ -28,7 +28,7 @@ type JSONPushMessage struct {
 }
 
 type JSONRpcResp struct {
-	Id      json.RawMessage `json:"id"`
+	Id      json.RawMessage `json:"id,omitempty"`
 	Version string          `json:"jsonrpc,omitempty"`
 	Result  interface{}     `json:"result"`
 	Error   interface{}     `json:"error"`

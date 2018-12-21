@@ -64,7 +64,7 @@ func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []st
 	}
 
 	stratumMode := cs.stratumMode()
-	if stratumMode == NiceHash {
+	if stratumMode != EthProxy {
 		for i := 0; i <= 2; i++ {
 			if params[i][0:2] != "0x" {
 				params[i] = "0x" + params[i]
