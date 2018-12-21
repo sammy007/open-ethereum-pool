@@ -43,6 +43,11 @@ type jobDetails struct {
 	Height     string
 }
 
+type staleJob struct {
+	SeedHash   string
+	HeaderHash string
+}
+
 type Session struct {
 	ip  string
 	enc *json.Encoder
@@ -56,6 +61,8 @@ type Session struct {
 	subscriptionID string
 	Extranonce     string
 	JobDetails     jobDetails
+	staleJobs      map[string]staleJob
+	staleJobIDs    []string
 }
 
 func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {

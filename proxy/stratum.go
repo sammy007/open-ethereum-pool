@@ -63,6 +63,8 @@ func (s *ProxyServer) ListenTCP() {
 		}
 		n += 1
 		cs := &Session{conn: conn, ip: ip, Extranonce: randomHex(4), stratum: -1}
+		// allocate stales cache
+		cs.staleJobs = make(map[string]staleJob)
 
 		accept <- n
 		go func(cs *Session) {
@@ -208,7 +210,7 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 				return err
 			}
 
-			return cs.sendJob(s, req.Id)
+			return cs.sendJob(s, req.Id, true)
 
 		case "mining.extranonce.subscribe":
 			var params []string
@@ -255,18 +257,29 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 			}
 
 			if cs.JobDetails.JobID != params[1] {
-				log.Printf("Stale share (mining.submit JobID received %s != current %s)", params[1], cs.JobDetails.JobID)
-				return cs.sendStratumError(req.Id, []string{
-					"21",
-					"Stale share.",
-				})
-			}
-			nonce := cs.Extranonce + params[2]
+				stale, ok := cs.staleJobs[params[1]]
+				if ok {
+					log.Printf("Cached stale JobID %s", params[1])
+					params = []string{
+						cs.Extranonce + params[2],
+						stale.SeedHash,
+						stale.HeaderHash,
+					}
+				} else {
+					log.Printf("Stale share (mining.submit JobID received %s != current %s)", params[1], cs.JobDetails.JobID)
+					if err := cs.sendStratumError(req.Id, []string{"21", "Stale share."}); err != nil {
+						return err
+					}
+					return cs.sendJob(s, req.Id, false)
+				}
+			} else {
+				nonce := cs.Extranonce + params[2]
 
-			params = []string{
-				nonce,
-				cs.JobDetails.SeedHash,
-				cs.JobDetails.HeaderHash,
+				params = []string{
+					nonce,
+					cs.JobDetails.SeedHash,
+					cs.JobDetails.HeaderHash,
+				}
 			}
 
 			reply, errReply := s.handleTCPSubmitRPC(cs, id, params)
@@ -330,11 +343,33 @@ func (cs *Session) sendTCPResult(id json.RawMessage, result interface{}) error {
 	return cs.enc.Encode(&message)
 }
 
-func (cs *Session) pushNewJob(result interface{}) error {
+// cache stale jobs
+func (cs *Session) cacheStales(max, n int) {
+	l := len(cs.staleJobIDs)
+	// remove outdated stales except last n caches if l > max
+	if l > max {
+		save := cs.staleJobIDs[l-n : l]
+		del := cs.staleJobIDs[0 : l-n]
+		for _, v := range del {
+			delete(cs.staleJobs, v)
+		}
+		cs.staleJobIDs = save
+	}
+	// save stales cache
+	cs.staleJobs[cs.JobDetails.JobID] = staleJob{
+		cs.JobDetails.SeedHash,
+		cs.JobDetails.HeaderHash,
+	}
+	cs.staleJobIDs = append(cs.staleJobIDs, cs.JobDetails.JobID)
+}
+
+func (cs *Session) pushNewJob(s *ProxyServer, result interface{}) error {
 	cs.Lock()
 	defer cs.Unlock()
 
 	if cs.stratumMode() == NiceHash {
+		cs.cacheStales(10, 3)
+
 		t := result.(*[]string)
 		cs.JobDetails = jobDetails{
 			JobID:      randomHex(8),
@@ -426,29 +461,29 @@ func (s *ProxyServer) removeSession(cs *Session) {
 }
 
 // nicehash
-func (cs *Session) sendJob(s *ProxyServer, id json.RawMessage) error {
-	reply, errReply := s.handleGetWorkRPC(cs)
-	if errReply != nil {
-		return cs.sendStratumError(id, []string{
-			string(errReply.Code),
-			errReply.Message,
-		})
-	}
+func (cs *Session) sendJob(s *ProxyServer, id json.RawMessage, newjob bool) error {
+	if newjob {
+		reply, errReply := s.handleGetWorkRPC(cs)
+		if errReply != nil {
+			return cs.sendStratumError(id, []string{
+				string(errReply.Code),
+				errReply.Message,
+			})
+		}
 
-	cs.JobDetails = jobDetails{
-		JobID:      randomHex(8),
-		SeedHash:   reply[1],
-		HeaderHash: reply[0],
-		Height:     reply[3],
-	}
+		cs.JobDetails = jobDetails{
+			JobID:      randomHex(8),
+			SeedHash:   reply[1],
+			HeaderHash: reply[0],
+			Height:     reply[3],
+		}
 
-	// The NiceHash official .NET pool omits 0x...
-	// TO DO: clean up once everything works
-	if cs.JobDetails.SeedHash[0:2] == "0x" {
-		cs.JobDetails.SeedHash = cs.JobDetails.SeedHash[2:]
-	}
-	if cs.JobDetails.HeaderHash[0:2] == "0x" {
-		cs.JobDetails.HeaderHash = cs.JobDetails.HeaderHash[2:]
+		// The NiceHash official .NET pool omits 0x...
+		// TO DO: clean up once everything works
+		if cs.JobDetails.SeedHash[0:2] == "0x" {
+			cs.JobDetails.SeedHash = cs.JobDetails.SeedHash[2:]
+			cs.JobDetails.HeaderHash = cs.JobDetails.HeaderHash[2:]
+		}
 	}
 
 	resp := JSONStratumReq{
@@ -486,7 +521,7 @@ func (s *ProxyServer) broadcastNewJobs() {
 		bcast <- n
 
 		go func(cs *Session) {
-			err := cs.pushNewJob(&reply)
+			err := cs.pushNewJob(s, &reply)
 			<-bcast
 			if err != nil {
 				log.Printf("Job transmit error to %v@%v: %v", cs.login, cs.ip, err)
