@@ -546,6 +546,8 @@ func (cs *Session) pushNewJob(s *ProxyServer, result interface{}) error {
 	if cs.stratumMode() == Stratum2 {
 		cs.cacheStales(10, 3)
 
+		old_epoch := cs.JobDetails.Epoch
+
 		t := result.(*[]string)
 		cs.JobDetails = jobDetails{
 			JobID:      randomHex(8),
@@ -559,6 +561,22 @@ func (cs *Session) pushNewJob(s *ProxyServer, result interface{}) error {
 			cs.JobDetails.SeedHash = cs.JobDetails.SeedHash[2:]
 			cs.JobDetails.HeaderHash = cs.JobDetails.HeaderHash[2:]
 			cs.JobDetails.Height = cs.JobDetails.Height[2:]
+		}
+
+		height, _ := strconv.ParseInt(cs.JobDetails.Height, 16, 64)
+		epoch := int64(height / epochLength)
+		cs.JobDetails.Epoch = epoch
+
+		// check epoch change
+		if epoch != old_epoch {
+			result := map[string]interface{}{
+				"epoch": util.ToHex(int64(epoch))[2:],
+			}
+			resp := JSONStratumReq{
+				Method: "mining.set",
+				Params: result,
+			}
+			cs.enc.Encode(&resp)
 		}
 
 		resp := JSONStratumReq{
@@ -678,16 +696,20 @@ func (cs *Session) sendJob(s *ProxyServer, id json.RawMessage, newjob bool) erro
 		target := util.GetTargetHex(s.config.Proxy.Difficulty)[2:]
 		height, _ := strconv.ParseInt(cs.JobDetails.Height, 16, 64)
 
-		result := map[string]interface{}{
-			"epoch":      util.ToHex(int64(height / epochLength))[2:],
-			"target":     target,
-			"extranonce": cs.Extranonce,
+		if newjob {
+			epoch := int64(height / epochLength)
+			cs.JobDetails.Epoch = epoch
+			result := map[string]interface{}{
+				"epoch":      util.ToHex(epoch)[2:],
+				"target":     target,
+				"extranonce": cs.Extranonce,
+			}
+			resp = JSONStratumReq{
+				Method: "mining.set",
+				Params: result,
+			}
+			cs.sendTCPReq(resp)
 		}
-		resp = JSONStratumReq{
-			Method: "mining.set",
-			Params: result,
-		}
-		cs.sendTCPReq(resp)
 
 		resp = JSONStratumReq{
 			Method: "mining.notify",

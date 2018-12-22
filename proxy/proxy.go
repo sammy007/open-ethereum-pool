@@ -43,6 +43,7 @@ type jobDetails struct {
 	SeedHash   string
 	HeaderHash string
 	Height     string
+	Epoch      int64
 }
 
 type staleJob struct {
