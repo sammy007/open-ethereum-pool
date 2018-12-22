@@ -26,6 +26,7 @@ type ProxyServer struct {
 	upstreams          []*rpc.RPCClient
 	backend            *storage.RedisClient
 	diff               string
+	algorithm          string
 	policy             *policy.PolicyServer
 	hashrateExpiration time.Duration
 	failsCount         int64
@@ -61,6 +62,7 @@ type Session struct {
 	login string
 
 	stratum        int
+	algorithm      string
 	subscriptionID string
 	Extranonce     string
 	ExtranonceSub  bool
@@ -77,6 +79,16 @@ func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
 
 	proxy := &ProxyServer{config: cfg, backend: backend, policy: policy}
 	proxy.diff = util.GetTargetHex(cfg.Proxy.Difficulty)
+
+	// set default Algorithm
+	switch cfg.Proxy.Algorithm {
+	case "progpow":
+		proxy.algorithm = "progpow"
+		break
+	default:
+		proxy.algorithm = "ethash"
+		break
+	}
 
 	proxy.upstreams = make([]*rpc.RPCClient, len(cfg.Upstream))
 	for i, v := range cfg.Upstream {

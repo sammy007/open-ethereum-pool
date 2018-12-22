@@ -514,6 +514,7 @@ func (cs *Session) pushNewJob(s *ProxyServer, result interface{}) error {
 			HeaderHash: (*t)[0],
 			Height:     (*t)[3],
 		}
+		cs.algorithm = s.algorithm
 
 		// strip 0x prefix
 		if cs.JobDetails.SeedHash[0:2] == "0x" {
@@ -568,9 +569,11 @@ func (cs *Session) pushNewJob(s *ProxyServer, result interface{}) error {
 		cs.JobDetails.Epoch = epoch
 
 		// check epoch change
-		if epoch != old_epoch {
+		if epoch != old_epoch || s.algorithm != cs.algorithm {
+			cs.algorithm = s.algorithm
 			result := map[string]interface{}{
 				"epoch": util.ToHex(int64(epoch))[2:],
+				"algo":  s.algorithm,
 			}
 			resp := JSONStratumReq{
 				Method: "mining.set",
@@ -668,6 +671,7 @@ func (cs *Session) sendJob(s *ProxyServer, id json.RawMessage, newjob bool) erro
 			HeaderHash: reply[0],
 			Height:     reply[3],
 		}
+		cs.algorithm = s.algorithm
 
 		// The NiceHash official .NET pool omits 0x...
 		// TO DO: clean up once everything works
@@ -702,12 +706,14 @@ func (cs *Session) sendJob(s *ProxyServer, id json.RawMessage, newjob bool) erro
 			result := map[string]interface{}{
 				"epoch":      util.ToHex(epoch)[2:],
 				"target":     target,
+				"algo":       s.algorithm,
 				"extranonce": cs.Extranonce,
 			}
 			resp = JSONStratumReq{
 				Method: "mining.set",
 				Params: result,
 			}
+			cs.algorithm = s.algorithm
 			cs.sendTCPReq(resp)
 		}
 

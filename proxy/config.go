@@ -38,6 +38,9 @@ type Proxy struct {
 	Difficulty           int64  `json:"difficulty"`
 	StateUpdateInterval  string `json:"stateUpdateInterval"`
 	HashrateExpiration   string `json:"hashrateExpiration"`
+	Algorithm            string `json:"algorithm"`
+
+	ForkBlock []ForkBlock `json:"forkBlock"`
 
 	Policy policy.Config `json:"policy"`
 
@@ -56,6 +59,11 @@ type Stratum struct {
 	TLS      bool   `json:"tls"`
 	CertFile string `json:"certFile"`
 	KeyFile  string `json:"keyFile"`
+}
+
+type ForkBlock struct {
+	Block     uint64 `json:"block"`
+	Algorithm string `json:"algorithm"`
 }
 
 type Upstream struct {

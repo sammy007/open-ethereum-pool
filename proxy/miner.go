@@ -18,7 +18,7 @@ var (
 	maxUint256 = new(big.Int).Exp(big.NewInt(2), big.NewInt(256), big.NewInt(0))
 )
 
-func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, params []string, stratum bool) (bool, bool) {
+func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, params []string, algo string, stratum bool) (bool, bool) {
 	nonceHex := params[0]
 	hashNoNonce := params[1]
 	mixDigest := params[2]
@@ -29,14 +29,14 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 	if stratum {
 		hashNoNonceTmp := common.HexToHash(params[2])
 
-		_, mixDigestTmp, hashTmp := hasher.Compute(t.Height, hashNoNonceTmp, nonce)
+		_, mixDigestTmp, hashTmp := hasher.ComputeWithAlgo(t.Height, hashNoNonceTmp, nonce, algo)
 		params[1] = hashNoNonceTmp.Hex()
 		params[2] = mixDigestTmp.Hex()
 		hashNoNonce = params[1]
 		result = hashTmp
 	} else {
 		hashNoNonceTmp := common.HexToHash(hashNoNonce)
-		_, mixDigestTmp, hashTmp := hasher.Compute(t.Height, hashNoNonceTmp, nonce)
+		_, mixDigestTmp, hashTmp := hasher.ComputeWithAlgo(t.Height, hashNoNonceTmp, nonce, algo)
 
 		// check mixDigest
 		if (mixDigestTmp.Hex() != mixDigest) {
