@@ -14,6 +14,10 @@ import (
 
 var hasher = ethash.New()
 
+var (
+	maxUint256 = new(big.Int).Exp(big.NewInt(2), big.NewInt(256), big.NewInt(0))
+)
+
 func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, params []string, stratum bool) (bool, bool) {
 	nonceHex := params[0]
 	hashNoNonce := params[1]
@@ -21,6 +25,7 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 	nonce, _ := strconv.ParseUint(strings.Replace(nonceHex, "0x", "", -1), 16, 64)
 	shareDiff := s.config.Proxy.Difficulty
 
+	var result common.Hash
 	if stratum {
 		hashNoNonceTmp := common.HexToHash(params[2])
 
@@ -40,6 +45,16 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 		params[2] = mixDigestTmp.Hex()
 		hashNoNonce = params[1]
 		mixDigest = params[2]
+		result = hashTmp
+	} else {
+		hashNoNonceTmp := common.HexToHash(hashNoNonce)
+		_, mixDigestTmp, hashTmp := hasher.Compute(t.Height, hashNoNonceTmp, nonce)
+
+		// check mixDigest
+		if (mixDigestTmp.Hex() != mixDigest) {
+			return false, false
+		}
+		result = hashTmp
 	}
 
 	h, ok := t.headers[hashNoNonce]
@@ -48,27 +63,15 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 		return false, false
 	}
 
-	share := Block{
-		number:      h.height,
-		hashNoNonce: common.HexToHash(hashNoNonce),
-		difficulty:  big.NewInt(shareDiff),
-		nonce:       nonce,
-		mixDigest:   common.HexToHash(mixDigest),
-	}
-
-	block := Block{
-		number:      h.height,
-		hashNoNonce: common.HexToHash(hashNoNonce),
-		difficulty:  h.diff,
-		nonce:       nonce,
-		mixDigest:   common.HexToHash(mixDigest),
-	}
-
-	if !hasher.Verify(share) {
+	// check share difficulty
+	shareTarget := new(big.Int).Div(maxUint256, big.NewInt(shareDiff))
+	if (result.Big().Cmp(shareTarget) > 0) {
 		return false, false
 	}
 
-	if hasher.Verify(block) {
+	// check target difficulty
+	target := new(big.Int).Div(maxUint256, big.NewInt(h.diff.Int64()))
+	if result.Big().Cmp(target) <= 0 {
 		ok, err := s.rpc().SubmitBlock(params)
 		if err != nil {
 			log.Printf("Block submission failure at height %v for %v: %v", h.height, t.Header, err)
