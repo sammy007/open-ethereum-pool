@@ -140,7 +140,7 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 	case "eth_submitLogin":
 		var params []string
 		err := json.Unmarshal(req.Params, &params)
-		if err != nil {
+		if err != nil || len(params) < 1 {
 			log.Println("Malformed stratum request params from", cs.ip)
 			return err
 		}
@@ -187,7 +187,7 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 		case "mining.authorize":
 			var params []string
 			err := json.Unmarshal(req.Params, &params)
-			if err != nil {
+			if err != nil || len(params) < 1 {
 				return errors.New("invalid params")
 			}
 			splitData := strings.Split(params[0], ".")
@@ -324,7 +324,7 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 	case "eth_submitWork":
 		var params []string
 		err := json.Unmarshal(req.Params, &params)
-		if err != nil {
+		if err != nil || len(params) < 3 {
 			log.Println("Malformed stratum request params from", cs.ip)
 			return err
 		}
