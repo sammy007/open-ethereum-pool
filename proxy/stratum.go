@@ -62,7 +62,9 @@ func (s *ProxyServer) ListenTCP() {
 			continue
 		}
 		n += 1
-		cs := &Session{conn: conn, ip: ip, Extranonce: randomHex(4), stratum: -1}
+		// make unique extranonce
+		extranonce := s.uniqExtranonce()
+		cs := &Session{conn: conn, ip: ip, Extranonce: extranonce, stratum: -1}
 		// allocate stales cache
 		cs.staleJobs = make(map[string]staleJob)
 
@@ -457,6 +459,7 @@ func (s *ProxyServer) registerSession(cs *Session) {
 func (s *ProxyServer) removeSession(cs *Session) {
 	s.sessionsMu.Lock()
 	defer s.sessionsMu.Unlock()
+	delete(s.Extranonces, cs.Extranonce)
 	delete(s.sessions, cs)
 }
 
@@ -532,6 +535,22 @@ func (s *ProxyServer) broadcastNewJobs() {
 		}(m)
 	}
 	log.Printf("Jobs broadcast finished %s", time.Since(start))
+}
+
+func (s *ProxyServer) uniqExtranonce() string {
+	s.sessionsMu.RLock()
+	defer s.sessionsMu.RUnlock()
+
+	extranonce := randomHex(4)
+	for {
+		if _, ok := s.Extranonces[extranonce]; ok {
+			extranonce = randomHex(4)
+		} else {
+			break
+		}
+	}
+	s.Extranonces[extranonce] = true
+	return extranonce
 }
 
 func randomHex(strlen int) string {
