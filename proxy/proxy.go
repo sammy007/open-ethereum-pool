@@ -62,6 +62,7 @@ type Session struct {
 	stratum        int
 	subscriptionID string
 	Extranonce     string
+	ExtranonceSub  bool
 	JobDetails     jobDetails
 	staleJobs      map[string]staleJob
 	staleJobIDs    []string

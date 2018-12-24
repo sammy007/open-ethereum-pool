@@ -64,7 +64,7 @@ func (s *ProxyServer) ListenTCP() {
 		n += 1
 		// make unique extranonce
 		extranonce := s.uniqExtranonce()
-		cs := &Session{conn: conn, ip: ip, Extranonce: extranonce, stratum: -1}
+		cs := &Session{conn: conn, ip: ip, Extranonce: extranonce, ExtranonceSub: false, stratum: -1}
 		// allocate stales cache
 		cs.staleJobs = make(map[string]staleJob)
 
@@ -224,6 +224,7 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 				if err := cs.sendStratumResult(req.Id, true); err != nil {
 					return err
 				}
+				cs.ExtranonceSub = true
 				req := JSONStratumReq{
 					Id:     nil,
 					Method: "mining.set_extranonce",
@@ -258,12 +259,17 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 				id = splitData[1]
 			}
 
+			// check Extranonce subscription.
+			extranonce := cs.Extranonce
+			if !cs.ExtranonceSub { extranonce = "" }
+			nonce := extranonce + params[2]
+
 			if cs.JobDetails.JobID != params[1] {
 				stale, ok := cs.staleJobs[params[1]]
 				if ok {
 					log.Printf("Cached stale JobID %s", params[1])
 					params = []string{
-						cs.Extranonce + params[2],
+						nonce,
 						stale.SeedHash,
 						stale.HeaderHash,
 					}
@@ -275,8 +281,6 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 					return cs.sendJob(s, req.Id, false)
 				}
 			} else {
-				nonce := cs.Extranonce + params[2]
-
 				params = []string{
 					nonce,
 					cs.JobDetails.SeedHash,
