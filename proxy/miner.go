@@ -61,7 +61,9 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 		return false, false
 	}
 
-	log.Printf("Difficulty pool/block/share = %d / %d / %d(%f) from %v@%v", shareDiff, t.Difficulty, shareDiffCalc, shareDiffFloat, login, ip)
+	if s.config.Proxy.Debug {
+		log.Printf("Difficulty pool/block/share = %d / %d / %d(%f) from %v@%v", shareDiff, t.Difficulty, shareDiffCalc, shareDiffFloat, login, ip)
+	}
 
 	// check share difficulty
 	shareTarget := new(big.Int).Div(maxUint256, big.NewInt(shareDiff))
