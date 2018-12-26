@@ -29,22 +29,10 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 	if stratum {
 		hashNoNonceTmp := common.HexToHash(params[2])
 
-		// Block "difficulty" is BigInt
-		// NiceHash "difficulty" is float64 ...
-		// diffFloat => target; then: diffInt = 2^256 / target
-
 		_, mixDigestTmp, hashTmp := hasher.Compute(t.Height, hashNoNonceTmp, nonce)
-		shareDiffCalc := util.TargetHexToDiff(hashTmp.Hex()).Int64()
-		shareDiffFloat := util.DiffIntToFloat(shareDiffCalc)
-		if shareDiffFloat < 0.0001 {
-			log.Printf("share difficulty too low, %f < %d, from %v@%v", shareDiffFloat, t.Difficulty, login, ip)
-			return false, false
-		}
-
 		params[1] = hashNoNonceTmp.Hex()
 		params[2] = mixDigestTmp.Hex()
 		hashNoNonce = params[1]
-		mixDigest = params[2]
 		result = hashTmp
 	} else {
 		hashNoNonceTmp := common.HexToHash(hashNoNonce)
@@ -57,11 +45,23 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 		result = hashTmp
 	}
 
+	// Block "difficulty" is BigInt
+	// NiceHash "difficulty" is float64 ...
+	// diffFloat => target; then: diffInt = 2^256 / target
+	shareDiffCalc := util.TargetHexToDiff(result.Hex()).Int64()
+	shareDiffFloat := util.DiffIntToFloat(shareDiffCalc)
+	if shareDiffFloat < 0.0001 {
+		log.Printf("share difficulty too low, %f < %d, from %v@%v", shareDiffFloat, t.Difficulty, login, ip)
+		return false, false
+	}
+
 	h, ok := t.headers[hashNoNonce]
 	if !ok {
 		log.Printf("Stale share from %v@%v", login, ip)
 		return false, false
 	}
+
+	log.Printf("Difficulty pool/block/share = %d / %d / %d(%f) from %v@%v", shareDiff, t.Difficulty, shareDiffCalc, shareDiffFloat, login, ip)
 
 	// check share difficulty
 	shareTarget := new(big.Int).Div(maxUint256, big.NewInt(shareDiff))
