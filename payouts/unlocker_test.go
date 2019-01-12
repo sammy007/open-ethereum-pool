@@ -108,7 +108,7 @@ func TestGetByzantiumUncleReward(t *testing.T) {
 	}
 }
 
-func TestGetRewardForUngle(t *testing.T) {
+func TestGetRewardForUncle(t *testing.T) {
 	reward := getRewardForUncle(1).String()
 	expectedReward := "156250000000000000"
 	if expectedReward != reward {
@@ -116,7 +116,7 @@ func TestGetRewardForUngle(t *testing.T) {
 	}
 }
 
-func TestGetByzantiumRewardForUngle(t *testing.T) {
+func TestGetByzantiumRewardForUncle(t *testing.T) {
 	reward := getRewardForUncle(byzantiumHardForkHeight).String()
 	expectedReward := "93750000000000000"
 	if expectedReward != reward {
