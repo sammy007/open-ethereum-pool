@@ -124,6 +124,14 @@ func TestGetByzantiumRewardForUncle(t *testing.T) {
 	}
 }
 
+func TestGetConstantinopleRewardForUncle(t *testing.T) {
+	reward := getRewardForUncle(constantinopleHardForkHeight).String()
+	expectedReward := "62500000000000000"
+	if expectedReward != reward {
+		t.Errorf("Incorrect uncle bonus for height %v, expected %v vs %v", constantinopleHardForkHeight, expectedReward, reward)
+	}
+}
+
 func TestMatchCandidate(t *testing.T) {
 	gethBlock := &rpc.GetBlockReply{Hash: "0x12345A", Nonce: "0x1A"}
 	parityBlock := &rpc.GetBlockReply{Hash: "0x12345A", SealFields: []string{"0x0A", "0x1A"}}
