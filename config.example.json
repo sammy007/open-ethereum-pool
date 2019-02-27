@@ -15,6 +15,7 @@
 		"hashrateExpiration": "3h",
 
 		"healthCheck": true,
+		"debug": false,
 		"maxFails": 100,
 
 		"stratum": {
