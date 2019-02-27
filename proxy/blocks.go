@@ -59,11 +59,25 @@ func (s *ProxyServer) fetchBlockTemplate() {
 		return
 	}
 	diff := util.TargetHexToDiff(reply[2])
-	height, err := strconv.ParseUint(strings.Replace(reply[3], "0x", "", -1), 16, 64)
 
 	pendingReply := &rpc.GetBlockReplyPart{
 		Difficulty: util.ToHex(s.config.Proxy.Difficulty),
-		Number:     reply[3],
+	}
+
+	var height uint64
+	if len(reply) > 3 {
+		// parity case
+		height, err = strconv.ParseUint(strings.Replace(reply[3], "0x", "", -1), 16, 64)
+
+		pendingReply.Number = reply[3]
+	} else {
+		// geth case
+		pendingReply, err = r.GetPendingBlock()
+		if err != nil {
+			log.Printf("Error while refreshing pending block on %s: %s", r.Name, err)
+			return
+		}
+		height, err = strconv.ParseUint(strings.Replace(pendingReply.Number, "0x", "", -1), 16, 64)
 	}
 
 	newTemplate := BlockTemplate{
