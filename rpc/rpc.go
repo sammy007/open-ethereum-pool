@@ -239,6 +239,12 @@ func (r *RPCClient) doPost(url string, method string, params interface{}) (*JSON
 	data, _ := json.Marshal(jsonReq)
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
+
+        if err != nil {
+                r.markSick()
+                return nil, err
+        }
+
 	req.Header.Set("Content-Length", (string)(len(data)))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
