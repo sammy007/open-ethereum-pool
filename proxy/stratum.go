@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/sammy007/open-ethereum-pool/util"
+	"encoding/hex"
+	"fmt"
 )
 
 const (
@@ -82,6 +84,8 @@ func (s *ProxyServer) handleTCPClient(cs *Session) error {
 			return err
 		}
 
+		log.Println("data","string:",string(data))
+
 		if len(data) > 1 {
 			var req StratumReq
 			err = json.Unmarshal(data, &req)
@@ -102,8 +106,9 @@ func (s *ProxyServer) handleTCPClient(cs *Session) error {
 
 func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 	// Handle RPC methods
+	log.Println("---get --","req.Method",req.Method)
 	switch req.Method {
-	case "eth_submitLogin":
+	case "etrue_submitLogin":
 		var params []string
 		err := json.Unmarshal(req.Params, &params)
 		if err != nil {
@@ -112,16 +117,75 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 		}
 		reply, errReply := s.handleLoginRPC(cs, params, req.Worker)
 		if errReply != nil {
-			return cs.sendTCPError(req.Id, errReply)
+			return cs.sendTCPError(req.Id, req.Method,errReply)
 		}
-		return cs.sendTCPResult(req.Id, reply)
-	case "eth_getWork":
+		return cs.sendTCPResult(req.Id, "etrue_submitLogin",reply)
+	case "etrue_getWork":
+
 		reply, errReply := s.handleGetWorkRPC(cs)
+		log.Println(reply)
 		if errReply != nil {
-			return cs.sendTCPError(req.Id, errReply)
+			return cs.sendTCPError(req.Id, req.Method,errReply)
 		}
-		return cs.sendTCPResult(req.Id, &reply)
-	case "eth_submitWork":
+		return cs.sendTCPResult(req.Id,"etrue_getWork", &reply)
+	case "etrue_seedhash" :
+
+		var  p [1]string
+		//	var  DataSet [10240][]byte
+		//r := s.rpc()
+		err := json.Unmarshal(req.Params, &p)
+		if err != nil {
+			log.Println("Unable to parse params")
+			return err
+		}
+		//DataSet,_ =r.GetDataset()
+		log.Println("-----------------------------etrue_seedhash")
+		/*for{
+			if len(DataSet[0]) == 0{
+				DataSet,err =r.GetDataset()
+				if  err!= nil{
+					log.Println(err)
+				}
+				log.Println("1")
+				time.Sleep(100000)
+				log.Println("3")
+			}else{
+				log.Println(DataSet[0])
+				break
+			}
+		}*/
+
+
+		/*type tt struct  {
+			r1 []string
+			r2 []interface{}
+		}*/
+		var r1 []string
+		var r2 []interface{}
+		/*for _,v:=range DataSet{
+			r1 =append(r1, hex.EncodeToString(v))
+		}*/
+		//log.Println(hex.EncodeToString(DataSet[0]))
+		for i:=0;i<10240;i++{
+			r1 =append(r1, "0x"+hex.EncodeToString(DataSet[i]))
+			//log.Println("DataSet[0]",":",DataSet[0])
+		}
+		log.Println("DataSet[0]",":",DataSet[0])
+		log.Println("DataSet[1000]",":",DataSet[1000])
+		log.Println("DataSet[10240-1]",":",DataSet[10239])
+		//result := []interface{}{[]interface{}{"mining.notify","ae6812eb4cd7735a302a8a9dd95cf71f","TrueStratum/1.0.0"},"080c",4}
+		//var map1 map[string]string
+		//map1:= make(map[string]string)
+
+		t := s.currentBlockTemplate()
+		//map1["seedhash"]=t.Seed
+		//log.Println("------t.seed",",",t.Seed)
+		r2 =append(r2, r1)
+		//log.Println(r1)
+		result := []interface{}{r1,"0x"+t.Seed}
+
+		return cs.sendTCPResult(req.Id,"etrue_seedhash", result)
+	case "etrue_submitWork":
 		var params []string
 		err := json.Unmarshal(req.Params, &params)
 		if err != nil {
@@ -130,22 +194,25 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 		}
 		reply, errReply := s.handleTCPSubmitRPC(cs, req.Worker, params)
 		if errReply != nil {
-			return cs.sendTCPError(req.Id, errReply)
+			log.Println("-------------fuck","l",errReply)
+			return cs.sendTCPError(req.Id,"etrue_submitWork", errReply)
 		}
-		return cs.sendTCPResult(req.Id, &reply)
-	case "eth_submitHashrate":
-		return cs.sendTCPResult(req.Id, true)
+		//s.broadcastNewJobs()
+		log.Println(reply)
+		return cs.sendTCPResult(req.Id, "etrue_submitWork",&reply)
+	case "etrue_submitHashrate":
+		return cs.sendTCPResult(req.Id, "etrue_submitHashrate",true)
 	default:
 		errReply := s.handleUnknownRPC(cs, req.Method)
-		return cs.sendTCPError(req.Id, errReply)
+		return cs.sendTCPError(req.Id, "nil",errReply)
 	}
 }
 
-func (cs *Session) sendTCPResult(id json.RawMessage, result interface{}) error {
+func (cs *Session) sendTCPResult(id json.RawMessage,method string, result interface{}) error {
 	cs.Lock()
 	defer cs.Unlock()
-
-	message := JSONRpcResp{Id: id, Version: "2.0", Error: nil, Result: result}
+	fmt.Println(result)
+	message := JSONRpcResp{Id: id, Version: "2.0", Method:method,Error: nil, Result: result}
 	return cs.enc.Encode(&message)
 }
 
@@ -157,11 +224,11 @@ func (cs *Session) pushNewJob(result interface{}) error {
 	return cs.enc.Encode(&message)
 }
 
-func (cs *Session) sendTCPError(id json.RawMessage, reply *ErrorReply) error {
+func (cs *Session) sendTCPError(id json.RawMessage, method string,reply *ErrorReply) error {
 	cs.Lock()
 	defer cs.Unlock()
-
-	message := JSONRpcResp{Id: id, Version: "2.0", Error: reply}
+	log.Println(reply)
+	message := JSONRpcResp{Id: id, Version: "2.0",Method:method ,Error: reply}
 	err := cs.enc.Encode(&message)
 	if err != nil {
 		return err

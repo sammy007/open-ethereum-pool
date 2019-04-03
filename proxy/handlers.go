@@ -7,6 +7,7 @@ import (
 
 	"github.com/sammy007/open-ethereum-pool/rpc"
 	"github.com/sammy007/open-ethereum-pool/util"
+	"encoding/hex"
 )
 
 // Allow only lowercase hexadecimal with 0x prefix
@@ -29,6 +30,8 @@ func (s *ProxyServer) handleLoginRPC(cs *Session, params []string, id string) (b
 	}
 	cs.login = login
 	s.registerSession(cs)
+
+	cs.worker = id
 	log.Printf("Stratum miner connected %v@%v", login, cs.ip)
 	return true, nil
 }
@@ -38,7 +41,17 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 	if t == nil || len(t.Header) == 0 || s.isSick() {
 		return nil, &ErrorReply{Code: 0, Message: "Work not ready"}
 	}
-	return []string{t.Header, t.Seed, s.diff}, nil
+
+	tarS := hex.EncodeToString(t.fTarget.Bytes())
+	var Zeor []byte
+
+	for i:=0;i<32-len(tarS);i++{
+		Zeor = append(Zeor,'0')
+	}
+	ztem := Zeor[:]
+	tem3:= string(ztem)+tarS
+	log.Println("-----tem3","tme2",tem3)
+	return []string{t.Header, "0x"+t.Seed, "0x"+tem3}, nil
 }
 
 // Stratum
@@ -63,11 +76,12 @@ func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []st
 		return false, &ErrorReply{Code: -1, Message: "Invalid params"}
 	}
 
+	/*
 	if !noncePattern.MatchString(params[0]) || !hashPattern.MatchString(params[1]) || !hashPattern.MatchString(params[2]) {
 		s.policy.ApplyMalformedPolicy(cs.ip)
 		log.Printf("Malformed PoW result from %s@%s %v", login, cs.ip, params)
 		return false, &ErrorReply{Code: -1, Message: "Malformed PoW result"}
-	}
+	}*/
 	t := s.currentBlockTemplate()
 	exist, validShare := s.processShare(login, id, cs.ip, t, params)
 	ok := s.policy.ApplySharePolicy(cs.ip, !exist && validShare)

@@ -11,6 +11,8 @@ import (
 
 	"github.com/sammy007/open-ethereum-pool/rpc"
 	"github.com/sammy007/open-ethereum-pool/util"
+	"hash"
+	//"golang.org/x/crypto/sha3"
 )
 
 const maxBacklog = 3
@@ -30,6 +32,10 @@ type BlockTemplate struct {
 	GetPendingBlockCache *rpc.GetBlockReplyPart
 	nonces               map[string]bool
 	headers              map[string]heightDiffPair
+	fTarget   *big.Int
+	bTarget   *big.Int
+	nonceResult 	[8]byte
+	MixDigest       common.Hash
 }
 
 type Block struct {
@@ -40,11 +46,30 @@ type Block struct {
 	number      uint64
 }
 
+var  DataSet [10240][]byte
+
 func (b Block) Difficulty() *big.Int     { return b.difficulty }
 func (b Block) HashNoNonce() common.Hash { return b.hashNoNonce }
 func (b Block) Nonce() uint64            { return b.nonce }
 func (b Block) MixDigest() common.Hash   { return b.mixDigest }
 func (b Block) NumberU64() uint64        { return b.number }
+
+
+type hasher2 func(dest []byte, data []byte)
+
+// makeHasher creates a repetitive hasher, allowing the same hash data structures
+// to be reused between hash runs instead of requiring new ones to be created.
+// The returned function is not thread safe!
+func makeHasher(h hash.Hash) hasher2 {
+	return func(dest []byte, data []byte) {
+		h.Write(data)
+		h.Sum(dest[:0])
+		h.Reset()
+	}
+}
+
+
+
 
 func (s *ProxyServer) fetchBlockTemplate() {
 	rpc := s.rpc()
@@ -54,6 +79,19 @@ func (s *ProxyServer) fetchBlockTemplate() {
 		log.Printf("Error while refreshing pending block on %s: %s", rpc.Name, err)
 		return
 	}
+
+
+	if len(DataSet[0]) == 0{
+		DataSet,err =rpc.GetDataset()
+		if  err!= nil{
+			log.Println(err)
+		}else{
+			//log.Println("------Dataset","-",DataSet[0])
+		}
+
+	}
+
+
 	reply, err := rpc.GetWork()
 	if err != nil {
 		log.Printf("Error while refreshing block template on %s: %s", rpc.Name, err)
@@ -66,6 +104,17 @@ func (s *ProxyServer) fetchBlockTemplate() {
 
 	pendingReply.Difficulty = util.ToHex(s.config.Proxy.Difficulty)
 
+	var maxUint128 = new(big.Int).Exp(big.NewInt(2), big.NewInt(128), big.NewInt(0))
+	fDiff, err := strconv.ParseInt(strings.Replace(reply[2], "0x", "", -1), 16, 64)
+
+	blockDiffBig := big.NewInt(fDiff)
+	ftarget      := new(big.Int).Div(maxUint128, blockDiffBig)
+
+//	dDiff, err := strconv.ParseInt(strings.Replace(reply[3], "0x", "", -1), 16, 64)
+
+//	btarget      := new(big.Int).Div(maxUint128, big.NewInt(dDiff))
+
+
 	newTemplate := BlockTemplate{
 		Header:               reply[0],
 		Seed:                 reply[1],
@@ -74,8 +123,11 @@ func (s *ProxyServer) fetchBlockTemplate() {
 		Difficulty:           big.NewInt(diff),
 		GetPendingBlockCache: pendingReply,
 		headers:              make(map[string]heightDiffPair),
+		fTarget:	ftarget,
+		//bTarget:	btarget,
 	}
 	// Copy job backlog and add current one
+	log.Println("----------------reply[0]","is",reply[0])
 	newTemplate.headers[reply[0]] = heightDiffPair{
 		diff:   util.TargetHexToDiff(reply[2]),
 		height: height,
@@ -108,6 +160,7 @@ func (s *ProxyServer) fetchPendingBlock() (*rpc.GetBlockReplyPart, uint64, int64
 		log.Println("Can't parse pending block number")
 		return nil, 0, 0, err
 	}
+
 	blockDiff, err := strconv.ParseInt(strings.Replace(reply.Difficulty, "0x", "", -1), 16, 64)
 	if err != nil {
 		log.Println("Can't parse pending block difficulty")

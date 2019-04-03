@@ -25,6 +25,7 @@ type JSONRpcResp struct {
 	Id      json.RawMessage `json:"id"`
 	Version string          `json:"jsonrpc"`
 	Result  interface{}     `json:"result"`
+	Method  interface{}     `json:"method"`
 	Error   interface{}     `json:"error,omitempty"`
 }
 

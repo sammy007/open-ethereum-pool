@@ -44,6 +44,7 @@ type Session struct {
 	sync.Mutex
 	conn  *net.TCPConn
 	login string
+	worker string
 }
 
 func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
@@ -231,14 +232,14 @@ func (cs *Session) handleMessage(s *ProxyServer, r *http.Request, req *JSONRpcRe
 
 	// Handle RPC methods
 	switch req.Method {
-	case "eth_getWork":
+	case "etrue_getWork":
 		reply, errReply := s.handleGetWorkRPC(cs)
 		if errReply != nil {
 			cs.sendError(req.Id, errReply)
 			break
 		}
 		cs.sendResult(req.Id, &reply)
-	case "eth_submitWork":
+	case "etrue_submitWork":
 		if req.Params != nil {
 			var params []string
 			err := json.Unmarshal(req.Params, &params)
@@ -258,10 +259,10 @@ func (cs *Session) handleMessage(s *ProxyServer, r *http.Request, req *JSONRpcRe
 			errReply := &ErrorReply{Code: -1, Message: "Malformed request"}
 			cs.sendError(req.Id, errReply)
 		}
-	case "eth_getBlockByNumber":
+	case "etrue_getBlockByNumber":
 		reply := s.handleGetBlockByNumberRPC()
 		cs.sendResult(req.Id, reply)
-	case "eth_submitHashrate":
+	case "etrue_submitHashrate":
 		cs.sendResult(req.Id, true)
 	default:
 		errReply := s.handleUnknownRPC(cs, req.Method)
