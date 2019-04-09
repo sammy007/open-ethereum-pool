@@ -1,6 +1,6 @@
 {
 	"threads": 2,
-	"coin": "eth",
+	"coin": "exp",
 	"name": "main",
 
 	"proxy": {
@@ -63,12 +63,7 @@
 	"upstream": [
 		{
 			"name": "main",
-			"url": "http://127.0.0.1:8545",
-			"timeout": "10s"
-		},
-		{
-			"name": "backup",
-			"url": "http://127.0.0.2:8545",
+			"url": "http://127.0.0.1:9656",
 			"timeout": "10s"
 		}
 	],
@@ -81,25 +76,25 @@
 	},
 
 	"unlocker": {
-		"enabled": false,
+		"enabled": true,
 		"poolFee": 1.0,
-		"poolFeeAddress": "",
+		"poolFeeAddress": "0x38BEAa9AfA965A360cfdf21982C6ac8991BFF1c2",
 		"donate": true,
 		"depth": 120,
 		"immatureDepth": 20,
 		"keepTxFees": false,
 		"interval": "10m",
-		"daemon": "http://127.0.0.1:8545",
+		"daemon": "http://127.0.0.1:9656",
 		"timeout": "10s"
 	},
 
 	"payouts": {
-		"enabled": false,
-		"requirePeers": 25,
+		"enabled": true,
+		"requirePeers": 5,
 		"interval": "120m",
-		"daemon": "http://127.0.0.1:8545",
+		"daemon": "http://127.0.0.1:9656",
 		"timeout": "10s",
-		"address": "0x0",
+		"address": "0x935115b9ae16338a6378549203476cbefb97923f",
 		"gas": "21000",
 		"gasPrice": "50000000000",
 		"autoGas": true,
