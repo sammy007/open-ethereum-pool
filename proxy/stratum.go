@@ -9,7 +9,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/sammy007/open-ethereum-pool/util"
+	"github.com/truechain/open-truechain-pool/util"
 	"encoding/hex"
 	"fmt"
 )
@@ -106,7 +106,7 @@ func (s *ProxyServer) handleTCPClient(cs *Session) error {
 
 func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 	// Handle RPC methods
-	log.Println("---get --","req.Method",req.Method)
+//	log.Println("---get --","req.Method",req.Method)
 	switch req.Method {
 	case "etrue_submitLogin":
 		var params []string

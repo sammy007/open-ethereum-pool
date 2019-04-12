@@ -13,10 +13,10 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/sammy007/open-ethereum-pool/policy"
-	"github.com/sammy007/open-ethereum-pool/rpc"
-	"github.com/sammy007/open-ethereum-pool/storage"
-	"github.com/sammy007/open-ethereum-pool/util"
+	"github.com/truechain/open-truechain-pool/policy"
+	"github.com/truechain/open-truechain-pool/rpc"
+	"github.com/truechain/open-truechain-pool/storage"
+	"github.com/truechain/open-truechain-pool/util"
 )
 
 type ProxyServer struct {
@@ -48,6 +48,7 @@ type Session struct {
 }
 
 func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
+	log.Println("--------------?")
 	if len(cfg.Name) == 0 {
 		log.Fatal("You must set instance name")
 	}

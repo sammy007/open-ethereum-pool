@@ -13,10 +13,10 @@ import (
 
 	"github.com/yvasiyarov/gorelic"
 
-	"github.com/sammy007/open-ethereum-pool/api"
-	"github.com/sammy007/open-ethereum-pool/payouts"
-	"github.com/sammy007/open-ethereum-pool/proxy"
-	"github.com/sammy007/open-ethereum-pool/storage"
+	"github.com/truechain/open-truechain-pool/api"
+	"github.com/truechain/open-truechain-pool/payouts"
+	"github.com/truechain/open-truechain-pool/proxy"
+	"github.com/truechain/open-truechain-pool/storage"
 )
 
 var cfg proxy.Config
@@ -72,6 +72,7 @@ func readConfig(cfg *proxy.Config) {
 }
 
 func main() {
+
 	readConfig(&cfg)
 	rand.Seed(time.Now().UnixNano())
 

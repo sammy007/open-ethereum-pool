@@ -9,8 +9,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/sammy007/open-ethereum-pool/rpc"
-	"github.com/sammy007/open-ethereum-pool/util"
+	"github.com/truechain/open-truechain-pool/rpc"
+	"github.com/truechain/open-truechain-pool/util"
 	"hash"
 	//"golang.org/x/crypto/sha3"
 )
@@ -114,7 +114,6 @@ func (s *ProxyServer) fetchBlockTemplate() {
 
 //	btarget      := new(big.Int).Div(maxUint128, big.NewInt(dDiff))
 
-
 	newTemplate := BlockTemplate{
 		Header:               reply[0],
 		Seed:                 reply[1],
@@ -127,7 +126,7 @@ func (s *ProxyServer) fetchBlockTemplate() {
 		//bTarget:	btarget,
 	}
 	// Copy job backlog and add current one
-	log.Println("----------------reply[0]","is",reply[0])
+	//log.Println("----------------reply[0]","is",reply[0])
 	newTemplate.headers[reply[0]] = heightDiffPair{
 		diff:   util.TargetHexToDiff(reply[2]),
 		height: height,
@@ -147,7 +146,6 @@ func (s *ProxyServer) fetchBlockTemplate() {
 		go s.broadcastNewJobs()
 	}
 }
-
 func (s *ProxyServer) fetchPendingBlock() (*rpc.GetBlockReplyPart, uint64, int64, error) {
 	rpc := s.rpc()
 	reply, err := rpc.GetPendingBlock()
