@@ -3,9 +3,9 @@
     <div class="row">
       <div class="col-md-5">
         <h1 style="font-size: 24px">
-          <strong>Open Ethereum Pool</strong>
+          <strong>Open Ethereum Classic Pool</strong>
         </h1>
-        <strong>Min. payout threshold: {{config.PayoutThreshold}}</strong>, Payouts run twice per day.<br/>
+        <strong>Min. payout threshold: {{config.PayoutThreshold}}</strong>.<br/>
         <span class="label label-success">PROP</span> Stable and profitable pool with regular payouts.
       </div>
       <div class="col-md-3 stats">
@@ -30,7 +30,7 @@
   <div class="stats">
     <h4>Your Stats &amp; Payment History</h4>
     <div class="input-group">
-      {{input value=cachedLogin class="form-control" placeholder="Enter Your Ethereum Address"}}
+      {{input value=cachedLogin class="form-control" placeholder="Enter Your Ethereum Classic Address"}}
       <span class="input-group-btn">
         <button class="btn btn-primary" type="button" {{action 'lookup' cachedLogin}}>
           <span style="display: inline;"><i class="fa fa-search"></i> Lookup</span>
@@ -41,7 +41,13 @@
   <div>
     <hr/>
     <h4 class="note note-info text-center">
-      ethminer.exe -F {{config.HttpHost}}:{{config.HttpPort}}/&lt;address&gt;/&lt;worker&gt; -G
+      EthDcrMiner64.exe -epool {{config.StratumHost}}:{{config.StratumPort}} -ewal &lt;address&gt; -eworker &lt;WORKER&gt; -allcoins 1 -allpools 1
+    </h4>
+  </div>
+  <div>
+    <hr/>
+    <h4 class="note note-info text-center">
+      ethminer.exe -P stratum1+tcp://&lt;address&gt;.&lt;WORKER&gt;@{{config.StratumHost}}:{{config.StratumPort}}
     </h4>
   </div>
 </div>
