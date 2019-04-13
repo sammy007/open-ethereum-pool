@@ -13,6 +13,7 @@
 * Modern beautiful Ember.js frontend
 * Separate stats for workers: can highlight timed-out workers so miners can perform maintenance of rigs
 * JSON-API for stats
+* PPLNS block reward
 
 ### Building on Linux
 
@@ -101,6 +102,8 @@ otherwise you will get errors on start because of JSON comments.**
   "coin": "etc",
   // Give unique name to each instance
   "name": "main",
+  // PPLNS rounds
+  "pplns": 9000,
 
   "proxy": {
     "enabled": true,
