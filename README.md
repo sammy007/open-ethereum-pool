@@ -13,6 +13,7 @@
 * Modern beautiful Ember.js frontend
 * Separate stats for workers: can highlight timed-out workers so miners can perform maintenance of rigs
 * JSON-API for stats
+* Multiple payout at once
 * PPLNS block reward
 
 ### Building on Linux
@@ -210,7 +211,7 @@ otherwise you will get errors on start because of JSON comments.**
   // Check health of each node in this interval
   "upstreamCheckInterval": "5s",
 
-  /* List of parity nodes to poll for new jobs. Pool will try to get work from
+  /* List of multi-geth/parity nodes to poll for new jobs. Pool will try to get work from
     first alive one and check in background for failed to back up.
     Current block template of the pool is always cached in RAM indeed.
   */
@@ -251,9 +252,9 @@ otherwise you will get errors on start because of JSON comments.**
     "keepTxFees": false,
     // Run unlocker in this interval
     "interval": "10m",
-    // Parity node rpc endpoint for unlocking blocks
+    // Multi-geth/Parity node rpc endpoint for unlocking blocks
     "daemon": "http://127.0.0.1:8545",
-    // Rise error if can't reach parity
+    // Rise error if can't reach multi-geth/parity
     "timeout": "10s"
   },
 
@@ -261,16 +262,16 @@ otherwise you will get errors on start because of JSON comments.**
   "payouts": {
     "enabled": false,
     // Require minimum number of peers on node
-    "requirePeers": 25,
+    "requirePeers": 5,
     // Run payouts in this interval
-    "interval": "12h",
-    // Parity node rpc endpoint for payouts processing
+    "interval": "10m",
+    // Multi-geth/Parity node rpc endpoint for payouts processing
     "daemon": "http://127.0.0.1:8545",
-    // Rise error if can't reach parity
+    // Rise error if can't reach multi-geth/parity
     "timeout": "10s",
     // Address with pool balance
     "address": "0x0",
-    // Let parity to determine gas and gasPrice
+    // Let multi-geth/parity to determine gas and gasPrice
     "autoGas": true,
     // Gas amount and price for payout tx (advanced users only)
     "gas": "21000",
