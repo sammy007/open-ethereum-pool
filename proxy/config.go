@@ -23,6 +23,9 @@ type Config struct {
 	BlockUnlocker payouts.UnlockerConfig `json:"unlocker"`
 	Payouts       payouts.PayoutsConfig  `json:"payouts"`
 
+	AvgBlockTime    float64 `json:"avgBlockTime"`
+	BlockTimeWindow int64   `json:"blockTimeWindow"`
+
 	NewrelicName    string `json:"newrelicName"`
 	NewrelicKey     string `json:"newrelicKey"`
 	NewrelicVerbose bool   `json:"newrelicVerbose"`

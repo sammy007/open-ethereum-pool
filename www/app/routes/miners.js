@@ -1,5 +1,4 @@
 import Route from '@ember/routing/route';
-import { later } from '@ember/runloop';
 import $ from 'jquery';
 import config from '../config/environment';
 
@@ -31,6 +30,5 @@ export default Route.extend({
 
   setupController: function(controller, model) {
     this._super(controller, model);
-    later(this, this.refresh, 5000);
   }
 });

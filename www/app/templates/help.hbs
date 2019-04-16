@@ -1,21 +1,42 @@
 <div class="container">
   <div class="page-header">
-    <h1>How To Mine</h1>
+    <h2>Getting Started with {{config.PoolName}} mining</h2>
   </div>
   <p class="lead">In order to mine on this pool you need to have an
     <a href="https://bitcointalk.org/index.php?topic=1433925.0" rel="nofollow" target="_blank">Claymore's Dual Ethereum Miner</a> or an <a href="https://github.com/ethereum-mining/ethminer/releases/latest" rel="nofollow" target="_blank">ethminer</a> installation.
   </p>
+
+  <h3>Prepare Wallet Address</h3>
+  <div>
+    <h4>Using geth</h4>
+    <ul>
+      <li>Unix/Linux shell <code>$ geth account new</code></li>
+      <li>Windows command line using cmd.exe (command shell) <code>&gt; geth account new</code></li>
+    </ul>
+
+    <h4>Using online wallet</h4>
+    <ul>
+      <li>{{format-html-message "wallet.online_html"}}</li>
+    </ul>
+
+    <h4>Wallet Dapp (aka. Mist)</h4>
+    <ul>
+      <li>Wallet dapp: {{format-html-message "wallet.dapp_html"}}</li>
+    </ul>
+  </div>
+
+  <h3>Usage examples</h3>
   <dl class="dl-horizontal">
     <dt>YOUR_ETC_ADDRESS</dt>
     <dd>This is your address for payouts, generate one with <a href="https://myetherwallet.com" rel="nofollow" target="_blank">MyEtherWallet</a>
       or <a href="https://mycrypto.com" rel="nofollow" target="_blank">MyCrypto</a>.<br/>
       <strong>Example:</strong> <code>0xb85150eb365e7df0941f0cf08235f987ba91506a</code>.
     </dd>
-    <dt>RIG_ID</dt>
+    <dt><em>your-worker-1</em><br /><em>your-worker-2</em></dt>
     <dd>
-      ID of your farm to distinguish it from your other rig. If you have just one rig, feel free to omit this param.
+      ID of your PC/mining-rig to distinguish it from your other rigs. If you have just one rig, feel free to omit this param.<br />
       This param must be short alphanumeric string with optional dashes and underscores.<br/>
-      <strong>Example:</strong> <code>rig-1</code>
+      <strong>Example:</strong> <code>worker-1</code>
     </dd>
   </dl>
   <p>

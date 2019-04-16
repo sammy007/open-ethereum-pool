@@ -106,6 +106,10 @@ otherwise you will get errors on start because of JSON comments.**
   // PPLNS rounds
   "pplns": 9000,
 
+  // Default Average block time for your ethereum network
+  "avgBlockTime": 14.4,
+  "blockTimeWindow": 300,
+
   "proxy": {
     "enabled": true,
 
@@ -199,6 +203,16 @@ otherwise you will get errors on start because of JSON comments.**
     "payments": 50,
     // Max numbers of blocks to display in frontend
     "blocks": 50,
+    // Max numbers of miners to display in frontend
+    "miners": 50,
+    "maxAgeMiners": 60,
+    // Max numbers of payments to display in frontend
+    "maxAgePayments": 60,
+    // Chart related settings
+    "poolCharts":"0 */20 * * * *",
+    "poolChartsNum":74,
+    "minerCharts":"0 */20 * * * *",
+    "minerChartsNum":74
 
     /* If you are running API node on a different server where this module
       is reading data from redis writeable slave, you must run an api instance with this option enabled in order to purge hashrate stats from main redis node.

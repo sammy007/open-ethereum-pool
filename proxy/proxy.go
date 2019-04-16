@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -108,12 +109,42 @@ func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
 			case <-stateUpdateTimer.C:
 				t := proxy.currentBlockTemplate()
 				if t != nil {
-					err := backend.WriteNodeState(cfg.Name, t.Height, t.Difficulty)
-					if err != nil {
-						log.Printf("Failed to write node state to backend: %v", err)
-						proxy.markSick()
+					rpc := proxy.rpc()
+					// calculate avg BlockTime
+					// get the latest block height
+					height := int64(t.Height) - 1
+					prev := height - cfg.BlockTimeWindow
+					if prev < 0 {
+						prev = 0
+					}
+					n := height - prev
+					if n > 0 {
+						block, err := rpc.GetBlockByHeight(height)
+						if err != nil || block == nil {
+							log.Printf("Error while retrieving block from node: %v", err)
+							proxy.markSick()
+						} else {
+							timestamp, _ := strconv.ParseInt(strings.Replace(block.Timestamp, "0x", "", -1), 16, 64)
+							prevblock, _ := rpc.GetBlockByHeight(prev)
+							prevtime, _ := strconv.ParseInt(strings.Replace(prevblock.Timestamp, "0x", "", -1), 16, 64)
+							blocktime := float64(timestamp-prevtime) / float64(n)
+							err = backend.WriteNodeState(cfg.Name, t.Height, t.Difficulty, blocktime)
+							if err != nil {
+								log.Printf("Failed to write node state to backend: %v", err)
+								proxy.markSick()
+							} else {
+								proxy.markOk()
+							}
+						}
 					} else {
-						proxy.markOk()
+						// use default avgBlockTime
+						err := backend.WriteNodeState(cfg.Name, t.Height, t.Difficulty, cfg.AvgBlockTime)
+						if err != nil {
+							log.Printf("Failed to write node state to backend: %v", err)
+							proxy.markSick()
+						} else {
+							proxy.markOk()
+						}
 					}
 				}
 				stateUpdateTimer.Reset(stateUpdateIntv)

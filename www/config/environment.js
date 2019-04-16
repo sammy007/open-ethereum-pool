@@ -14,6 +14,10 @@ module.exports = function(environment) {
     },
 
     APP: {
+      // PoolName
+      PoolName: 'Ethereum Classic',
+      // PoolTitle
+      PoolTitle: 'Open Ethereum Classic Pool',
       // API host and port
       ApiUrl: '//example.net/',
 
@@ -27,10 +31,40 @@ module.exports = function(environment) {
 
       // Fee and payout details
       PoolFee: '1%',
-      PayoutThreshold: '0.5 Ether',
+      PayoutThreshold: '0.5',
+      PayoutInterval: '10m',
+      Unit: 'ETC',
+      EtherUnit: 'ETC',
 
       // For network hashrate (change for your favourite fork)
-      BlockTime: 14.4
+      BlockExplorerLink: 'https://gastracker.io',
+      BlockExplorerAddrLink: 'https://gastracker.io/addr',
+      BlockReward: 4,
+      BlockUnlockDepth: 120,
+      BlockTime: 14.4,
+      highcharts: {
+        main: {
+          enabled: true,
+          height: 200,
+          type: 'spline',
+          color: '',
+          title: '',
+          ytitle: '',
+          interval: 180000,
+          chartInterval: 900000
+        },
+        account: {
+          enabled: true,
+          height: 200,
+          type: 'spline',
+          color: [ '', '' ],
+          title: '',
+          ytitle: '',
+          interval: 180000,
+          chartInterval: 900000,
+          paymentInterval: 300000
+        }
+      }
     }
   };
 
