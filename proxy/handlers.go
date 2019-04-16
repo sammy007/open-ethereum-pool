@@ -42,7 +42,7 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 		return nil, &ErrorReply{Code: 0, Message: "Work not ready"}
 	}
 
-	tarS := hex.EncodeToString(t.fTarget.Bytes())
+	tarS := hex.EncodeToString(Starget.Bytes())
 	var Zeor []byte
 
 	for i:=0;i<32-len(tarS);i++{
