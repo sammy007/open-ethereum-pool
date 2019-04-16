@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-
 	"github.com/btenterprise2020/open-etc-pool/rpc"
 	"github.com/btenterprise2020/open-etc-pool/storage"
 	"github.com/btenterprise2020/open-etc-pool/util"

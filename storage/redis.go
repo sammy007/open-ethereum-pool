@@ -24,12 +24,12 @@ type Config struct {
 type RedisClient struct {
 	client *redis.Client
 	prefix string
-	pplns int64
+	pplns  int64
 }
 
 type PoolCharts struct {
-	Timestamp  int64  `json:"x"`
-	PoolHash   int64  `json:"y"`
+	Timestamp int64 `json:"x"`
+	PoolHash  int64 `json:"y"`
 }
 
 type MinerCharts struct {
@@ -375,9 +375,9 @@ func (r *RedisClient) WriteBlock(login, id string, params []string, diff, roundD
 		return false, err
 	} else {
 
-		shares := cmds[len(cmds) - 1].(*redis.StringSliceCmd).Val()
+		shares := cmds[len(cmds)-1].(*redis.StringSliceCmd).Val()
 
-	 	tx2 := r.client.Multi()
+		tx2 := r.client.Multi()
 		defer tx2.Close()
 
 		totalshares := make(map[string]int64)
@@ -395,7 +395,7 @@ func (r *RedisClient) WriteBlock(login, id string, params []string, diff, roundD
 			return false, err
 		}
 
-		sharesMap, _ := cmds[len(cmds) - 3].(*redis.StringStringMapCmd).Result()
+		sharesMap, _ := cmds[len(cmds)-3].(*redis.StringStringMapCmd).Result()
 		totalShares := int64(0)
 		for _, v := range sharesMap {
 			n, _ := strconv.ParseInt(v, 10, 64)
@@ -410,7 +410,7 @@ func (r *RedisClient) WriteBlock(login, id string, params []string, diff, roundD
 
 func (r *RedisClient) writeShare(tx *redis.Multi, ms, ts int64, login, id string, diff int64, expire time.Duration) {
 	var times int
-	if (diff < 1000000000) {
+	if diff < 1000000000 {
 		times = 1
 	} else {
 		times = int(diff / 1000000000)
@@ -712,7 +712,7 @@ func (r *RedisClient) WriteMaturedBlock(block *BlockData, roundRewards map[strin
 		tx.HSet(r.formatKey("finances"), "lastCreditHeight", strconv.FormatInt(block.Height, 10))
 		tx.HSet(r.formatKey("finances"), "lastCreditHash", block.Hash)
 		tx.HIncrBy(r.formatKey("finances"), "totalMined", block.RewardInShannon())
-		tx.Expire(r.formatKey("credits", block.Height, block.Hash), 604800 * time.Second)
+		tx.Expire(r.formatKey("credits", block.Height, block.Hash), 604800*time.Second)
 		return nil
 	})
 	return err

@@ -43,8 +43,8 @@ type Session struct {
 
 	// Stratum
 	sync.Mutex
-	conn  net.Conn
-	login string
+	conn    net.Conn
+	login   string
 	lastErr error
 }
 

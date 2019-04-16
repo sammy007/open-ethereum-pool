@@ -7,8 +7,8 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
-	"time"
 	"sync"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 
@@ -30,9 +30,9 @@ type PayoutsConfig struct {
 	GasPrice     string `json:"gasPrice"`
 	AutoGas      bool   `json:"autoGas"`
 	// In Shannon
-	Threshold    int64  `json:"threshold"`
-	BgSave       bool   `json:"bgsave"`
-	ConcurrentTx int    `json:"concurrentTx"`
+	Threshold    int64 `json:"threshold"`
+	BgSave       bool  `json:"bgsave"`
+	ConcurrentTx int   `json:"concurrentTx"`
 }
 
 func (self PayoutsConfig) GasHex() string {

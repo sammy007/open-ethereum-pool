@@ -1,10 +1,10 @@
 package proxy
 
 import (
+	"errors"
 	"log"
 	"regexp"
 	"strings"
-	"errors"
 
 	"github.com/btenterprise2020/open-etc-pool/rpc"
 	"github.com/btenterprise2020/open-etc-pool/util"
