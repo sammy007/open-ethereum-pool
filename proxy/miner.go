@@ -102,9 +102,9 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 	mined := false
 	//isFruit :=true
 
-	log.Println(params[0])
-	log.Println(params[1])
-	log.Println(params[2])
+	//log.Println(params[0])
+	//log.Println(params[1])
+	//log.Println(params[2])
 
 	hashNoNonce := params[1]
 	shareDiff := s.config.Proxy.Difficulty
@@ -167,7 +167,7 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 	}
 
 
-	if new(big.Int).SetBytes(headResult).Cmp(t.fTarget) <= 0 {
+	if new(big.Int).SetBytes(headResult).Cmp(t.bTarget) <= 0 {
 		// Correct nonce found, create a new header with it
 		var n [8]byte
 		binary.BigEndian.PutUint64(n[:], uint64(nonceHash))

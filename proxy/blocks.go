@@ -111,9 +111,9 @@ func (s *ProxyServer) fetchBlockTemplate() {
 	blockDiffBig := big.NewInt(fDiff)
 	ftarget      := new(big.Int).Div(maxUint128, blockDiffBig)
 
-//	dDiff, err := strconv.ParseInt(strings.Replace(reply[3], "0x", "", -1), 16, 64)
+	dDiff, err := strconv.ParseInt(strings.Replace(reply[3], "0x", "", -1), 16, 64)
 
-//	btarget      := new(big.Int).Div(maxUint128, big.NewInt(dDiff))
+	btarget      := new(big.Int).Div(maxUint128, big.NewInt(dDiff))
 
 	newTemplate := BlockTemplate{
 		Header:               reply[0],
@@ -124,7 +124,7 @@ func (s *ProxyServer) fetchBlockTemplate() {
 		GetPendingBlockCache: pendingReply,
 		headers:              make(map[string]heightDiffPair),
 		fTarget:	ftarget,
-		//bTarget:	btarget,
+		bTarget:	btarget,
 	}
 	// Copy job backlog and add current one
 	//log.Println("----------------reply[0]","is",reply[0])
