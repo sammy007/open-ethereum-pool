@@ -17,6 +17,7 @@ import (
 	"github.com/truechain/open-truechain-pool/rpc"
 	"github.com/truechain/open-truechain-pool/storage"
 	"github.com/truechain/open-truechain-pool/util"
+	"math/big"
 )
 
 type ProxyServer struct {
@@ -48,14 +49,21 @@ type Session struct {
 }
 
 func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
-	log.Println("--------------?")
+
 	if len(cfg.Name) == 0 {
 		log.Fatal("You must set instance name")
 	}
+
 	policy := policy.Start(&cfg.Proxy.Policy, backend)
 
 	proxy := &ProxyServer{config: cfg, backend: backend, policy: policy}
 	proxy.diff = util.GetTargetHex(cfg.Proxy.Difficulty)
+
+	//cale share tagert
+	var maxUint128 = new(big.Int).Exp(big.NewInt(2), big.NewInt(128), big.NewInt(0))
+	blockDiffBig := big.NewInt(cfg.Proxy.Difficulty)
+	Starget      = new(big.Int).Div(maxUint128, blockDiffBig)
+
 
 	proxy.upstreams = make([]*rpc.RPCClient, len(cfg.Upstream))
 	for i, v := range cfg.Upstream {

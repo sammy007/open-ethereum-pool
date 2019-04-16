@@ -13,7 +13,6 @@ import (
 	//"github.com/ethereum/go-ethereum/common"
 	"strconv"
 	"encoding/hex"
-	"golang.org/x/crypto/sha3"
 	"encoding/binary"
 
 	"log"
@@ -27,6 +26,8 @@ import (
 var trueD = minerva.NewDataset(0)
 
 const UPDATABLOCKLENGTH = 12000 //12000  3000*/
+const FRUITREWARD = 0.3 // 115*0.8*0.33/100  is mean the fruit reward that block have 100 fruit
+const BLOCKREARD = 60.72// 115*0.8*0.66  is mean the block reward
 
 /*
 func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, params []string) (bool, bool) {
@@ -99,6 +100,7 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 
 	var params1 [3] string
 	mined := false
+	//isFruit :=true
 
 	log.Println(params[0])
 	log.Println(params[1])
@@ -116,12 +118,12 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 	s1 := t.Header
 	log.Println(s1)
 	s2 := string([]byte(s1)[2:])
-	log.Println(s2)
+	//log.Println(s2)
 	headNoNonceHash,err:=hex.DecodeString(s2)
 	if err != nil{
 		log.Println(err)
 	}
-	log.Println(headNoNonceHash)
+	//log.Println(headNoNonceHash)
 	//headNoNonceHash,_:=hex.DecodeString(job.hashNoNonce)
 
 	epoch := uint64((t.Height - 1) / UPDATABLOCKLENGTH)
@@ -136,7 +138,7 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 	trueDateSet.Generate(epoch,&DataSet)
 
 
-	var datas11 []byte
+	/*var datas11 []byte
 	tmp := make([]byte, 8)
 	for _, v := range trueDateSet.GetDataSet() {
 		binary.LittleEndian.PutUint64(tmp, v)
@@ -144,19 +146,27 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 	}
 	sha512 := makeHasher(sha3.New256())
 	output5 := make([]byte, 32)
-	sha512(output5, datas11[:])
+	sha512(output5, datas11[:])*/
+
 
 
 	var ss  string
 
 	//digest,rlt:=minerva.TruehashLight(trueDateSet.GetDataSet(),s.Bytes(),nonceHash)
 	//log.Println("hash","0000",headNoNonceHash.Bytes())
-	log.Println("---star to get TruehashLight","headNoNonceHash",headNoNonceHash,"nonceHah",nonceHash)
+	//log.Println("---star to get TruehashLight","headNoNonceHash",headNoNonceHash,"nonceHah",nonceHash)
 	digest,rlt:=minerva.TruehashLight(trueDateSet.GetDataSet(),headNoNonceHash,nonceHash)
-	log.Println(digest)
-	log.Println(rlt)
-	//log.Println()
+
 	headResult := rlt[:16]
+	//vaild the share
+	if new(big.Int).SetBytes(headResult).Cmp(Starget) > 0 {
+		lResult := rlt[16:]
+		if new(big.Int).SetBytes(lResult).Cmp(Starget) > 0 {
+			return false ,false
+		}
+	}
+
+
 	if new(big.Int).SetBytes(headResult).Cmp(t.fTarget) <= 0 {
 		// Correct nonce found, create a new header with it
 		var n [8]byte
@@ -165,6 +175,7 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 		t.MixDigest = common.BytesToHash(digest)
 		mined = true
 		ss = hexutil.Encode(digest)
+		//isFruit = false
 		log.Println("-----mined block","block hight",t.Height,"jobId")
 	} else {
 		lastResult := rlt[16:]
@@ -177,6 +188,7 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 			t.MixDigest = common.BytesToHash(digest)
 			ss = hexutil.Encode(digest)
 			mined = true
+			//isFruit = true
 		}
 	}
 
@@ -201,10 +213,10 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 		//params[2] = t.MixDigest.Hex()
 		params1[2] = ss
 
-		log.Println("---=-=-=-=----get params tmp",";",tmp)
+		/*log.Println("---=-=-=-=----get params tmp",";",tmp)
 		log.Println("---=-=-=-=----get params nonce",";",params1[0])
 		log.Println("---=-=-=-=----get params header hash",";",params1[1])
-		log.Println("---=-=-=-=----get params digest" ,";",params1[2])
+		log.Println("---=-=-=-=----get params digest" ,";",params1[2])*/
 		//	log.Println("-------ss digest",";",ss)
 
 		ok, err := s.rpc().SubmitBlock(params1)
@@ -242,3 +254,19 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 	return false, true
 
 }
+
+/*func (s *ProxyServer) getShareReward(sharediff int64, blockDiff int64,fruitDiff int64,isFruit bool) float32{
+
+	var ppsRate float64
+	share := new(big.Rat).SetInt64(sharediff)
+
+	if isFruit{
+		share.Quo(share,new(big.Rat).SetInt64(fruitDiff))
+		ppsRate,_ = share.Float64()
+		ppsRate = ppsRate * FRUITREWARD
+	}else{
+		share.Quo(share,new(big.Rat).SetInt64(blockDiff))
+		ppsRate,_ = share.Float64()
+	}
+
+}*/

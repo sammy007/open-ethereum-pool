@@ -47,6 +47,7 @@ type Block struct {
 }
 
 var  DataSet [10240][]byte
+var  Starget *big.Int
 
 func (b Block) Difficulty() *big.Int     { return b.difficulty }
 func (b Block) HashNoNonce() common.Hash { return b.hashNoNonce }

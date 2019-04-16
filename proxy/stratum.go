@@ -11,7 +11,6 @@ import (
 
 	"github.com/truechain/open-truechain-pool/util"
 	"encoding/hex"
-	"fmt"
 )
 
 const (
@@ -84,7 +83,7 @@ func (s *ProxyServer) handleTCPClient(cs *Session) error {
 			return err
 		}
 
-		log.Println("data","string:",string(data))
+		//log.Println("data","string:",string(data))
 
 		if len(data) > 1 {
 			var req StratumReq
@@ -106,7 +105,7 @@ func (s *ProxyServer) handleTCPClient(cs *Session) error {
 
 func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 	// Handle RPC methods
-//	log.Println("---get --","req.Method",req.Method)
+	log.Println("---get --","req.Method",req.Method)
 	switch req.Method {
 	case "etrue_submitLogin":
 		var params []string
@@ -139,7 +138,7 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 			return err
 		}
 		//DataSet,_ =r.GetDataset()
-		log.Println("-----------------------------etrue_seedhash")
+
 		/*for{
 			if len(DataSet[0]) == 0{
 				DataSet,err =r.GetDataset()
@@ -194,11 +193,11 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 		}
 		reply, errReply := s.handleTCPSubmitRPC(cs, req.Worker, params)
 		if errReply != nil {
-			log.Println("-------------fuck","l",errReply)
+			//log.Println("-------------fuck","l",errReply)
 			return cs.sendTCPError(req.Id,"etrue_submitWork", errReply)
 		}
 		//s.broadcastNewJobs()
-		log.Println(reply)
+
 		return cs.sendTCPResult(req.Id, "etrue_submitWork",&reply)
 	case "etrue_submitHashrate":
 		return cs.sendTCPResult(req.Id, "etrue_submitHashrate",true)
@@ -211,7 +210,6 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 func (cs *Session) sendTCPResult(id json.RawMessage,method string, result interface{}) error {
 	cs.Lock()
 	defer cs.Unlock()
-	fmt.Println(result)
 	message := JSONRpcResp{Id: id, Version: "2.0", Method:method,Error: nil, Result: result}
 	return cs.enc.Encode(&message)
 }

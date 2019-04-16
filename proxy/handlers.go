@@ -50,7 +50,7 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 	}
 	ztem := Zeor[:]
 	tem3:= string(ztem)+tarS
-	log.Println("-----tem3","tme2",tem3)
+
 	return []string{t.Header, "0x"+t.Seed, "0x"+tem3}, nil
 }
 
