@@ -4,6 +4,9 @@
 	"name": "main",
 	"pplns": 9000,
 
+	"avgBlockTime": 14.4,
+	"blockTimeWindow": 300,
+
 	"proxy": {
 		"enabled": true,
 		"listen": "0.0.0.0:8888",
@@ -60,7 +63,14 @@
 		"hashrateLargeWindow": "3h",
 		"luckWindow": [64, 128, 256],
 		"payments": 30,
-		"blocks": 50
+		"blocks": 50,
+		"miners": 50,
+		"maxAgeMiners": 60,
+		"maxAgePayments": 60,
+		"poolCharts":"0 */20 * * * *",
+		"poolChartsNum":74,
+		"minerCharts":"0 */20 * * * *",
+		"minerChartsNum":74
 	},
 
 	"upstreamCheckInterval": "5s",
