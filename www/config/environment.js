@@ -15,15 +15,15 @@ module.exports = function(environment) {
 
     APP: {
       // API host and port
-      ApiUrl: '//example.net/',
+      ApiUrl: 'http://192.168.1.103:8080',
 
       // HTTP mining endpoint
-      HttpHost: 'http://example.net',
+      HttpHost: 'http://192.168.1.103',
       HttpPort: 8888,
 
       // Stratum mining endpoint
-      StratumHost: 'example.net',
-      StratumPort: 8008,
+      StratumHost: '192.168.1.103',
+      StratumPort: 8788,
 
       // Fee and payout details
       PoolFee: '1%',
@@ -38,7 +38,7 @@ module.exports = function(environment) {
     /* Override ApiUrl just for development, while you are customizing
       frontend markup and css theme on your workstation.
     */
-    ENV.APP.ApiUrl = 'http://localhost:8080/'
+    ENV.APP.ApiUrl = 'http://192.168.1.103:8080/'
     // ENV.APP.LOG_RESOLVER = true;
     // ENV.APP.LOG_ACTIVE_GENERATION = true;
     // ENV.APP.LOG_TRANSITIONS = true;
