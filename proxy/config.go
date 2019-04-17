@@ -1,10 +1,10 @@
 package proxy
 
 import (
-	"github.com/sammy007/open-ethereum-pool/api"
-	"github.com/sammy007/open-ethereum-pool/payouts"
-	"github.com/sammy007/open-ethereum-pool/policy"
-	"github.com/sammy007/open-ethereum-pool/storage"
+	"github.com/btenterprise2020/open-etc-pool/api"
+	"github.com/btenterprise2020/open-etc-pool/payouts"
+	"github.com/btenterprise2020/open-etc-pool/policy"
+	"github.com/btenterprise2020/open-etc-pool/storage"
 )
 
 type Config struct {
@@ -17,10 +17,14 @@ type Config struct {
 	Threads int `json:"threads"`
 
 	Coin  string         `json:"coin"`
+	Pplns int64          `json:"pplns"`
 	Redis storage.Config `json:"redis"`
 
 	BlockUnlocker payouts.UnlockerConfig `json:"unlocker"`
 	Payouts       payouts.PayoutsConfig  `json:"payouts"`
+
+	AvgBlockTime    float64 `json:"avgBlockTime"`
+	BlockTimeWindow int64   `json:"blockTimeWindow"`
 
 	NewrelicName    string `json:"newrelicName"`
 	NewrelicKey     string `json:"newrelicKey"`

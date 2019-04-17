@@ -31,6 +31,11 @@ body {
 body > .container {
   padding: 0px 15px 0;
 }
+
+.container {
+  min-width: 840px;
+}
+
 .container .text-muted {
   margin: 20px 0;
 }

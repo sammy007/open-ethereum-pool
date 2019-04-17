@@ -1,6 +1,6 @@
 #### System information
 
-Geth version: `geth version` or commit hash if `develop`
+Multi-Geth / Parity version: `geth version`, `parity -v` or commit hash if `develop`
 
 Redis version: `redis-server --version`
 

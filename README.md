@@ -1,59 +1,62 @@
-## Open Source Ethereum Mining Pool
+## Open Source Ethereum Classic Mining Pool
 
 ![Miner's stats page](https://user-images.githubusercontent.com/7374093/31591180-43c72364-b236-11e7-8d47-726cd66b876a.png)
 
-[![Join the chat at https://gitter.im/sammy007/open-ethereum-pool](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sammy007/open-ethereum-pool?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/sammy007/open-ethereum-pool.svg?branch=develop)](https://travis-ci.org/sammy007/open-ethereum-pool) [![Go Report Card](https://goreportcard.com/badge/github.com/sammy007/open-ethereum-pool)](https://goreportcard.com/report/github.com/sammy007/open-ethereum-pool)
+[![Gitter](https://badges.gitter.im/open-etc-pool/community.svg)](https://gitter.im/open-etc-pool/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/btenterprise2020/open-etc-pool.svg?branch=develop)](https://travis-ci.org/btenterprise2020/open-etc-pool) [![Go Report Card](https://goreportcard.com/badge/github.com/btenterprise2020/open-etc-pool)](https://goreportcard.com/report/github.com/btenterprise2020/open-etc-pool)
 
 ### Features
 
-**This pool is no longer supported, expect only casual fixes.**
-
-**Parity client is MANDATORY. Geth is no longer supported.**
-
+* Exclusive support for [Ethereum Classic](https://ethereumclassic.org) mining (Supports ECIP-1017 for block reward calculation).
 * Support for HTTP and Stratum mining
 * Detailed block stats with luck percentage and full reward
 * Parity nodes rpc failover built in
 * Modern beautiful Ember.js frontend
 * Separate stats for workers: can highlight timed-out workers so miners can perform maintenance of rigs
 * JSON-API for stats
+* Multiple payout at once
+* PPLNS block reward
 
-#### Proxies
+### Community / Support
 
-* [Ether-Proxy](https://github.com/sammy007/ether-proxy) HTTP proxy with web interface
-* [Stratum Proxy](https://github.com/Atrides/eth-proxy) for Ethereum
+Join our gitter channel: https://gitter.im/open-etc-pool/community
+
+We are looking for contributors who can help our pool's translation, feel free to [create a pull request](https://github.com/btenterprise2020/open-etc-pool/pulls) or [contribute on transifex](https://www.transifex.com/bt-enterprise/open-etc-pool)
+
+#### Known pools using our open-source pool software:
+
+*[List your pools here!](https://github.com/btenterprise2020/open-etc-pool/pulls)*
 
 ### Building on Linux
 
 Dependencies:
 
-  * go >= 1.9
-  * parity (will not work with geth)
+  * go >= 1.10
+  * multi-geth / parity
   * redis-server >= 2.8.0
-  * nodejs >= 4 LTS
+  * nodejs >= 8 LTS
   * nginx
 
 **I highly recommend to use Ubuntu 16.04 LTS.**
 
-First install  [go-ethereum](https://github.com/ethereum/go-ethereum/wiki/Installation-Instructions-for-Ubuntu).
+First install [multi-geth](https://github.com/multi-geth/multi-geth/releases/latest) or [parity-ethereum](https://github.com/paritytech/parity-ethereum/releases/latest).
 
 Clone & compile:
 
-    git config --global http.https://gopkg.in.followRedirects true
-    git clone https://github.com/sammy007/open-ethereum-pool.git
-    cd open-ethereum-pool
+    git clone https://github.com/btenterprise2020/open-etc-pool.git
+    cd open-etc-pool
     make
 
 Install redis-server.
 
 ### Running Pool
 
-    ./build/bin/open-ethereum-pool config.json
+    ./build/bin/open-etc-pool config.json
 
-You can use Ubuntu upstart - check for sample config in <code>upstart.conf</code>.
+You can use Ubuntu upstart - check for sample config in <code>misc/upstart.conf</code>.
 
 ### Building Frontend
 
-Install nodejs. I suggest using LTS version >= 4.x from https://github.com/nodesource/distributions or from your Linux distribution or simply install nodejs on Ubuntu Xenial 16.04.
+Install nodejs. I suggest using LTS version >= 8.x from https://nodejs.org/en/download/package-manager.
 
 The frontend is a single-page Ember.js application that polls the pool API to render miner stats.
 
@@ -107,9 +110,15 @@ otherwise you will get errors on start because of JSON comments.**
   // Set to the number of CPU cores of your server
   "threads": 2,
   // Prefix for keys in redis store
-  "coin": "eth",
+  "coin": "etc",
   // Give unique name to each instance
   "name": "main",
+  // PPLNS rounds
+  "pplns": 9000,
+
+  // Default Average block time for your ethereum network
+  "avgBlockTime": 14.4,
+  "blockTimeWindow": 300,
 
   "proxy": {
     "enabled": true,
@@ -204,6 +213,16 @@ otherwise you will get errors on start because of JSON comments.**
     "payments": 50,
     // Max numbers of blocks to display in frontend
     "blocks": 50,
+    // Max numbers of miners to display in frontend
+    "miners": 50,
+    "maxAgeMiners": 60,
+    // Max numbers of payments to display in frontend
+    "maxAgePayments": 60,
+    // Chart related settings
+    "poolCharts":"0 */20 * * * *",
+    "poolChartsNum":74,
+    "minerCharts":"0 */20 * * * *",
+    "minerChartsNum":74
 
     /* If you are running API node on a different server where this module
       is reading data from redis writeable slave, you must run an api instance with this option enabled in order to purge hashrate stats from main redis node.
@@ -216,7 +235,7 @@ otherwise you will get errors on start because of JSON comments.**
   // Check health of each node in this interval
   "upstreamCheckInterval": "5s",
 
-  /* List of parity nodes to poll for new jobs. Pool will try to get work from
+  /* List of multi-geth/parity nodes to poll for new jobs. Pool will try to get work from
     first alive one and check in background for failed to back up.
     Current block template of the pool is always cached in RAM indeed.
   */
@@ -249,8 +268,6 @@ otherwise you will get errors on start because of JSON comments.**
     "poolFee": 1.0,
     // Pool fees beneficiary address (leave it blank to disable fee withdrawals)
     "poolFeeAddress": "",
-    // Donate 10% from pool fees to developers
-    "donate": true,
     // Unlock only if this number of blocks mined back
     "depth": 120,
     // Simply don't touch this option
@@ -259,9 +276,9 @@ otherwise you will get errors on start because of JSON comments.**
     "keepTxFees": false,
     // Run unlocker in this interval
     "interval": "10m",
-    // Parity node rpc endpoint for unlocking blocks
+    // Multi-geth/Parity node rpc endpoint for unlocking blocks
     "daemon": "http://127.0.0.1:8545",
-    // Rise error if can't reach parity
+    // Rise error if can't reach multi-geth/parity
     "timeout": "10s"
   },
 
@@ -269,16 +286,16 @@ otherwise you will get errors on start because of JSON comments.**
   "payouts": {
     "enabled": false,
     // Require minimum number of peers on node
-    "requirePeers": 25,
+    "requirePeers": 5,
     // Run payouts in this interval
-    "interval": "12h",
-    // Parity node rpc endpoint for payouts processing
+    "interval": "10m",
+    // Multi-geth/Parity node rpc endpoint for payouts processing
     "daemon": "http://127.0.0.1:8545",
-    // Rise error if can't reach parity
+    // Rise error if can't reach multi-geth/parity
     "timeout": "10s",
     // Address with pool balance
     "address": "0x0",
-    // Let parity to determine gas and gasPrice
+    // Let multi-geth/parity to determine gas and gasPrice
     "autoGas": true,
     // Gas amount and price for payout tx (advanced users only)
     "gas": "21000",
@@ -310,16 +327,8 @@ I recommend this deployment strategy:
 
 ### Credits
 
-Made by sammy007. Licensed under GPLv3.
+Made by sammy007. Modified for Ethereum Classic use by BT Enterprise. Licensed under GPLv3.
 
 #### Contributors
 
 [Alex Leverington](https://github.com/subtly)
-
-### Donations
-
-ETH/ETC: 0xb85150eb365e7df0941f0cf08235f987ba91506a
-
-![](https://cdn.pbrd.co/images/GP5tI1D.png)
-
-Highly appreciated.

@@ -1,41 +1,31 @@
 <div class="container">
   <div class="page-header">
-    <h1>How To Mine</h1>
+    <h2>Getting Started with {{config.PoolName}} mining</h2>
   </div>
   <p class="lead">In order to mine on this pool you need to have an
-    <a href="https://github.com/ethereum/webthree-umbrella/releases" rel="nofollow" target="_blank">ethminer</a> installation
-    pointed to<br/><code>{{config.HttpHost}}:{{config.HttpPort}}/YOUR_ETH_ADDRESS/RIG_ID</code>
+    <a href="https://bitcointalk.org/index.php?topic=1433925.0" rel="nofollow" target="_blank">Claymore's Dual Ethereum Miner</a> or an <a href="https://github.com/ethereum-mining/ethminer/releases/latest" rel="nofollow" target="_blank">ethminer</a> installation.
   </p>
+
+  <h3>Usage examples</h3>
   <dl class="dl-horizontal">
-    <dt>YOUR_ETH_ADDRESS</dt>
-    <dd>This is your address for payouts, generate one with geth, or mine directly to exchange like
-      <a href="http://poloniex.com" rel="nofollow" target="_blank">Poloniex</a>
-      or <a href="http://bittrex.com" rel="nofollow" target="_blank">Bittrex</a>.<br/>
+    <dt>YOUR_ETC_ADDRESS</dt>
+    <dd>This is your address for payouts, generate one with <a href="https://myetherwallet.com" rel="nofollow" target="_blank">MyEtherWallet</a>
+      or <a href="https://mycrypto.com" rel="nofollow" target="_blank">MyCrypto</a>.<br/>
       <strong>Example:</strong> <code>0xb85150eb365e7df0941f0cf08235f987ba91506a</code>.
     </dd>
-    <dt>RIG_ID</dt>
+    <dt><em>your-worker-1</em><br /><em>your-worker-2</em></dt>
     <dd>
-      ID of your farm to distinguish it from your other rig. If you have just one rig, feel free to omit this param.
+      ID of your PC/mining-rig to distinguish it from your other rigs. If you have just one rig, feel free to omit this param.<br />
       This param must be short alphanumeric string with optional dashes and underscores.<br/>
-      <strong>Example:</strong> <code>rig-1</code>
+      <strong>Example:</strong> <code>worker-1</code>
     </dd>
   </dl>
   <p>
     <strong>Full example:</strong>
-    <code>ethminer -F {{config.HttpHost}}:{{config.HttpPort}}/0xb85150eb365e7df0941f0cf08235f987ba91506a/myfarm -G --farm-recheck 200</code>.<br/>
-    <span class="label label-info">Hint:</span> If you are compiling ethminer from latest source, please also use
-      extra <code>--disable-submit-hashrate</code> option.
+    <code>
+      EthDcrMiner64.exe -epool {{config.StratumHost}}:{{config.StratumPort}} -ewal 0xb85150eb365e7df0941f0cf08235f987ba91506a -eworker myfarm -allcoins 1 -allpools 1</code>.<br/>
   </p>
 
-  <h4>Stratum Mining with Stratum Proxy for Ethereum</h4>
-  <p class="lead">Grab proxy from <a href="https://github.com/Atrides/eth-proxy" re="nofollow" target="_blank">eth-proxy GitHub repo</a>.</p>
-  <p class="lead">Edit <code>eth-proxy.conf</code> and specify our pool's <code>HOST: {{config.StratumHost}}</code>, <code>PORT: {{config.StratumPort}}</code> and your <code>WALLET</code>.</p>
-
-  <h4>Mining with Ether-Proxy</h4>
-  <p class="lead">Use stable release of <a href="https://github.com/sammy007/ether-proxy/releases" target="_blank">Ethereum Solo/Pool Mining Proxy</a>.</p>
-
-  <h4>Advice</h4>
-  <p>CPU mining is not recommended.</p>
   <h4>Terms of Service</h4>
   <p>By using the pool you accept all possible risks related to experimental software usage.<br/>
      Pool owner can't compensate any irreversible losses, but will do his best to prevent worst case.

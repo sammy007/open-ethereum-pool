@@ -1,8 +1,18 @@
 language: go
-
-go:
-  - 1.9
-  - tip
-
-services:
-  - redis-server
+go_import_path: github.com/btenterprise2020/open-etc-pool
+sudo: false
+matrix:
+  include:
+    # These are the latest Go versions.
+    - os: linux
+      dist: xenial
+      sudo: required
+      go: 1.11.x
+    # This builder only tests code linters on latest version of Go
+    - os: linux
+      dist: xenial
+      go: 1.11.x
+      env:
+        - lint
+      script:
+        - gofmt -l .

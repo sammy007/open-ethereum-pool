@@ -1,12 +1,13 @@
 package proxy
 
 import (
+	"errors"
 	"log"
 	"regexp"
 	"strings"
 
-	"github.com/sammy007/open-ethereum-pool/rpc"
-	"github.com/sammy007/open-ethereum-pool/util"
+	"github.com/btenterprise2020/open-etc-pool/rpc"
+	"github.com/btenterprise2020/open-etc-pool/util"
 )
 
 // Allow only lowercase hexadecimal with 0x prefix
@@ -68,28 +69,31 @@ func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []st
 		log.Printf("Malformed PoW result from %s@%s %v", login, cs.ip, params)
 		return false, &ErrorReply{Code: -1, Message: "Malformed PoW result"}
 	}
-	t := s.currentBlockTemplate()
-	exist, validShare := s.processShare(login, id, cs.ip, t, params)
-	ok := s.policy.ApplySharePolicy(cs.ip, !exist && validShare)
 
-	if exist {
-		log.Printf("Duplicate share from %s@%s %v", login, cs.ip, params)
-		return false, &ErrorReply{Code: 22, Message: "Duplicate share"}
-	}
+	go func(s *ProxyServer, cs *Session, login, id string, params []string) {
+		t := s.currentBlockTemplate()
+		exist, validShare := s.processShare(login, id, cs.ip, t, params)
+		ok := s.policy.ApplySharePolicy(cs.ip, !exist && validShare)
 
-	if !validShare {
-		log.Printf("Invalid share from %s@%s", login, cs.ip)
-		// Bad shares limit reached, return error and close
-		if !ok {
-			return false, &ErrorReply{Code: 23, Message: "Invalid share"}
+		if exist {
+			log.Printf("Duplicate share from %s@%s %v", login, cs.ip, params)
+			cs.lastErr = errors.New("Duplicate share")
 		}
-		return false, nil
-	}
-	log.Printf("Valid share from %s@%s", login, cs.ip)
 
-	if !ok {
-		return true, &ErrorReply{Code: -1, Message: "High rate of invalid shares"}
-	}
+		if !validShare {
+			log.Printf("Invalid share from %s@%s", login, cs.ip)
+			// Bad shares limit reached, return error and close
+			if !ok {
+				cs.lastErr = errors.New("Invalid share")
+			}
+		}
+		log.Printf("Valid share from %s@%s", login, cs.ip)
+
+		if !ok {
+			cs.lastErr = errors.New("High rate of invalid shares")
+		}
+	}(s, cs, login, id, params)
+
 	return true, nil
 }
 

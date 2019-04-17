@@ -1,7 +1,11 @@
 {
 	"threads": 2,
-	"coin": "eth",
+	"coin": "etc",
 	"name": "main",
+	"pplns": 9000,
+
+	"avgBlockTime": 14.4,
+	"blockTimeWindow": 300,
 
 	"proxy": {
 		"enabled": true,
@@ -59,7 +63,14 @@
 		"hashrateLargeWindow": "3h",
 		"luckWindow": [64, 128, 256],
 		"payments": 30,
-		"blocks": 50
+		"blocks": 50,
+		"miners": 50,
+		"maxAgeMiners": 60,
+		"maxAgePayments": 60,
+		"poolCharts":"0 */20 * * * *",
+		"poolChartsNum":74,
+		"minerCharts":"0 */20 * * * *",
+		"minerChartsNum":74
 	},
 
 	"upstreamCheckInterval": "5s",
@@ -87,7 +98,6 @@
 		"enabled": false,
 		"poolFee": 1.0,
 		"poolFeeAddress": "",
-		"donate": true,
 		"depth": 120,
 		"immatureDepth": 20,
 		"keepTxFees": false,
@@ -98,8 +108,8 @@
 
 	"payouts": {
 		"enabled": false,
-		"requirePeers": 25,
-		"interval": "120m",
+		"requirePeers": 5,
+		"interval": "10m",
 		"daemon": "http://127.0.0.1:8545",
 		"timeout": "10s",
 		"address": "0x0",
@@ -107,7 +117,8 @@
 		"gasPrice": "50000000000",
 		"autoGas": true,
 		"threshold": 500000000,
-		"bgsave": false
+		"bgsave": false,
+		"concurrentTx": 10
 	},
 
 	"newrelicEnabled": false,
