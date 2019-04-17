@@ -2,7 +2,7 @@
 
 ![Miner's stats page](https://user-images.githubusercontent.com/7374093/31591180-43c72364-b236-11e7-8d47-726cd66b876a.png)
 
-[![Build Status](https://travis-ci.org/btenterprise2020/open-etc-pool.svg?branch=develop)](https://travis-ci.org/btenterprise2020/open-etc-pool) [![Go Report Card](https://goreportcard.com/badge/github.com/btenterprise2020/open-etc-pool)](https://goreportcard.com/report/github.com/btenterprise2020/open-etc-pool)
+[![Gitter](https://badges.gitter.im/open-etc-pool/community.svg)](https://gitter.im/open-etc-pool/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/btenterprise2020/open-etc-pool.svg?branch=develop)](https://travis-ci.org/btenterprise2020/open-etc-pool) [![Go Report Card](https://goreportcard.com/badge/github.com/btenterprise2020/open-etc-pool)](https://goreportcard.com/report/github.com/btenterprise2020/open-etc-pool)
 
 ### Features
 
@@ -15,6 +15,16 @@
 * JSON-API for stats
 * Multiple payout at once
 * PPLNS block reward
+
+### Community / Support
+
+Join our gitter channel: https://gitter.im/open-etc-pool/community
+
+We are looking for contributors who can help our pool's translation, feel free to [create a pull request](https://github.com/btenterprise2020/open-etc-pool/pulls) or [contribute on transifex](https://www.transifex.com/bt-enterprise/open-etc-pool)
+
+#### Known pools using our open-source pool software:
+
+*[List your pools here!](https://github.com/btenterprise2020/open-etc-pool/pulls)*
 
 ### Building on Linux
 
