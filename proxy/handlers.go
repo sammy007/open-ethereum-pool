@@ -8,6 +8,7 @@ import (
 	"github.com/truechain/open-truechain-pool/rpc"
 	"github.com/truechain/open-truechain-pool/util"
 	"encoding/hex"
+	"strconv"
 )
 
 // Allow only lowercase hexadecimal with 0x prefix
@@ -39,6 +40,12 @@ func (s *ProxyServer) handleLoginRPC(cs *Session, params []string, id string) (b
 func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 	t := s.currentBlockTemplate()
 	if t == nil || len(t.Header) == 0 || s.isSick() {
+		if t==nil{
+			log.Println("----t is nill")
+		}
+		if len(t.Header) == 0{
+			log.Println("t.Header is zeor")
+		}
 		return nil, &ErrorReply{Code: 0, Message: "Work not ready"}
 	}
 
@@ -105,6 +112,10 @@ func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []st
 		return true, &ErrorReply{Code: -1, Message: "High rate of invalid shares"}
 	}
 	return true, nil
+}
+
+func (s *ProxyServer) handleGetHashRateRPC(cs *Session, params string){
+	cs.hashrate , _ = strconv.ParseFloat(params,64)
 }
 
 func (s *ProxyServer) handleGetBlockByNumberRPC() *rpc.GetBlockReplyPart {

@@ -46,6 +46,7 @@ type Session struct {
 	conn  *net.TCPConn
 	login string
 	worker string
+	hashrate float64
 }
 
 func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
@@ -91,6 +92,10 @@ func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
 	stateUpdateIntv := util.MustParseDuration(cfg.Proxy.StateUpdateInterval)
 	stateUpdateTimer := time.NewTimer(stateUpdateIntv)
 
+	//
+	refreshHashRate := util.MustParseDuration("10s")
+	refreshHashRateTimer := time.NewTimer(refreshHashRate)
+
 	go func() {
 		for {
 			select {
@@ -129,6 +134,17 @@ func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
 			}
 		}
 	}()
+
+	//getHash Rate
+	go func() {
+		for {
+			select {
+			case <-refreshHashRateTimer.C:
+				proxy.getHashRate()
+			}
+		}
+	}()
+
 
 	return proxy
 }

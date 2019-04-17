@@ -30,7 +30,7 @@ const FRUITREWARD = 0.3 // 115*0.8*0.33/100  is mean the fruit reward that block
 const BLOCKREARD = 60.72// 115*0.8*0.66  is mean the block reward
 
 /*
-func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, params []string) (bool, bool) {
+func (s *ProxyServer) processShare2(login, id, ip string, t *BlockTemplate, params []string) (bool, bool) {
 
 
 	nonceHex := params[0]
@@ -154,7 +154,7 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 
 	//digest,rlt:=minerva.TruehashLight(trueDateSet.GetDataSet(),s.Bytes(),nonceHash)
 	//log.Println("hash","0000",headNoNonceHash.Bytes())
-	//log.Println("---star to get TruehashLight","headNoNonceHash",headNoNonceHash,"nonceHah",nonceHash)
+	log.Println("---star to get TruehashLight","headNoNonceHash",headNoNonceHash,"nonceHah",nonceHash)
 	digest,rlt:=minerva.TruehashLight(trueDateSet.GetDataSet(),headNoNonceHash,nonceHash)
 
 	headResult := rlt[:16]
@@ -176,10 +176,10 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 		mined = true
 		ss = hexutil.Encode(digest)
 		//isFruit = false
-		log.Println("-----mined block","block hight",t.Height,"jobId")
+		log.Println("-----mined block--- ","block hight",t.Height)
 	} else {
 		lastResult := rlt[16:]
-		log.Println("-----mined fruit","block Hight",t.Height,"jobId")
+
 		if new(big.Int).SetBytes(lastResult).Cmp(t.fTarget) <= 0 {
 			var n [8]byte
 			binary.BigEndian.PutUint64(n[:], nonceHash)
@@ -188,6 +188,7 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 			t.MixDigest = common.BytesToHash(digest)
 			ss = hexutil.Encode(digest)
 			mined = true
+			log.Println("-----mined fruit-----","block Hight",t.Height)
 			//isFruit = true
 		}
 	}
@@ -239,7 +240,7 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 			log.Printf("Block found by miner %v@%v at height %d", login, ip, h.height)
 
 		}
-		return true,false
+		//return true,false
 
 	}else {
 		exist, err := s.backend.WriteShare(login, id, params, shareDiff, h.height, s.hashrateExpiration)

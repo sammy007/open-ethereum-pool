@@ -201,6 +201,16 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 		return cs.sendTCPResult(req.Id, "etrue_submitWork",&reply)
 	case "etrue_submitHashrate":
 		return cs.sendTCPResult(req.Id, "etrue_submitHashrate",true)
+
+	case "etrue_get_hashrate":
+		var params string
+		err := json.Unmarshal(req.Result, &params)
+		if err != nil {
+			log.Println("Malformed stratum request params from", cs.ip)
+			return err
+		}
+		s.handleGetHashRateRPC(cs,params)
+		return nil
 	default:
 		errReply := s.handleUnknownRPC(cs, req.Method)
 		return cs.sendTCPError(req.Id, "nil",errReply)
@@ -219,6 +229,14 @@ func (cs *Session) pushNewJob(result interface{}) error {
 	defer cs.Unlock()
 	// FIXME: Temporarily add ID for Claymore compliance
 	message := JSONPushMessage{Version: "2.0", Result: result, Id: 0}
+	return cs.enc.Encode(&message)
+}
+
+func (cs *Session) getHashRate(result interface{},method string) error {
+	cs.Lock()
+	defer cs.Unlock()
+	// FIXME: Temporarily add ID for Claymore compliance
+	message := JSONPushGetHashMessage{Version: "2.0", Method:method, Id: 6}
 	return cs.enc.Encode(&message)
 }
 
@@ -283,4 +301,36 @@ func (s *ProxyServer) broadcastNewJobs() {
 		}(m)
 	}
 	log.Printf("Jobs broadcast finished %s", time.Since(start))
+}
+
+
+
+func (s *ProxyServer) getHashRate() {
+
+	s.sessionsMu.RLock()
+	defer s.sessionsMu.RUnlock()
+
+	count := len(s.sessions)
+	log.Printf("Broadcasting new job to %v stratum miners", count)
+
+	start := time.Now()
+	bcast := make(chan int, 1024)
+	n := 0
+
+	for m, _ := range s.sessions {
+		n++
+		bcast <- n
+
+		go func(cs *Session) {
+			err := cs.getHashRate("","etrue_get_hashrate")
+			<-bcast
+			if err != nil {
+				log.Printf("Job transmit error to %v@%v: %v", cs.login, cs.ip, err)
+				s.removeSession(cs)
+			} else {
+				s.setDeadline(cs.conn)
+			}
+		}(m)
+	}
+	log.Printf("HashRate finished %s", time.Since(start))
 }
