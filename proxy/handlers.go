@@ -38,6 +38,11 @@ func (s *ProxyServer) handleLoginRPC(cs *Session, params []string, id string) (b
 }
 
 func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
+
+	var targetS string
+	var Zeor []byte
+	var ZeorTarge []byte
+
 	t := s.currentBlockTemplate()
 	if t == nil || len(t.Header) == 0 || s.isSick() {
 		if t==nil{
@@ -49,8 +54,8 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 		return nil, &ErrorReply{Code: 0, Message: "Work not ready"}
 	}
 
+	// block or fruit
 	tarS := hex.EncodeToString(Starget.Bytes())
-	var Zeor []byte
 
 	for i:=0;i<32-len(tarS);i++{
 		Zeor = append(Zeor,'0')
@@ -58,7 +63,19 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 	ztem := Zeor[:]
 	tem3:= string(ztem)+tarS
 
-	return []string{t.Header, "0x"+t.Seed, "0x"+tem3}, nil
+	for i:=0;i<32;i++{
+		ZeorTarge = append(ZeorTarge,'0')
+	}
+	zore:=string(ZeorTarge[:])
+
+	if s.isFruit{
+		targetS = "0x"+zore+tem3
+	}else{
+		targetS = "0x"+tem3+zore
+	}
+
+
+	return []string{t.Header, "0x"+t.Seed, targetS}, nil
 }
 
 // Stratum

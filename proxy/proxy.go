@@ -35,6 +35,9 @@ type ProxyServer struct {
 	sessionsMu sync.RWMutex
 	sessions   map[*Session]struct{}
 	timeout    time.Duration
+
+	//is fruit
+	isFruit bool
 }
 
 type Session struct {
