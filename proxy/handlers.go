@@ -66,10 +66,11 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 	zore:=string(ZeorTarge[:])
 
 	// 32(block)+32(fruit) Valid share from
+	s.isFruit = false
 	if s.isFruit{
-		targetS = "0x"+tem3+zore
-	}else{
 		targetS = "0x"+zore+tem3
+	}else{
+		targetS = "0x"+tem3+zore
 
 	}
 
