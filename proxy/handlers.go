@@ -75,7 +75,7 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 	}
 
 
-	return []string{t.Header, "0x"+t.Seed, targetS}, nil
+	return []string{t.Header, t.Seed, targetS}, nil
 }
 
 // Stratum
