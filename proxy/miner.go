@@ -154,17 +154,23 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 
 	//digest,rlt:=minerva.TruehashLight(trueDateSet.GetDataSet(),s.Bytes(),nonceHash)
 	//log.Println("hash","0000",headNoNonceHash.Bytes())
-	log.Println("---star to get TruehashLight","headNoNonceHash",headNoNonceHash,"nonceHah",nonceHash)
+//	log.Println("---star to get TruehashLight","-worker",id,"---headNoNonceHash",headNoNonceHash,"---nonceHah",nonceHash)
 	digest,rlt:=minerva.TruehashLight(trueDateSet.GetDataSet(),headNoNonceHash,nonceHash)
+
+	log.Println("---star to get TruehashLight","-worker",id,"---nonceHah",nonceHash,"pool maxdigest",hex.EncodeToString(digest),"share targe",hex.EncodeToString(Starget.Bytes()),"block target",hex.EncodeToString(t.bTarget.Bytes()))
+	//log.Println("---star to get TruehashLight","-worker",id,"---nonceHah",nonceHash,)
+
 
 	headResult := rlt[:16]
 	//vaild the share
 	if new(big.Int).SetBytes(headResult).Cmp(Starget) > 0 {
-		lResult := rlt[16:]
-		if new(big.Int).SetBytes(lResult).Cmp(Starget) > 0 {
+		//lResult := rlt[16:]
+	//	if new(big.Int).SetBytes(lResult).Cmp(Starget) > 0 {
 			return false ,false
-		}
+		//}
 	}
+
+
 
 
 	if new(big.Int).SetBytes(headResult).Cmp(t.bTarget) <= 0 {

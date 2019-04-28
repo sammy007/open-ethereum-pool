@@ -48,9 +48,6 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 		if t==nil{
 			log.Println("----t is nill")
 		}
-		if len(t.Header) == 0{
-			log.Println("t.Header is zeor")
-		}
 		return nil, &ErrorReply{Code: 0, Message: "Work not ready"}
 	}
 
@@ -68,10 +65,12 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 	}
 	zore:=string(ZeorTarge[:])
 
+	// 32(block)+32(fruit) Valid share from
 	if s.isFruit{
-		targetS = "0x"+zore+tem3
-	}else{
 		targetS = "0x"+tem3+zore
+	}else{
+		targetS = "0x"+zore+tem3
+
 	}
 
 
@@ -107,7 +106,7 @@ func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []st
 		return false, &ErrorReply{Code: -1, Message: "Malformed PoW result"}
 	}*/
 	t := s.currentBlockTemplate()
-	exist, validShare := s.processShare(login, id, cs.ip, t, params)
+	exist, validShare := s.processShare(login, cs.worker, cs.ip, t, params)
 	ok := s.policy.ApplySharePolicy(cs.ip, !exist && validShare)
 
 	if exist {
@@ -132,7 +131,9 @@ func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []st
 }
 
 func (s *ProxyServer) handleGetHashRateRPC(cs *Session, params string){
+	log.Println("-----hash","rate is",params)
 	cs.hashrate , _ = strconv.ParseFloat(params,64)
+	log.Println("-----hash2","rate is",cs.hashrate)
 }
 
 func (s *ProxyServer) handleGetBlockByNumberRPC() *rpc.GetBlockReplyPart {

@@ -10,6 +10,7 @@ import (
 	"gopkg.in/redis.v3"
 
 	"github.com/truechain/open-truechain-pool/util"
+	"github.com/truechain/open-truechain-pool/build/_workspace/src/github.com/ethereum/go-ethereum/log"
 )
 
 type Config struct {
@@ -899,12 +900,14 @@ func convertWorkersStats(window int64, raw *redis.ZSliceCmd) map[string]Worker {
 func convertMinersStats(window int64, raw *redis.ZSliceCmd) (int64, map[string]Miner) {
 	now := util.MakeTimestamp() / 1000
 	miners := make(map[string]Miner)
+	minersName  :=make(map[string]string)
 	totalHashrate := int64(0)
 
 	for _, v := range raw.Val() {
 		parts := strings.Split(v.Member.(string), ":")
 		share, _ := strconv.ParseInt(parts[0], 10, 64)
 		id := parts[1]
+		minersName[id] = parts[2]
 		score := int64(v.Score)
 		miner := miners[id]
 		miner.HR += share
@@ -915,6 +918,7 @@ func convertMinersStats(window int64, raw *redis.ZSliceCmd) (int64, map[string]M
 		if miner.startedAt > score || miner.startedAt == 0 {
 			miner.startedAt = score
 		}
+
 		miners[id] = miner
 	}
 
@@ -928,8 +932,9 @@ func convertMinersStats(window int64, raw *redis.ZSliceCmd) (int64, map[string]M
 		if timeOnline >= window {
 			boundary = window
 		}
+		println("miner?","name",id)
 		miner.HR = miner.HR / boundary
-
+		log.Info("--hashrate","miner",minersName[id],"hashrate is ",miner.HR)
 		if miner.LastBeat < (now - window/2) {
 			miner.Offline = true
 		}

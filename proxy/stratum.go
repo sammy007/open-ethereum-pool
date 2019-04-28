@@ -105,7 +105,7 @@ func (s *ProxyServer) handleTCPClient(cs *Session) error {
 
 func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 	// Handle RPC methods
-	log.Println("---get --","req.Method",req.Method)
+	log.Println("---get --","req.Method",req.Method,"-----------worker:",cs.worker)
 	switch req.Method {
 	case "etrue_submitLogin":
 		var params []string
@@ -121,6 +121,8 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 		return cs.sendTCPResult(req.Id, "etrue_submitLogin",reply)
 	case "etrue_getWork":
 
+		cs.time = util.MakeTimestamp() / 1000
+		log.Println("------etrue_submitWork----","-----------worker:",cs.worker,"cs.time",cs.time)
 		reply, errReply := s.handleGetWorkRPC(cs)
 		log.Println(reply)
 		if errReply != nil {
@@ -186,12 +188,17 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 		return cs.sendTCPResult(req.Id,"etrue_seedhash", result)
 	case "etrue_submitWork":
 		var params []string
+
+
 		err := json.Unmarshal(req.Params, &params)
 		if err != nil {
 			log.Println("Malformed stratum request params from", cs.ip)
 			return err
 		}
-		reply, errReply := s.handleTCPSubmitRPC(cs, req.Worker, params)
+		t:=util.MakeTimestamp() / 1000
+		log.Println("------etrue_submitWork----","-----------worker:",cs.worker,"time",t-cs.time)
+		cs.time = 0
+		reply, errReply := s.handleTCPSubmitRPC(cs, cs.worker, params)
 		if errReply != nil {
 			//log.Println("-------------fuck","l",errReply)
 			return cs.sendTCPError(req.Id,"etrue_submitWork", errReply)
@@ -233,10 +240,12 @@ func (cs *Session) pushNewJob(result interface{}) error {
 }
 
 func (cs *Session) getHashRate(result interface{},method string) error {
+	log.Println("------hashrate")
 	cs.Lock()
 	defer cs.Unlock()
 	// FIXME: Temporarily add ID for Claymore compliance
 	message := JSONPushGetHashMessage{Version: "2.0", Method:method, Id: 6}
+	log.Println("------hashrate",":",message)
 	return cs.enc.Encode(&message)
 }
 

@@ -13,6 +13,7 @@ import (
 	"github.com/truechain/open-truechain-pool/util"
 	"hash"
 	//"golang.org/x/crypto/sha3"
+	"encoding/hex"
 )
 
 const maxBacklog = 3
@@ -105,15 +106,16 @@ func (s *ProxyServer) fetchBlockTemplate() {
 
 	pendingReply.Difficulty = util.ToHex(s.config.Proxy.Difficulty)
 
-	var maxUint128 = new(big.Int).Exp(big.NewInt(2), big.NewInt(128), big.NewInt(0))
-	fDiff, err := strconv.ParseInt(strings.Replace(reply[2], "0x", "", -1), 16, 64)
+	//var maxUint128 = new(big.Int).Exp(big.NewInt(2), big.NewInt(128), big.NewInt(0))
+	//fDiff, err := strconv.ParseInt(strings.Replace(reply[2], "0x", "", -1), 16, 64)
 
-	blockDiffBig := big.NewInt(fDiff)
-	ftarget      := new(big.Int).Div(maxUint128, blockDiffBig)
+	//blockDiffBig := big.NewInt(fDiff)
+	//ftarget      := new(big.Int).Div(maxUint128, blockDiffBig)
+	fDiff,_:=hex.DecodeString(strings.Replace(reply[2], "0x", "", -1))
+	dDiff,_:=hex.DecodeString(strings.Replace(reply[3], "0x", "", -1))
+	//dDiff, err := strconv.ParseInt(strings.Replace(reply[3], "0x", "", -1), 16, 64)
 
-	dDiff, err := strconv.ParseInt(strings.Replace(reply[3], "0x", "", -1), 16, 64)
-
-	btarget      := new(big.Int).Div(maxUint128, big.NewInt(dDiff))
+//	btarget      := new(big.Int).Div(maxUint128, big.NewInt(dDiff))
 
 	newTemplate := BlockTemplate{
 		Header:               reply[0],
@@ -123,9 +125,13 @@ func (s *ProxyServer) fetchBlockTemplate() {
 		Difficulty:           big.NewInt(diff),
 		GetPendingBlockCache: pendingReply,
 		headers:              make(map[string]heightDiffPair),
-		fTarget:	ftarget,
-		bTarget:	btarget,
+		fTarget:	new(big.Int).SetBytes(fDiff),
+		bTarget:	new(big.Int).SetBytes(dDiff),//btarget,
 	}
+
+	//1676267817344524450558495603112158677
+	//9223372036854775807
+	log.Println("---------the diff is ","fdiff",newTemplate.fTarget,"bdiff",newTemplate.bTarget)
 	// Copy job backlog and add current one
 	//log.Println("----------------reply[0]","is",reply[0])
 	newTemplate.headers[reply[0]] = heightDiffPair{
