@@ -10,7 +10,7 @@ import (
 	"gopkg.in/redis.v3"
 
 	"github.com/truechain/open-truechain-pool/util"
-	"github.com/truechain/open-truechain-pool/build/_workspace/src/github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 type Config struct {
