@@ -166,7 +166,7 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 	if new(big.Int).SetBytes(headResult).Cmp(Starget) > 0 {
 		//lResult := rlt[16:]
 	//	if new(big.Int).SetBytes(lResult).Cmp(Starget) > 0 {
-			return false ,false
+		//	return false ,false
 		//}
 	}
 
