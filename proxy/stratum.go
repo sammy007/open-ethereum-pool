@@ -183,7 +183,7 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 		//log.Println("------t.seed",",",t.Seed)
 		r2 =append(r2, r1)
 		//log.Println(r1)
-		result := []interface{}{r1,"0x"+t.Seed}
+		result := []interface{}{r1,t.Seed}
 
 		return cs.sendTCPResult(req.Id,"etrue_seedhash", result)
 	case "etrue_submitWork":
@@ -235,7 +235,7 @@ func (cs *Session) pushNewJob(result interface{}) error {
 	cs.Lock()
 	defer cs.Unlock()
 	// FIXME: Temporarily add ID for Claymore compliance
-	message := JSONPushMessage{Version: "2.0", Result: result, Id: 0}
+	message := JSONPushMessage{Version: "2.0", Result: result,Method:"etrue_notify", Id: 0}
 	return cs.enc.Encode(&message)
 }
 
@@ -278,11 +278,38 @@ func (s *ProxyServer) removeSession(cs *Session) {
 }
 
 func (s *ProxyServer) broadcastNewJobs() {
+	var targetS string
+	var Zeor []byte
+	var ZeorTarge []byte
+
 	t := s.currentBlockTemplate()
 	if t == nil || len(t.Header) == 0 || s.isSick() {
 		return
 	}
-	reply := []string{t.Header, t.Seed, s.diff}
+
+	tarS := hex.EncodeToString(Starget.Bytes())
+
+	for i:=0;i<32-len(tarS);i++{
+		Zeor = append(Zeor,'0')
+	}
+	ztem := Zeor[:]
+	tem3:= string(ztem)+tarS
+
+	for i:=0;i<32;i++{
+		ZeorTarge = append(ZeorTarge,'0')
+	}
+	zore:=string(ZeorTarge[:])
+
+	// 32(block)+32(fruit) Valid share from
+	s.isFruit = false
+	if s.isFruit{
+		targetS = "0x"+zore+tem3
+	}else{
+		targetS = "0x"+tem3+zore
+
+	}
+
+	reply := []string{t.Header, t.Seed, targetS}
 
 	s.sessionsMu.RLock()
 	defer s.sessionsMu.RUnlock()
