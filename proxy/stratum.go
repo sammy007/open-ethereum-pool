@@ -11,6 +11,8 @@ import (
 
 	"github.com/truechain/open-truechain-pool/util"
 	"encoding/hex"
+	//"encoding/binary"
+	//"golang.org/x/crypto/sha3"
 )
 
 const (
@@ -122,7 +124,7 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 	case "etrue_getWork":
 
 		cs.time = util.MakeTimestamp() / 1000
-		log.Println("------etrue_submitWork----","-----------worker:",cs.worker,"cs.time",cs.time)
+		log.Println("------etrue_getWork----","-----------worker:",cs.worker,"cs.time",cs.time)
 		reply, errReply := s.handleGetWorkRPC(cs)
 		log.Println(reply)
 		if errReply != nil {
@@ -171,12 +173,27 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 			r1 =append(r1, "0x"+hex.EncodeToString(DataSet[i]))
 			//log.Println("DataSet[0]",":",DataSet[0])
 		}
-		log.Println("DataSet[0]",":",DataSet[0])
+		/*log.Println("DataSet[0]",":",DataSet[0])
 		log.Println("DataSet[1000]",":",DataSet[1000])
 		log.Println("DataSet[10240-1]",":",DataSet[10239])
+		log.Println("r1[0]",":",r1[0])
+		log.Println("r1[1000]",":",r1[1000])
+		log.Println("r1[10240-1]",":",r1[10239])*/
 		//result := []interface{}{[]interface{}{"mining.notify","ae6812eb4cd7735a302a8a9dd95cf71f","TrueStratum/1.0.0"},"080c",4}
 		//var map1 map[string]string
 		//map1:= make(map[string]string)
+
+		/*var datas11 []byte
+		tmp := make([]byte, 8)
+		for _, v := range DataSet {
+			binary.LittleEndian.PutUint64(tmp, v)
+			datas11 = append(datas11, tmp...)
+		}
+		sha512 := makeHasher(sha3.New256())
+		output5 := make([]byte, 32)
+		sha512(output5, DataSet[:])
+		log.Println("-----hard hash is ","is",output5)*/
+
 
 		t := s.currentBlockTemplate()
 		//map1["seedhash"]=t.Seed
