@@ -20,6 +20,8 @@ type JSONPushMessage struct {
 	Id      int64       `json:"id"`
 	Version string      `json:"jsonrpc"`
 	Result  interface{} `json:"result"`
+	Method  interface{} `json:"method"`
+
 }
 
 type JSONPushGetHashMessage struct {
