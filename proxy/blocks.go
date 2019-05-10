@@ -2,21 +2,22 @@ package proxy
 
 import (
 	"log"
-	"math/big"
 	"strconv"
 	"strings"
-	"sync"
-
-	"github.com/ethereum/go-ethereum/common"
-
 	"github.com/truechain/open-truechain-pool/rpc"
-	"github.com/truechain/open-truechain-pool/util"
+
+
+	/*"github.com/truechain/truechain-engineering-code/consensus/minerva"
+	"encoding/binary"
+	"golang.org/x/crypto/sha3"*/
+	"math/big"
+	"sync"
 	"hash"
-	//"golang.org/x/crypto/sha3"
 	"encoding/hex"
 )
 
 const maxBacklog = 3
+
 
 type heightDiffPair struct {
 	diff   *big.Int
@@ -91,6 +92,37 @@ func (s *ProxyServer) fetchBlockTemplate() {
 			//log.Println("------Dataset","-",DataSet[0])
 		}
 
+
+
+
+		/*
+		epoch := uint64((t.Height - 1) / UPDATABLOCKLENGTH)
+
+		trueDateSet := trueD.(*(minerva.Dataset))
+
+		if epoch != trueDateSet.GetDataSetEpoch(){
+			trueD = minerva.NewDataset(epoch)
+			trueDateSet = trueD.(*(minerva.Dataset))
+		}
+
+		trueDateSet.Generate(epoch,&DataSet)
+
+		log.Println("----dataset infor","epoch",trueDateSet.GetDataSetEpoch(),"hahs",trueDateSet.GetDataSetHash())
+		var datas11 []byte
+		tmp := make([]byte, 8)
+		for _, v := range trueDateSet.GetDataSet() {
+			binary.LittleEndian.PutUint64(tmp, v)
+			datas11 = append(datas11, tmp...)
+		}
+		sha512 := makeHasher(sha3.New256())
+		output5 := make([]byte, 32)
+		sha512(output5, datas11[:])
+		log.Println("------the hash is ","is",hex.EncodeToString(output5))*/
+
+
+
+
+
 	}
 
 
@@ -131,7 +163,7 @@ func (s *ProxyServer) fetchBlockTemplate() {
 
 	//1676267817344524450558495603112158677
 	//9223372036854775807
-	log.Println("---------the diff is ","fdiff",newTemplate.fTarget,"bdiff",newTemplate.bTarget)
+	log.Println("---------the diff is ","fdiff",newTemplate.fTarget,"bdiff",newTemplate.bTarget,"tseed res[1]",t.Seed)
 	// Copy job backlog and add current one
 	//log.Println("----------------reply[0]","is",reply[0])
 	newTemplate.headers[reply[0]] = heightDiffPair{
