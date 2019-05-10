@@ -5,11 +5,13 @@ import (
 	"strconv"
 	"strings"
 	"github.com/truechain/open-truechain-pool/rpc"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/truechain/open-truechain-pool/util"
 
 
-	/*"github.com/truechain/truechain-engineering-code/consensus/minerva"
-	"encoding/binary"
-	"golang.org/x/crypto/sha3"*/
+	//"github.com/truechain/truechain-engineering-code/consensus/minerva"
+	//"encoding/binary"
+	//"golang.org/x/crypto/sha3"
 	"math/big"
 	"sync"
 	"hash"
