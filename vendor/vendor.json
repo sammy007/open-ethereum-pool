@@ -57,10 +57,22 @@
 			"revisionTime": "2018-02-19T09:35:31Z"
 		},
 		{
+			"checksumSHA1": "H8wo+NR5z+VRl0wqPYpVQfC06ks=",
+			"path": "github.com/go-stack/stack",
+			"revision": "2fee6af1a9795aafbe0253a0cfbdf668e1fb8a9a",
+			"revisionTime": "2018-08-26T13:48:48Z"
+		},
+		{
 			"checksumSHA1": "9YQYg2PkA7lkFuUyCQGUv0vX5zA=",
 			"path": "github.com/gorilla/mux",
 			"revision": "8559a4f775fc329165fe32bd4c2543de8ada8fce",
 			"revisionTime": "2019-02-17T15:38:49Z"
+		},
+		{
+			"checksumSHA1": "odfuEY+ZGEh8i9oFZOeVTY2iyC4=",
+			"path": "github.com/hashicorp/golang-lru/simplelru",
+			"revision": "ff8f6c969d733ea46290f5efc44a6b86da64e5d1",
+			"revisionTime": "2019-05-07T12:02:21Z"
 		},
 		{
 			"checksumSHA1": "lqzcKw5K8eWSFhIOXQ2adhxzCk0=",
