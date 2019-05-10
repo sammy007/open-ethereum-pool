@@ -15,14 +15,26 @@
 			"revisionTime": "2018-02-19T09:35:31Z"
 		},
 		{
+			"checksumSHA1": "tMtGtURWx29lWZYsLtLOQaPvGqs=",
+			"path": "github.com/ethereum/go-ethereum/common/hexutil",
+			"revision": "1e67410e88d2685bc54611a7c9f75c327b553ccc",
+			"revisionTime": "2018-02-19T09:35:31Z"
+		},
+		{
+			"checksumSHA1": "Hd1Y5DkzYULQzJlSgYv2w5SiEAo=",
+			"path": "github.com/ethereum/go-ethereum/common/math",
+			"revision": "1e67410e88d2685bc54611a7c9f75c327b553ccc",
+			"revisionTime": "2018-02-19T09:35:31Z"
+		},
+		{
 			"checksumSHA1": "PSx8ACgC3L7WzkPZfHJkukAuMEs=",
 			"path": "github.com/ethereum/go-ethereum/crypto",
 			"revision": "1e67410e88d2685bc54611a7c9f75c327b553ccc",
 			"revisionTime": "2018-02-19T09:35:31Z"
 		},
 		{
-			"checksumSHA1": "jYu7qwMf5Hc47JdZFx9aZPg9x3A=",
-			"path": "github.com/ethereum/go-ethereum/log",
+			"checksumSHA1": "xEDvtd3T5340DoStkd0Clj1v8+g=",
+			"path": "github.com/ethereum/go-ethereum/crypto/sha3",
 			"revision": "1e67410e88d2685bc54611a7c9f75c327b553ccc",
 			"revisionTime": "2018-02-19T09:35:31Z"
 		},
@@ -61,6 +73,12 @@
 			"path": "gopkg.in/bsm/ratelimit.v1",
 			"revision": "db14e161995a5177acef654cb0dd785e8ee8bc22",
 			"revisionTime": "2016-02-20T15:49:07Z"
+		},
+		{
+			"checksumSHA1": "/EL/UuzIPObHgESjkBMaD4gaXOw=",
+			"path": "gopkg.in/redis.v3",
+			"revision": "b5e368500d0a508ef8f16e9c2d4025a8a46bcc29",
+			"revisionTime": "2016-06-27T09:56:34Z"
 		},
 		{
 			"checksumSHA1": "ZSWoOPUNRr5+3dhkLK3C4cZAQPk=",
