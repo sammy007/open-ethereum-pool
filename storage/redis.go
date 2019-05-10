@@ -10,7 +10,7 @@ import (
 	"gopkg.in/redis.v3"
 
 	"github.com/truechain/open-truechain-pool/util"
-	"github.com/ethereum/go-ethereum/log"
+	"log"
 )
 
 type Config struct {
@@ -934,7 +934,7 @@ func convertMinersStats(window int64, raw *redis.ZSliceCmd) (int64, map[string]M
 		}
 		println("miner?","name",id)
 		miner.HR = miner.HR / boundary
-		log.Info("--hashrate","miner",minersName[id],"hashrate is ",miner.HR)
+		log.Println("--hashrate","miner",minersName[id],"hashrate is ",miner.HR)
 		if miner.LastBeat < (now - window/2) {
 			miner.Offline = true
 		}
