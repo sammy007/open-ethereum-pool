@@ -9,6 +9,24 @@
 			"revisionTime": "2018-02-19T09:35:31Z"
 		},
 		{
+			"checksumSHA1": "tW97TpZQZqNFg6eX+4Sy6q3qhx4=",
+			"path": "github.com/ethereum/go-ethereum/common",
+			"revision": "1e67410e88d2685bc54611a7c9f75c327b553ccc",
+			"revisionTime": "2018-02-19T09:35:31Z"
+		},
+		{
+			"checksumSHA1": "PSx8ACgC3L7WzkPZfHJkukAuMEs=",
+			"path": "github.com/ethereum/go-ethereum/crypto",
+			"revision": "1e67410e88d2685bc54611a7c9f75c327b553ccc",
+			"revisionTime": "2018-02-19T09:35:31Z"
+		},
+		{
+			"checksumSHA1": "jYu7qwMf5Hc47JdZFx9aZPg9x3A=",
+			"path": "github.com/ethereum/go-ethereum/log",
+			"revision": "1e67410e88d2685bc54611a7c9f75c327b553ccc",
+			"revisionTime": "2018-02-19T09:35:31Z"
+		},
+		{
 			"checksumSHA1": "9YQYg2PkA7lkFuUyCQGUv0vX5zA=",
 			"path": "github.com/gorilla/mux",
 			"revision": "8559a4f775fc329165fe32bd4c2543de8ada8fce",
