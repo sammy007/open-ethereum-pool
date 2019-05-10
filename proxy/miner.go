@@ -19,6 +19,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"math/big"
 	"github.com/ethereum/go-ethereum/common"
+	"strings"
 )
 
 //var hasher = ethash.New()
@@ -113,8 +114,7 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 		log.Printf("Stale share from %v@%v", login, ip)
 		return false, false
 	}
-
-	nonceHash,_:=strconv.ParseUint(params[0],10,64)
+	nonceHash,_:=strconv.ParseUint(strings.Replace(params[0], "0x", "", -1),16,64)
 	s1 := t.Header
 	log.Println(s1)
 	s2 := string([]byte(s1)[2:])
