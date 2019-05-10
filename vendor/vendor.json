@@ -1,0 +1,55 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "JKelegLFMndQuJq8ryKOhI/7dw4=",
+			"path": "github.com/ethereum/go-ethereum",
+			"revision": "1e67410e88d2685bc54611a7c9f75c327b553ccc",
+			"revisionTime": "2018-02-19T09:35:31Z"
+		},
+		{
+			"checksumSHA1": "9YQYg2PkA7lkFuUyCQGUv0vX5zA=",
+			"path": "github.com/gorilla/mux",
+			"revision": "8559a4f775fc329165fe32bd4c2543de8ada8fce",
+			"revisionTime": "2019-02-17T15:38:49Z"
+		},
+		{
+			"checksumSHA1": "lqzcKw5K8eWSFhIOXQ2adhxzCk0=",
+			"path": "github.com/truechain/truechain-engineering-code",
+			"revision": "fd6f01669ae76bf170b1894e02aabafa9112f590",
+			"revisionTime": "2019-05-08T02:30:08Z"
+		},
+		{
+			"checksumSHA1": "suL7yZNBxN847Lmrt2bMIIwtJ4g=",
+			"path": "github.com/yvasiyarov/go-metrics",
+			"revision": "c25f46c4b94079672242ec48a545e7ca9ebe3aec",
+			"revisionTime": "2015-01-12T13:29:44Z"
+		},
+		{
+			"checksumSHA1": "1VhTgADT1kTDVl1t3Tmzsj++jHI=",
+			"path": "github.com/yvasiyarov/gorelic",
+			"revision": "635ca6035f2355e29fc558effa613d0d5867aac8",
+			"revisionTime": "2018-08-09T11:26:00Z"
+		},
+		{
+			"checksumSHA1": "/9VouHqPf0ad+TcMGqhPssfoLb0=",
+			"path": "github.com/yvasiyarov/newrelic_platform_go",
+			"revision": "9c099fbc30e90de5bb5c5f94aa5fd08f2daeaacd",
+			"revisionTime": "2016-06-01T14:19:57Z"
+		},
+		{
+			"checksumSHA1": "+4r0PnLwwyhO5/jvU5R/TEJb4kA=",
+			"path": "gopkg.in/bsm/ratelimit.v1",
+			"revision": "db14e161995a5177acef654cb0dd785e8ee8bc22",
+			"revisionTime": "2016-02-20T15:49:07Z"
+		},
+		{
+			"checksumSHA1": "ZSWoOPUNRr5+3dhkLK3C4cZAQPk=",
+			"path": "gopkg.in/yaml.v2",
+			"revision": "5420a8b6744d3b0345ab293f6fcba19c978f1183",
+			"revisionTime": "2018-03-28T19:50:20Z"
+		}
+	],
+	"rootPath": "github.com/truechain/open-truechain-pool"
+}
