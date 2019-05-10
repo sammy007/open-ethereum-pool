@@ -51,6 +51,12 @@
 			"revisionTime": "2019-05-08T02:30:08Z"
 		},
 		{
+			"checksumSHA1": "c2iUI7vrGoRVgMY/DbBkgF50/gM=",
+			"path": "github.com/truechain/truechain-engineering-code/consensus/minerva",
+			"revision": "fd6f01669ae76bf170b1894e02aabafa9112f590",
+			"revisionTime": "2019-05-08T02:30:08Z"
+		},
+		{
 			"checksumSHA1": "suL7yZNBxN847Lmrt2bMIIwtJ4g=",
 			"path": "github.com/yvasiyarov/go-metrics",
 			"revision": "c25f46c4b94079672242ec48a545e7ca9ebe3aec",
