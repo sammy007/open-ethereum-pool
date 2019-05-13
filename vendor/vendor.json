@@ -27,16 +27,10 @@
 			"revisionTime": "2018-02-19T09:35:31Z"
 		},
 		{
-			"checksumSHA1": "PSx8ACgC3L7WzkPZfHJkukAuMEs=",
+			"checksumSHA1": "PHB7umOzjEjzoTOd+8hHrR5zyN8=",
 			"path": "github.com/ethereum/go-ethereum/crypto",
-			"revision": "1e67410e88d2685bc54611a7c9f75c327b553ccc",
-			"revisionTime": "2018-02-19T09:35:31Z"
-		},
-		{
-			"checksumSHA1": "LS/Qn4CAVXw3zDAiURIS9LIvKxg=",
-			"path": "github.com/ethereum/go-ethereum/crypto/secp256k1",
-			"revision": "1e67410e88d2685bc54611a7c9f75c327b553ccc",
-			"revisionTime": "2018-02-19T09:35:31Z"
+			"revision": "494f5d448a1685d5de4cb1524b863cd1fc9a13b0",
+			"revisionTime": "2019-05-10T11:09:01Z"
 		},
 		{
 			"checksumSHA1": "xEDvtd3T5340DoStkd0Clj1v8+g=",
@@ -75,18 +69,6 @@
 			"revisionTime": "2019-05-07T12:02:21Z"
 		},
 		{
-			"checksumSHA1": "lqzcKw5K8eWSFhIOXQ2adhxzCk0=",
-			"path": "github.com/truechain/truechain-engineering-code",
-			"revision": "fd6f01669ae76bf170b1894e02aabafa9112f590",
-			"revisionTime": "2019-05-08T02:30:08Z"
-		},
-		{
-			"checksumSHA1": "c2iUI7vrGoRVgMY/DbBkgF50/gM=",
-			"path": "github.com/truechain/truechain-engineering-code/consensus/minerva",
-			"revision": "fd6f01669ae76bf170b1894e02aabafa9112f590",
-			"revisionTime": "2019-05-08T02:30:08Z"
-		},
-		{
 			"checksumSHA1": "suL7yZNBxN847Lmrt2bMIIwtJ4g=",
 			"path": "github.com/yvasiyarov/go-metrics",
 			"revision": "c25f46c4b94079672242ec48a545e7ca9ebe3aec",
@@ -105,10 +87,21 @@
 			"revisionTime": "2016-06-01T14:19:57Z"
 		},
 		{
+			"checksumSHA1": "asZBHvcTKF5gVlI7AYnMlLXRYys=",
+			"path": "golang.org/x/crypto/sha3",
+			"revision": "b7391e95e576cacdcdd422573063bc057239113d",
+			"revisionTime": "2019-03-19T22:29:04Z"
+		},
+		{
 			"checksumSHA1": "+4r0PnLwwyhO5/jvU5R/TEJb4kA=",
 			"path": "gopkg.in/bsm/ratelimit.v1",
 			"revision": "db14e161995a5177acef654cb0dd785e8ee8bc22",
 			"revisionTime": "2016-02-20T15:49:07Z"
+		},
+		{
+			"checksumSHA1": "DQXNV0EivoHm4q+bkdahYXrjjfE=",
+			"path": "gopkg.in/karalabe/cookiejar.v2/collections/prque",
+			"revision": ""
 		},
 		{
 			"checksumSHA1": "/EL/UuzIPObHgESjkBMaD4gaXOw=",
