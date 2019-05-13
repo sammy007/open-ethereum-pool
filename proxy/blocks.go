@@ -14,7 +14,6 @@ import (
 	//"golang.org/x/crypto/sha3"
 	"math/big"
 	"sync"
-	"hash"
 	"encoding/hex"
 )
 
@@ -61,19 +60,6 @@ func (b Block) NumberU64() uint64        { return b.number }
 
 
 type hasher2 func(dest []byte, data []byte)
-
-// makeHasher creates a repetitive hasher, allowing the same hash data structures
-// to be reused between hash runs instead of requiring new ones to be created.
-// The returned function is not thread safe!
-func makeHasher(h hash.Hash) hasher2 {
-	return func(dest []byte, data []byte) {
-		h.Write(data)
-		h.Sum(dest[:0])
-		h.Reset()
-	}
-}
-
-
 
 
 func (s *ProxyServer) fetchBlockTemplate() {

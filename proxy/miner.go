@@ -1,16 +1,6 @@
 package proxy
 
 import (
-	//"log"
-	//"math/big"
-	///"strconv"
-	//"strings"
-
-	//"github.com/ethereum/ethash"
-	//"github.com/ethereum/go-ethereum/common"
-
-	"github.com/truechain/truechain-engineering-code/consensus/minerva"
-	//"github.com/ethereum/go-ethereum/common"
 	"strconv"
 	"encoding/hex"
 	"encoding/binary"
@@ -20,13 +10,17 @@ import (
 	"math/big"
 	"github.com/ethereum/go-ethereum/common"
 	"strings"
+	"sync"
+	"github.com/ethereum/go-ethereum/rlp"
+	"golang.org/x/crypto/sha3"
+
 )
 
 //var hasher = ethash.New()
 
-var trueD = minerva.NewDataset(0)
+var trueD = NewDataset(0)
 
-const UPDATABLOCKLENGTH = 12000 //12000  3000*/
+//const UPDATABLOCKLENGTH = 12000 //12000  3000*/
 const FRUITREWARD = 0.3 // 115*0.8*0.33/100  is mean the fruit reward that block have 100 fruit
 const BLOCKREARD = 60.72// 115*0.8*0.66  is mean the block reward
 
@@ -128,11 +122,11 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 
 	epoch := uint64((t.Height - 1) / UPDATABLOCKLENGTH)
 
-	trueDateSet := trueD.(*(minerva.Dataset))
+	trueDateSet := trueD.(*Dataset)
 
 	if epoch != trueDateSet.GetDataSetEpoch(){
-		trueD = minerva.NewDataset(epoch)
-		trueDateSet = trueD.(*(minerva.Dataset))
+		trueD = NewDataset(epoch)
+		trueDateSet = trueD.(*Dataset)
 	}
 
 	trueDateSet.Generate(epoch,&DataSet)
@@ -155,7 +149,7 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 	//digest,rlt:=minerva.TruehashLight(trueDateSet.GetDataSet(),s.Bytes(),nonceHash)
 	//log.Println("hash","0000",headNoNonceHash.Bytes())
 //	log.Println("---star to get TruehashLight","-worker",id,"---headNoNonceHash",headNoNonceHash,"---nonceHah",nonceHash)
-	digest,rlt:=minerva.TruehashLight(trueDateSet.GetDataSet(),headNoNonceHash,nonceHash)
+	digest,rlt:=TruehashLight(trueDateSet.GetDataSet(),headNoNonceHash,nonceHash)
 
 	log.Println("---star to get TruehashLight","-worker",id,"---nonceHah",nonceHash,"pool maxdigest",hex.EncodeToString(digest),"share targe",hex.EncodeToString(Starget.Bytes()),"block target",hex.EncodeToString(t.bTarget.Bytes()))
 	//log.Println("---star to get TruehashLight","-worker",id,"---nonceHah",nonceHash,)
@@ -277,3 +271,169 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 	}
 
 }*/
+
+func (d *Dataset) truehashTableInit(tableLookup []uint64) {
+
+	log.Println("truehashTableInit start ")
+	var table [TBLSIZE * DATALENGTH * PMTSIZE]uint32
+
+	for k := 0; k < TBLSIZE; k++ {
+		for x := 0; x < DATALENGTH*PMTSIZE; x++ {
+			table[k*DATALENGTH*PMTSIZE+x] = tableOrg[k][x]
+		}
+		//fmt.Printf("%d,", k+1)
+	}
+	genLookupTable(tableLookup[:], table[:])
+}
+
+
+// dataset wraps an truehash dataset with some metadata to allow easier concurrent use.
+type Dataset struct {
+	epoch uint64 // Epoch for which this cache is relevant
+	//dump    *os.File  // File descriptor of the memory mapped cache
+	//mmap    mmap.MMap // Memory map itself to unmap before releasing
+	dataset     []uint64  // The actual cache data content
+	once        sync.Once // Ensures the cache is generated only once
+	dateInit    int
+	consistent  common.Hash // Consistency of generated data
+	datasetHash common.Hash // dataset hash
+}
+
+// newDataset creates a new truehash mining dataset
+func NewDataset(epoch uint64) interface{} {
+
+	ds := &Dataset{
+		epoch:    epoch,
+		dateInit: 0,
+		dataset:  make([]uint64, TBLSIZE*DATALENGTH*PMTSIZE*32),
+	}
+
+
+	return ds
+}
+
+func (d *Dataset) GetDataSetEpoch() uint64 {
+	return d.epoch
+}
+
+func (d *Dataset) GetDataSet() []uint64 {
+	return d.dataset
+}
+
+func (d *Dataset) updateLookupTBL(plookupTbl []uint64, headershash *[STARTUPDATENUM][]byte) (bool, []uint64, string) {
+	const offsetCnst = 0x7
+	const skipCnst = 0x3
+	var offset [OFF_SKIP_LEN]int
+	var skip [OFF_SKIP_LEN]int
+	var cont string
+
+	//local way
+	if len(headershash[0]) == 0 {
+		log.Println("snail block head hash  is nil  ")
+		return false, nil, ""
+
+	}
+
+	//get offset cnst  8192 lenght
+	for i := 0; i < OFF_CYCLE_LEN; i++ {
+		var val []byte
+		val = headershash[i]
+
+		offset[i*4] = (int(val[0]) & offsetCnst) - 4
+		offset[i*4+1] = (int(val[1]) & offsetCnst) - 4
+		offset[i*4+2] = (int(val[2]) & offsetCnst) - 4
+		offset[i*4+3] = (int(val[3]) & offsetCnst) - 4
+		//cont += header.Hash().String()
+	}
+
+	//get skip cnst 2048 lenght
+	for i := 0; i < SKIP_CYCLE_LEN; i++ {
+		var val []byte
+		val = headershash[i+OFF_CYCLE_LEN]
+
+		for k := 0; k < 16; k++ {
+			skip[i*16+k] = (int(val[k]) & skipCnst) + 1
+		}
+	}
+
+	ds := d.UpdateTBL(offset, skip, plookupTbl)
+	return true, ds, cont
+}
+
+
+
+// generate ensures that the dataset content is generated before use.
+func (d *Dataset) Generate(epoch uint64, headershash *[STARTUPDATENUM][]byte) {
+	d.once.Do(func() {
+		if d.dateInit == 0 {
+			if epoch <= 0 {
+				log.Println("TableInit is start", "epoch", epoch)
+				d.truehashTableInit(d.dataset)
+				d.datasetHash = d.Hash()
+			} else {
+				// the new algorithm is use befor 10241 start block hear to calc
+				log.Println("updateLookupTBL is start", "epoch", epoch)
+				flag, _, cont := d.updateLookupTBL(d.dataset, headershash)
+				if flag {
+					// consistent is make sure the algorithm is current and not change
+					d.consistent = common.BytesToHash([]byte(cont))
+					d.datasetHash = d.Hash()
+
+					log.Println("updateLookupTBL change success", "epoch", epoch, "consistent", d.consistent.String())
+				} else {
+					log.Println("updateLookupTBL err", "epoch", epoch)
+				}
+			}
+			d.dateInit = 1
+		}
+	})
+
+}
+func (d *Dataset) Hash() common.Hash {
+	return rlpHash(d.dataset)
+}
+
+// for hash
+func rlpHash(x interface{}) (h common.Hash) {
+	hw := sha3.NewLegacyKeccak256()
+	rlp.Encode(hw, x)
+	hw.Sum(h[:0])
+	return h
+}
+
+//UpdateTBL Update dataset information
+func (d *Dataset) UpdateTBL(offset [OFF_SKIP_LEN]int, skip [OFF_SKIP_LEN]int, plookupTbl []uint64) []uint64 {
+
+	lktWz := uint32(DATALENGTH / 64)
+	lktSz := uint32(DATALENGTH) * lktWz
+
+	for k := 0; k < TBLSIZE; k++ {
+
+		plkt := uint32(k) * lktSz
+
+		for x := 0; x < DATALENGTH; x++ {
+			idx := k*DATALENGTH + x
+			pos := offset[idx] + x
+			sk := skip[idx]
+			y := pos - sk*PMTSIZE/2
+			c := 0
+			for i := 0; i < PMTSIZE; i++ {
+				if y >= 0 && y < SKIP_CYCLE_LEN {
+					vI := uint32(y / 64)
+					vR := uint32(y % 64)
+					plookupTbl[plkt+vI] |= 1 << vR
+					c = c + 1
+
+				}
+				y = y + sk
+			}
+			if c == 0 {
+				vI := uint32(x / 64)
+				vR := uint32(x % 64)
+				plookupTbl[plkt+vI] |= 1 << vR
+			}
+			plkt += lktWz
+		}
+	}
+	return plookupTbl
+}
