@@ -73,7 +73,11 @@ func (s *ProxyServer) fetchBlockTemplate() {
 
 
 	if len(DataSet[0]) == 0{
-		DataSet,err =rpc.GetDataset()
+		datasss,err := rpc.GetDataset()
+		//DataSet,err =
+		for i,v:= range datasss{
+			DataSet[i] ,_=hex.DecodeString(strings.Replace(v, "0x", "", -1))
+		}
 		if  err!= nil{
 			log.Println(err)
 		}else{

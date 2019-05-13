@@ -100,14 +100,14 @@ func (r *RPCClient) GetWork() ([]string, error) {
 
 
 
-func (r *RPCClient) GetDataset() ([10240][]byte, error) {
+func (r *RPCClient) GetDataset() ([10240]string, error) {
 	//log.Println("3333")
 	rpcResp, err := r.doPost(r.Url, "etrue_getDataset","")
 	//log.Println("44")
 	if err != nil {
-		return [10240][]byte{}, err
+		return [10240]string{}, err
 	}
-	var reply [10240][]byte
+	var reply [10240]string
 	err = json.Unmarshal(*rpcResp.Result, &reply)
 	return reply, err
 }
