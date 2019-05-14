@@ -160,7 +160,7 @@ func (s *ProxyServer) fetchBlockTemplate() {
 	// Copy job backlog and add current one
 	//log.Println("----------------reply[0]","is",reply[0])
 	newTemplate.headers[reply[0]] = heightDiffPair{
-		diff:   util.TargetHexToDiff(reply[2]),
+		diff:   new(big.Int).SetInt64(diff),
 		height: height,
 	}
 	if t != nil {
