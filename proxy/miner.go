@@ -188,6 +188,7 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 			t.MixDigest = common.BytesToHash(digest)
 			ss = hexutil.Encode(digest)
 			mined = true
+			t.iMinedFruit = true
 			log.Println("-----mined fruit-----","block Hight",t.Height)
 			//isFruit = true
 		}
@@ -222,12 +223,15 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 
 		ok, err := s.rpc().SubmitBlock(params1)
 		if err != nil {
+			t.iMinedFruit = false
 			log.Println(" SubmitWork  Failed to :","err", err)
 		} else if !ok {
+			t.iMinedFruit = false
 			log.Printf("Block rejected at height ")
 			return false,false
 		} else {
 			s.fetchBlockTemplate()
+
 			exist, err := s.backend.WriteBlock(login, id, params, shareDiff, h.diff.Int64(), h.height, s.hashrateExpiration)
 			if exist {
 				return true, false
