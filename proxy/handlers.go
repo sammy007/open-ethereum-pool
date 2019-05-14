@@ -9,6 +9,7 @@ import (
 	"github.com/truechain/open-truechain-pool/util"
 	"encoding/hex"
 	"strconv"
+	"math/big"
 )
 
 // Allow only lowercase hexadecimal with 0x prefix
@@ -66,13 +67,26 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 	zore:=string(ZeorTarge[:])
 
 	// 32(block)+32(fruit) Valid share from
-	s.isFruit = false
-	if s.isFruit{
-		targetS = "0x"+zore+tem3
-	}else{
+	// 32(block)+32(fruit) Valid share from
+	if t.fTarget.Cmp(new(big.Int).SetInt64(0)) == 0{
+		//block only
 		targetS = "0x"+tem3+zore
+	}else{
+		if t.bTarget.Cmp(new(big.Int).SetInt64(0)) == 0{
+			//fruit only
+			targetS = "0x"+zore+tem3
 
+		}else{
+			// block and fruit
+			if t.iMinedFruit{
+				targetS = "0x"+tem3+tem3
+			}else{
+				targetS = "0x"+tem3+zore
+			}
+
+		}
 	}
+
 
 
 	return []string{t.Header, t.Seed, targetS}, nil

@@ -39,6 +39,7 @@ type BlockTemplate struct {
 	bTarget   *big.Int
 	nonceResult 	[8]byte
 	MixDigest       common.Hash
+	iMinedFruit bool
 }
 
 type Block struct {
