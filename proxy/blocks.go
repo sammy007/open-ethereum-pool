@@ -156,7 +156,7 @@ func (s *ProxyServer) fetchBlockTemplate() {
 
 	//1676267817344524450558495603112158677
 	//9223372036854775807
-	log.Println("---------the diff is ","fdiff",newTemplate.fTarget,"bdiff",newTemplate.bTarget,"tseed res[1]",t.Seed)
+	log.Println("---------the diff is ","fdiff",newTemplate.fTarget,"bdiff",newTemplate.bTarget)
 	// Copy job backlog and add current one
 	//log.Println("----------------reply[0]","is",reply[0])
 	newTemplate.headers[reply[0]] = heightDiffPair{
