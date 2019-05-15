@@ -298,6 +298,7 @@ func (s *ProxyServer) broadcastNewJobs() {
 	var targetS string
 	var Zeor []byte
 	var ZeorTarge []byte
+	var ft string
 
 	t := s.currentBlockTemplate()
 	if t == nil || len(t.Header) == 0 || s.isSick() {
@@ -306,11 +307,22 @@ func (s *ProxyServer) broadcastNewJobs() {
 
 	tarS := hex.EncodeToString(Starget.Bytes())
 
-	for i:=0;i<32-len(tarS);i++{
+	for i:=0;i<=32-len(tarS);i++{
 		Zeor = append(Zeor,'0')
 	}
 	ztem := Zeor[:]
 	tem3:= string(ztem)+tarS
+
+
+	// if fruit tar less then starget so need use fruit tar to mine fruit
+	if t.fTarget.Cmp(Starget)>0{
+		var Zeor2 []byte
+		for i:=0;i<32-len(hex.EncodeToString(t.fTarget.Bytes()));i++{
+			Zeor2 = append(Zeor2,'0')
+		}
+
+		ft = string(Zeor2[:])+hex.EncodeToString(t.fTarget.Bytes())
+	}
 
 	for i:=0;i<32;i++{
 		ZeorTarge = append(ZeorTarge,'0')
@@ -318,12 +330,34 @@ func (s *ProxyServer) broadcastNewJobs() {
 	zore:=string(ZeorTarge[:])
 
 	// 32(block)+32(fruit) Valid share from
-	s.isFruit = false
-	if s.isFruit{
-		targetS = "0x"+zore+tem3
-	}else{
+	// 32(block)+32(fruit) Valid share from
+	if t.fTarget.Uint64()== uint64(0){
+		//block only
 		targetS = "0x"+tem3+zore
+	}else{
+		if t.bTarget.Uint64()== uint64(0){
+			//fruit only
+			if t.fTarget.Cmp(Starget)>0{
+				targetS = "0x"+zore+ft
+				log.Println("----the is fruit taget","ftage",t.fTarget)
+			}else{
+				targetS = "0x"+zore+tem3
+			}
 
+
+		}else{
+			// block and fruit
+			if !t.iMinedFruit{
+				if t.fTarget.Cmp(Starget)>0{
+					targetS = "0x"+tem3+ft
+				}else{
+					targetS = "0x"+tem3+tem3
+				}
+			}else{
+				targetS = "0x"+tem3+zore
+			}
+
+		}
 	}
 
 	reply := []string{t.Header, t.Seed, targetS}

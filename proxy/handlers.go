@@ -64,12 +64,13 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 
 
 	// if fruit tar less then starget so need use fruit tar to mine fruit
-	if t.fTarget.Cmp(Starget)<0{
-		for i:=0;i<32-len(tarS);i++{
-			Zeor = append(Zeor,'0')
+	if t.fTarget.Cmp(Starget)>0{
+		var Zeor2 []byte
+		for i:=0;i<32-len(hex.EncodeToString(t.fTarget.Bytes()));i++{
+			Zeor2 = append(Zeor2,'0')
 		}
-		ztem := Zeor[:]
-		ft = string(ztem)+hex.EncodeToString(t.fTarget.Bytes())
+
+		ft = string(Zeor2[:])+hex.EncodeToString(t.fTarget.Bytes())
 	}
 
 
@@ -86,8 +87,9 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 	}else{
 		if t.bTarget.Uint64()== uint64(0){
 			//fruit only
-			if t.fTarget.Cmp(Starget)<0{
+			if t.fTarget.Cmp(Starget)>0{
 				targetS = "0x"+zore+ft
+				log.Println("----the is fruit taget","ftage",t.fTarget)
 			}else{
 				targetS = "0x"+zore+tem3
 			}
@@ -96,7 +98,7 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 		}else{
 			// block and fruit
 			if !t.iMinedFruit{
-				if t.fTarget.Cmp(Starget)<0{
+				if t.fTarget.Cmp(Starget)>0{
 					targetS = "0x"+tem3+ft
 				}else{
 					targetS = "0x"+tem3+tem3
