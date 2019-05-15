@@ -42,6 +42,7 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 	var targetS string
 	var Zeor []byte
 	var ZeorTarge []byte
+	var ft string
 
 	t := s.currentBlockTemplate()
 	if t == nil || len(t.Header) == 0 || s.isSick() {
@@ -52,6 +53,7 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 	}
 
 	// block or fruit
+
 	tarS := hex.EncodeToString(Starget.Bytes())
 
 	for i:=0;i<32-len(tarS);i++{
@@ -59,6 +61,17 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 	}
 	ztem := Zeor[:]
 	tem3:= string(ztem)+tarS
+
+
+	// if fruit tar less then starget so need use fruit tar to mine fruit
+	if t.fTarget.Cmp(Starget)<0{
+		for i:=0;i<32-len(tarS);i++{
+			Zeor = append(Zeor,'0')
+		}
+		ztem := Zeor[:]
+		ft = string(ztem)+hex.EncodeToString(t.fTarget.Bytes())
+	}
+
 
 	for i:=0;i<32;i++{
 		ZeorTarge = append(ZeorTarge,'0')
@@ -73,20 +86,27 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 	}else{
 		if t.bTarget.Uint64()== uint64(0){
 			//fruit only
-			targetS = "0x"+zore+tem3
+			if t.fTarget.Cmp(Starget)<0{
+				targetS = "0x"+zore+ft
+			}else{
+				targetS = "0x"+zore+tem3
+			}
+
 
 		}else{
 			// block and fruit
-			if t.iMinedFruit{
-				targetS = "0x"+tem3+tem3
+			if !t.iMinedFruit{
+				if t.fTarget.Cmp(Starget)<0{
+					targetS = "0x"+tem3+ft
+				}else{
+					targetS = "0x"+tem3+tem3
+				}
 			}else{
 				targetS = "0x"+tem3+zore
 			}
 
 		}
 	}
-
-
 
 	return []string{t.Header, t.Seed, targetS}, nil
 }
