@@ -144,7 +144,7 @@ func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
 		for {
 			select {
 			case <-refreshHashRateTimer.C:
-				proxy.getHashRate()
+				//proxy.getHashRate()
 
 				refreshHashRateTimer.Reset(stateUpdateIntv)
 			}
