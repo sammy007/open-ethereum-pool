@@ -81,13 +81,15 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 
 	// 32(block)+32(fruit) Valid share from
 	// 32(block)+32(fruit) Valid share from
+
+
 	if t.fTarget.Uint64()== uint64(0){
 		//block only
 		targetS = "0x"+tem3+zore
 	}else{
 		if t.bTarget.Uint64()== uint64(0){
 			//fruit only
-			if t.fTarget.Cmp(Starget)>0{
+			if t.fTarget.Cmp(Starget)<0{
 				targetS = "0x"+zore+ft
 				log.Println("----the is fruit taget","ftage",t.fTarget)
 			}else{
@@ -98,7 +100,7 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 		}else{
 			// block and fruit
 			if !t.iMinedFruit{
-				if t.fTarget.Cmp(Starget)>0{
+				if t.fTarget.Cmp(Starget)<0{
 					targetS = "0x"+tem3+ft
 				}else{
 					targetS = "0x"+tem3+tem3
@@ -109,6 +111,8 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 
 		}
 	}
+
+	log.Println("---work the len is","ft",len(ft),"tem3",len(tem3),"zore",len(zore),"tagrgets",len(targetS))
 
 	return []string{t.Header, t.Seed, targetS}, nil
 }
@@ -158,7 +162,7 @@ func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []st
 		}
 		return false, nil
 	}
-	log.Printf("Valid share from %s@%s", login, cs.ip)
+//	log.Printf("Valid share from %s@%s", login, cs.ip)
 
 	if !ok {
 		return true, &ErrorReply{Code: -1, Message: "High rate of invalid shares"}

@@ -307,7 +307,7 @@ func (s *ProxyServer) broadcastNewJobs() {
 
 	tarS := hex.EncodeToString(Starget.Bytes())
 
-	for i:=0;i<=32-len(tarS);i++{
+	for i:=0;i<32-len(tarS);i++{
 		Zeor = append(Zeor,'0')
 	}
 	ztem := Zeor[:]
@@ -337,7 +337,7 @@ func (s *ProxyServer) broadcastNewJobs() {
 	}else{
 		if t.bTarget.Uint64()== uint64(0){
 			//fruit only
-			if t.fTarget.Cmp(Starget)>0{
+			if t.fTarget.Cmp(Starget)<0{
 				targetS = "0x"+zore+ft
 				log.Println("----the is fruit taget","ftage",t.fTarget)
 			}else{
@@ -348,7 +348,7 @@ func (s *ProxyServer) broadcastNewJobs() {
 		}else{
 			// block and fruit
 			if !t.iMinedFruit{
-				if t.fTarget.Cmp(Starget)>0{
+				if t.fTarget.Cmp(Starget)<0{
 					targetS = "0x"+tem3+ft
 				}else{
 					targetS = "0x"+tem3+tem3
@@ -359,6 +359,7 @@ func (s *ProxyServer) broadcastNewJobs() {
 
 		}
 	}
+	log.Println("--- notify work the len is","ft",len(ft),"tem3",len(tem3),"zore",len(zore),"tagrgets",len(targetS))
 
 	reply := []string{t.Header, t.Seed, targetS}
 
