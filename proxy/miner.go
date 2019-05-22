@@ -158,10 +158,39 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 	headResult := rlt[:16]
 	//vaild the share
 	if new(big.Int).SetBytes(headResult).Cmp(Starget) > 0 {
-		//lResult := rlt[16:]
-	//	if new(big.Int).SetBytes(lResult).Cmp(Starget) > 0 {
-		//	return false ,false
-		//}
+
+		if t.iMinedFruit || t.fTarget.Cmp(new(big.Int).SetInt64(0)) == 0{
+			log.Println("share fail --only block share","result headResult",new(big.Int).SetBytes(headResult),"starget",Starget)
+			return false ,false
+		}else{
+			lResult := rlt[16:]
+			if t.fTarget.Cmp(Starget)<0{
+				if new(big.Int).SetBytes(lResult).Cmp(t.fTarget) > 0 {
+					log.Println("share fail --t.fTarget  fruit","result lResult",new(big.Int).SetBytes(lResult),"starget",t.fTarget)
+					return false ,false
+				}
+			}else{
+				if new(big.Int).SetBytes(lResult).Cmp(Starget) > 0 {
+					log.Println("share fail --Starget  fruit","result lResult",new(big.Int).SetBytes(lResult),"starget",Starget)
+					return false ,false
+				}
+			}
+		}
+		/*
+		if t.fTarget.Cmp(new(big.Int).SetInt64(0)) == 0{
+			return false ,false
+		}else{
+			if t.fTarget.Cmp(Starget)>0{
+				// use ftarget to miner furit
+				if !t.iMinedFruit{
+
+					if new(big.Int).SetBytes(lResult).Cmp(t.fTarget) > 0 {
+						return false ,false
+					}
+				}
+			}
+		}*/
+
 	}
 
 
@@ -249,6 +278,7 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 	}else {
 		exist, err := s.backend.WriteShare(login, id, params, shareDiff, h.height, s.hashrateExpiration)
 		if exist {
+			log.Println(" exit the withe share-----")
 			return true, false
 		}
 		if err != nil {
