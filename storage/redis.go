@@ -932,7 +932,7 @@ func convertMinersStats(window int64, raw *redis.ZSliceCmd) (int64, map[string]M
 		if timeOnline >= window {
 			boundary = window
 		}
-		println("miner?","name",id)
+
 		miner.HR = miner.HR / boundary
 		log.Println("--hashrate","miner",minersName[id],"hashrate is ",miner.HR)
 		if miner.LastBeat < (now - window/2) {
