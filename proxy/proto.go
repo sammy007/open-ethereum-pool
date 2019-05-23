@@ -24,6 +24,16 @@ type JSONPushMessage struct {
 
 }
 
+// Stratum
+type JSONPushNotfyMessage struct {
+	// FIXME: Temporarily add ID for Claymore compliance
+	Id      int64       `json:"id"`
+	Version string      `json:"jsonrpc"`
+	Params  interface{} `json:"params"`
+	Method  interface{} `json:"method"`
+
+}
+
 type JSONPushGetHashMessage struct {
 	// FIXME: Temporarily add ID for Claymore compliance
 	Id      int64       `json:"id"`
