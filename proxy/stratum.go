@@ -153,6 +153,9 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 		}else{
 			datasetall := s.GetDatasetHeader(p[0]).datasetHeader
 
+			if len(datasetall[0]) ==0{
+				return cs.sendTCPError(req.Id, req.Method,&ErrorReply{Code: 0, Message: "can not get the dataset header"})
+			}
 			for i:=0;i<10240;i++{
 				r1 =append(r1, datasetall[i])
 			}
