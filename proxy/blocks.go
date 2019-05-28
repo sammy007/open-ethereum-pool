@@ -210,7 +210,9 @@ func (s *ProxyServer) fetchPendingBlock() (*rpc.GetBlockReplyPart, uint64, int64
 
 func (s *ProxyServer) GetDatasetHeader(seedhash string) *DatasetHeader{
 
-	if len(seedhash)!=34{
+
+	if len(seedhash)!=66{
+		log.Println("the seedhash len is not 66")
 		return  nil
 	}
 	// if seedhash == epoch 0 do not need get
@@ -229,8 +231,11 @@ func (s *ProxyServer) GetDatasetHeader(seedhash string) *DatasetHeader{
 			log.Println("get the dataset fail","is",err)
 		}else{
 			current.dateInit = 1
+			log.Println("get dataset success!","the len",len(datasss))
 			current.datasetHeader = datasss
 		}
+	}else{
+		log.Println("the seed alread have")
 	}
 
 	return current
