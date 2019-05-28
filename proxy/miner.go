@@ -306,6 +306,30 @@ func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, param
 
 }*/
 
+func (s *ProxyServer) getEpoch0SeedHash() string {
+
+	var  dataSet [10240][]byte
+
+	trueDateSet := trueD.(*Dataset)
+	trueD = NewDataset(uint64(0))
+
+	trueDateSet.Generate(uint64(0),&dataSet)
+
+
+	var datas11 []byte
+	tmp := make([]byte, 8)
+	for _, v := range trueDateSet.GetDataSet() {
+		binary.LittleEndian.PutUint64(tmp, v)
+		datas11 = append(datas11, tmp...)
+	}
+	sha512 := makeHasher(sha3.New256())
+	output5 := make([]byte, 32)
+	sha512(output5, datas11[:])
+
+	return  "0x" + hex.EncodeToString(output5)
+
+}
+
 func (d *Dataset) truehashTableInit(tableLookup []uint64) {
 
 	log.Println("truehashTableInit start ")

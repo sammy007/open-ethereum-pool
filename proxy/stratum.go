@@ -13,6 +13,7 @@ import (
 	"encoding/hex"
 	//"encoding/binary"
 	//"golang.org/x/crypto/sha3"
+	"strings"
 )
 
 const (
@@ -134,45 +135,28 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 	case "etrue_seedhash" :
 
 		var  p [1]string
-		//	var  DataSet [10240][]byte
-		//r := s.rpc()
+
 		err := json.Unmarshal(req.Params, &p)
 		if err != nil {
 			log.Println("Unable to parse params")
 			return err
 		}
-		//DataSet,_ =r.GetDataset()
 
-		/*for{
-			if len(DataSet[0]) == 0{
-				DataSet,err =r.GetDataset()
-				if  err!= nil{
-					log.Println(err)
-				}
-				log.Println("1")
-				time.Sleep(100000)
-				log.Println("3")
-			}else{
-				log.Println(DataSet[0])
-				break
-			}
-		}*/
-
-
-		/*type tt struct  {
-			r1 []string
-			r2 []interface{}
-		}*/
 		var r1 []string
 		var r2 []interface{}
-		/*for _,v:=range DataSet{
-			r1 =append(r1, hex.EncodeToString(v))
-		}*/
-		//log.Println(hex.EncodeToString(DataSet[0]))
-		for i:=0;i<10240;i++{
-			r1 =append(r1, "0x"+hex.EncodeToString(DataSet[i]))
-			//log.Println("DataSet[0]",":",DataSet[0])
+
+		if strings.Compare(p[0],s.seedHashEpoch0) != 0{
+			// not need get the dataset
+			return cs.sendTCPError(req.Id, req.Method,&ErrorReply{Code: 0, Message: "epoch zeor dataset not need get"})
+
+		}else{
+
+			for i:=0;i<10240;i++{
+				r1 =append(r1, s.GetDatasetHeader(p[0]).datasetHeader[i])
+			}
 		}
+
+
 		/*log.Println("DataSet[0]",":",DataSet[0])
 		log.Println("DataSet[1000]",":",DataSet[1000])
 		log.Println("DataSet[10240-1]",":",DataSet[10239])

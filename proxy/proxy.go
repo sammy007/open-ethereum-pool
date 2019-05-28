@@ -38,6 +38,11 @@ type ProxyServer struct {
 
 	//is fruit
 	isFruit bool
+
+	// for dataset header
+	datasets *lru
+	seedHashEpoch0  string
+
 }
 
 type Session struct {
@@ -63,6 +68,13 @@ func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
 
 	proxy := &ProxyServer{config: cfg, backend: backend, policy: policy}
 	proxy.diff = util.GetTargetHex(cfg.Proxy.Difficulty)
+
+	//dataset
+	proxy.datasets = newlru("dataset", 5, NewDatasetHeader)
+	// get epoch 0
+	proxy.seedHashEpoch0 = proxy.getEpoch0SeedHash()
+	//read local dataset
+
 
 	//cale share tagert
 	var maxUint128 = new(big.Int).Exp(big.NewInt(2), big.NewInt(128), big.NewInt(0))
