@@ -142,17 +142,19 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 			return err
 		}
 
+		log.Println("the miner need ","seed",p[0])
 		var r1 []string
 		var r2 []interface{}
 
-		if strings.Compare(p[0],s.seedHashEpoch0) != 0{
+		if strings.Compare(p[0],s.seedHashEpoch0) == 0{
 			// not need get the dataset
 			return cs.sendTCPError(req.Id, req.Method,&ErrorReply{Code: 0, Message: "epoch zeor dataset not need get"})
 
 		}else{
+			datasetall := s.GetDatasetHeader(p[0]).datasetHeader
 
 			for i:=0;i<10240;i++{
-				r1 =append(r1, s.GetDatasetHeader(p[0]).datasetHeader[i])
+				r1 =append(r1, datasetall[i])
 			}
 		}
 
