@@ -1,4 +1,4 @@
-## Open Source Ethereum Mining Pool
+## Open Source TrueChain Mining Pool
 
 ![Miner's stats page](https://user-images.githubusercontent.com/7374093/31591180-43c72364-b236-11e7-8d47-726cd66b876a.png)
 
@@ -35,13 +35,16 @@ Dependencies:
 
 First install  [getrue](https://github.com/truechain/truechain-engineering-code/releases/download/v1.0.1/getrue-linux-amd64-1.0.1-c617168.tar.gz).
 
-Clone & compile:
+You can install the latest getrue on truechain git hub
+
+
+###Clone & compile:
 
     git clone https://github.com/truechain/open-truechain-pool.git
     cd open-truechain-pool
     go build main.go
 
-Install redis-server.
+Also Install redis-server.
 
 ### Running Pool
 
