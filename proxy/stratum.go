@@ -151,10 +151,18 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 			return cs.sendTCPError(req.Id, req.Method,&ErrorReply{Code: 0, Message: "epoch zeor dataset not need get"})
 
 		}else{
-			datasetall := s.GetDatasetHeader(p[0]).datasetHeader
+			var datasetall [10240] string
+			datasetall = s.GetDatasetHeader(p[0]).datasetHeader
 
 			if len(datasetall[0]) ==0{
-				return cs.sendTCPError(req.Id, req.Method,&ErrorReply{Code: 0, Message: "can not get the dataset header"})
+
+				//to get the dataset
+				rpc := s.rpc()
+				datasss,err :=rpc.GetDatasetBySeedHash(p[0])
+				if err !=nil{
+					return cs.sendTCPError(req.Id, req.Method,&ErrorReply{Code: 0, Message: "can not get the dataset header"})
+				}
+				datasetall = datasss
 			}
 			for i:=0;i<10240;i++{
 				r1 =append(r1, datasetall[i])

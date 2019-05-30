@@ -75,50 +75,6 @@ func (s *ProxyServer) fetchBlockTemplate() {
 	}
 
 
-
-	if len(DataSet[0]) == 0{
-		datasss,err := rpc.GetDataset()
-		//DataSet,err =
-		for i,v:= range datasss{
-			DataSet[i] ,_=hex.DecodeString(strings.Replace(v, "0x", "", -1))
-		}
-		if  err!= nil{
-			log.Println(err)
-		}else{
-			//log.Println("------Dataset","-",DataSet[0])
-		}
-
-
-
-
-		/*
-		epoch := uint64((t.Height - 1) / UPDATABLOCKLENGTH)
-
-		trueDateSet := trueD.(*(minerva.Dataset))
-
-		if epoch != trueDateSet.GetDataSetEpoch(){
-			trueD = minerva.NewDataset(epoch)
-			trueDateSet = trueD.(*(minerva.Dataset))
-		}
-
-		trueDateSet.Generate(epoch,&DataSet)
-
-		log.Println("----dataset infor","epoch",trueDateSet.GetDataSetEpoch(),"hahs",trueDateSet.GetDataSetHash())
-		var datas11 []byte
-		tmp := make([]byte, 8)
-		for _, v := range trueDateSet.GetDataSet() {
-			binary.LittleEndian.PutUint64(tmp, v)
-			datas11 = append(datas11, tmp...)
-		}
-		sha512 := makeHasher(sha3.New256())
-		output5 := make([]byte, 32)
-		sha512(output5, datas11[:])
-		log.Println("------the hash is ","is",hex.EncodeToString(output5))*/
-
-
-	}
-
-
 	reply, err := rpc.GetWork()
 	if err != nil {
 		log.Printf("Error while refreshing block template on %s: %s", rpc.Name, err)
