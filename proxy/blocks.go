@@ -116,9 +116,6 @@ func (s *ProxyServer) fetchBlockTemplate() {
 		log.Println("------the hash is ","is",hex.EncodeToString(output5))*/
 
 
-
-
-
 	}
 
 
@@ -179,6 +176,14 @@ func (s *ProxyServer) fetchBlockTemplate() {
 
 	// need getSeed
 	s.GetDatasetHeader(reply[1])
+
+	/*var params1 [2] string
+	params1[0] = reply[0]
+	params1[2] = "0x0f"
+	_,err2:=rpc.SubHashRate(params1)
+	if err != nil{
+		log.Println("------erro?? submit hashrate","err",err2)
+	}*/
 
 	// Stratum
 	if s.config.Proxy.Stratum.Enabled {
@@ -304,3 +309,4 @@ func NewDatasetHeader(seedHash string) interface{} {
 	}
 	return ds
 }
+

@@ -100,6 +100,7 @@ func (r *RPCClient) GetWork() ([]string, error) {
 
 
 
+
 func (r *RPCClient) GetDataset() ([10240]string, error) {
 	//log.Println("3333")
 	rpcResp, err := r.doPost(r.Url, "etrue_getDataset","")
@@ -176,6 +177,19 @@ func (r *RPCClient) SubmitBlock(params interface{}) (bool, error) {
 	err = json.Unmarshal(*rpcResp.Result, &reply)
 	return reply, err
 }
+
+
+func (r *RPCClient) SubmitHashRate(params interface{}) (bool, error) {
+
+	rpcResp, err := r.doPost(r.Url, "etrue_submitHashrate", params)
+	if err != nil {
+		return false, err
+	}
+	var reply bool
+	err = json.Unmarshal(*rpcResp.Result, &reply)
+	return reply, err
+}
+
 
 func (r *RPCClient) GetBalance(address string) (*big.Int, error) {
 	rpcResp, err := r.doPost(r.Url, "etrue_getBalance", []string{address, "latest"})
