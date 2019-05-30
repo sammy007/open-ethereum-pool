@@ -113,6 +113,18 @@ func (r *RPCClient) GetDataset() ([10240]string, error) {
 	return reply, err
 }
 
+func (r *RPCClient) GetDatasetBySeedHash(seedHash string) ([10240]string, error) {
+	//log.Println("3333")
+	rpcResp, err := r.doPost(r.Url, "etrue_getDataset",seedHash)
+	//log.Println("44")
+	if err != nil {
+		return [10240]string{}, err
+	}
+	var reply [10240]string
+	err = json.Unmarshal(*rpcResp.Result, &reply)
+	return reply, err
+}
+
 func (r *RPCClient) GetPendingBlock() (*GetBlockReplyPart, error) {
 	rpcResp, err := r.doPost(r.Url, "etrue_getSnailBlockByNumber", []interface{}{"pending", false})
 
