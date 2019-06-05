@@ -5,13 +5,13 @@
 
 	"proxy": {
 		"enabled": true,
-		"listen": "0.0.0.0:8888",
+		"listen": "127.0.0.1:8988",
 		"limitHeadersSize": 1024,
-		"limitBodySize": 256,
+		"limitBodySize": 2560,
 		"behindReverseProxy": false,
-		"blockRefreshInterval": "120ms",
+		"blockRefreshInterval": "100000ms",
 		"stateUpdateInterval": "3s",
-		"difficulty": 2000000000,
+		"difficulty": 500,
 		"hashrateExpiration": "3h",
 
 		"healthCheck": true,
@@ -19,7 +19,7 @@
 
 		"stratum": {
 			"enabled": true,
-			"listen": "0.0.0.0:8008",
+			"listen": "192.168.46.6:8788",
 			"timeout": "120s",
 			"maxConn": 8192
 		},
@@ -50,7 +50,7 @@
 		"enabled": true,
 		"purgeOnly": false,
 		"purgeInterval": "10m",
-		"listen": "0.0.0.0:8080",
+		"listen": "192.168.46.6:8080",
 		"statsCollectInterval": "5s",
 		"hashrateWindow": "30m",
 		"hashrateLargeWindow": "3h",
@@ -63,7 +63,7 @@
 	"upstream": [
 		{
 			"name": "main",
-			"url": "http://127.0.0.1:8545",
+			"url": "http://39.98.180.244:8888",
 			"timeout": "10s"
 		},
 		{
@@ -96,7 +96,7 @@
 	"payouts": {
 		"enabled": false,
 		"requirePeers": 25,
-		"interval": "120m",
+		"interval": "1200m",
 		"daemon": "http://127.0.0.1:8545",
 		"timeout": "10s",
 		"address": "0x0",
@@ -107,7 +107,7 @@
 		"bgsave": false
 	},
 
-	"newrelicEnabled": false,
+	"newrelicEnabled": true,
 	"newrelicName": "MyEtherProxy",
 	"newrelicKey": "SECRET_KEY",
 	"newrelicVerbose": false

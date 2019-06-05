@@ -14,7 +14,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/sammy007/open-ethereum-pool/util"
+	"github.com/truechain/open-truechain-pool/util"
 )
 
 type RPCClient struct {
@@ -89,7 +89,7 @@ func NewRPCClient(name, url, timeout string) *RPCClient {
 }
 
 func (r *RPCClient) GetWork() ([]string, error) {
-	rpcResp, err := r.doPost(r.Url, "eth_getWork", []string{})
+	rpcResp, err := r.doPost(r.Url, "etrue_getWork", []string{})
 	if err != nil {
 		return nil, err
 	}
@@ -98,8 +98,36 @@ func (r *RPCClient) GetWork() ([]string, error) {
 	return reply, err
 }
 
+
+
+
+func (r *RPCClient) GetDataset() ([10240]string, error) {
+	//log.Println("3333")
+	rpcResp, err := r.doPost(r.Url, "etrue_getDataset","")
+	//log.Println("44")
+	if err != nil {
+		return [10240]string{}, err
+	}
+	var reply [10240]string
+	err = json.Unmarshal(*rpcResp.Result, &reply)
+	return reply, err
+}
+
+func (r *RPCClient) GetDatasetBySeedHash(seedHash string) ([10240]string, error) {
+	//log.Println("3333")
+	rpcResp, err := r.doPost(r.Url, "etrue_getDataset",seedHash)
+	//log.Println("44")
+	if err != nil {
+		return [10240]string{}, err
+	}
+	var reply [10240]string
+	err = json.Unmarshal(*rpcResp.Result, &reply)
+	return reply, err
+}
+
 func (r *RPCClient) GetPendingBlock() (*GetBlockReplyPart, error) {
-	rpcResp, err := r.doPost(r.Url, "eth_getBlockByNumber", []interface{}{"pending", false})
+	rpcResp, err := r.doPost(r.Url, "etrue_getSnailBlockByNumber", []interface{}{"pending", false})
+
 	if err != nil {
 		return nil, err
 	}
@@ -113,17 +141,17 @@ func (r *RPCClient) GetPendingBlock() (*GetBlockReplyPart, error) {
 
 func (r *RPCClient) GetBlockByHeight(height int64) (*GetBlockReply, error) {
 	params := []interface{}{fmt.Sprintf("0x%x", height), true}
-	return r.getBlockBy("eth_getBlockByNumber", params)
+	return r.getBlockBy("etrue_getBlockByNumber", params)
 }
 
 func (r *RPCClient) GetBlockByHash(hash string) (*GetBlockReply, error) {
 	params := []interface{}{hash, true}
-	return r.getBlockBy("eth_getBlockByHash", params)
+	return r.getBlockBy("etrue_getBlockByHash", params)
 }
 
 func (r *RPCClient) GetUncleByBlockNumberAndIndex(height int64, index int) (*GetBlockReply, error) {
 	params := []interface{}{fmt.Sprintf("0x%x", height), fmt.Sprintf("0x%x", index)}
-	return r.getBlockBy("eth_getUncleByBlockNumberAndIndex", params)
+	return r.getBlockBy("etrue_getUncleByBlockNumberAndIndex", params)
 }
 
 func (r *RPCClient) getBlockBy(method string, params []interface{}) (*GetBlockReply, error) {
@@ -140,7 +168,7 @@ func (r *RPCClient) getBlockBy(method string, params []interface{}) (*GetBlockRe
 }
 
 func (r *RPCClient) GetTxReceipt(hash string) (*TxReceipt, error) {
-	rpcResp, err := r.doPost(r.Url, "eth_getTransactionReceipt", []string{hash})
+	rpcResp, err := r.doPost(r.Url, "etrue_getTransactionReceipt", []string{hash})
 	if err != nil {
 		return nil, err
 	}
@@ -152,8 +180,8 @@ func (r *RPCClient) GetTxReceipt(hash string) (*TxReceipt, error) {
 	return nil, nil
 }
 
-func (r *RPCClient) SubmitBlock(params []string) (bool, error) {
-	rpcResp, err := r.doPost(r.Url, "eth_submitWork", params)
+func (r *RPCClient) SubmitBlock(params interface{}) (bool, error) {
+	rpcResp, err := r.doPost(r.Url, "etrue_submitWork", params)
 	if err != nil {
 		return false, err
 	}
@@ -162,8 +190,21 @@ func (r *RPCClient) SubmitBlock(params []string) (bool, error) {
 	return reply, err
 }
 
+
+func (r *RPCClient) SubmitHashRate(params interface{}) (bool, error) {
+
+	rpcResp, err := r.doPost(r.Url, "etrue_submitHashrate", params)
+	if err != nil {
+		return false, err
+	}
+	var reply bool
+	err = json.Unmarshal(*rpcResp.Result, &reply)
+	return reply, err
+}
+
+
 func (r *RPCClient) GetBalance(address string) (*big.Int, error) {
-	rpcResp, err := r.doPost(r.Url, "eth_getBalance", []string{address, "latest"})
+	rpcResp, err := r.doPost(r.Url, "etrue_getBalance", []string{address, "latest"})
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +218,7 @@ func (r *RPCClient) GetBalance(address string) (*big.Int, error) {
 
 func (r *RPCClient) Sign(from string, s string) (string, error) {
 	hash := sha256.Sum256([]byte(s))
-	rpcResp, err := r.doPost(r.Url, "eth_sign", []string{from, common.ToHex(hash[:])})
+	rpcResp, err := r.doPost(r.Url, "etrue_sign", []string{from, common.ToHex(hash[:])})
 	var reply string
 	if err != nil {
 		return reply, err
@@ -215,7 +256,7 @@ func (r *RPCClient) SendTransaction(from, to, gas, gasPrice, value string, autoG
 		params["gas"] = gas
 		params["gasPrice"] = gasPrice
 	}
-	rpcResp, err := r.doPost(r.Url, "eth_sendTransaction", []interface{}{params})
+	rpcResp, err := r.doPost(r.Url, "etrue_sendTransaction", []interface{}{params})
 	var reply string
 	if err != nil {
 		return reply, err

@@ -5,8 +5,10 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/sammy007/open-ethereum-pool/rpc"
-	"github.com/sammy007/open-ethereum-pool/util"
+	"github.com/truechain/open-truechain-pool/rpc"
+	"github.com/truechain/open-truechain-pool/util"
+	"encoding/hex"
+	"strconv"
 )
 
 // Allow only lowercase hexadecimal with 0x prefix
@@ -29,16 +31,90 @@ func (s *ProxyServer) handleLoginRPC(cs *Session, params []string, id string) (b
 	}
 	cs.login = login
 	s.registerSession(cs)
+
+	cs.worker = id
 	log.Printf("Stratum miner connected %v@%v", login, cs.ip)
 	return true, nil
 }
 
 func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
+
+	var targetS string
+	var Zeor []byte
+	var ZeorTarge []byte
+	var ft string
+
 	t := s.currentBlockTemplate()
 	if t == nil || len(t.Header) == 0 || s.isSick() {
+		if t==nil{
+			log.Println("----t is nill")
+		}
 		return nil, &ErrorReply{Code: 0, Message: "Work not ready"}
 	}
-	return []string{t.Header, t.Seed, s.diff}, nil
+
+	// block or fruit
+
+	tarS := hex.EncodeToString(Starget.Bytes())
+
+	for i:=0;i<32-len(tarS);i++{
+		Zeor = append(Zeor,'0')
+	}
+	ztem := Zeor[:]
+	tem3:= string(ztem)+tarS
+
+
+	// if fruit tar less then starget so need use fruit tar to mine fruit
+	if t.fTarget.Cmp(Starget)>0{
+		var Zeor2 []byte
+		for i:=0;i<32-len(hex.EncodeToString(t.fTarget.Bytes()));i++{
+			Zeor2 = append(Zeor2,'0')
+		}
+
+		ft = string(Zeor2[:])+hex.EncodeToString(t.fTarget.Bytes())
+	}
+
+
+	for i:=0;i<32;i++{
+		ZeorTarge = append(ZeorTarge,'0')
+	}
+	zore:=string(ZeorTarge[:])
+
+	// 32(block)+32(fruit) Valid share from
+	// 32(block)+32(fruit) Valid share from
+
+
+	if t.fTarget.Uint64()== uint64(0){
+		//block only
+		targetS = "0x"+tem3+zore
+	}else{
+		if t.bTarget.Uint64()== uint64(0){
+			//fruit only
+			if t.fTarget.Cmp(Starget)<0{
+				targetS = "0x"+zore+ft
+				log.Println("----the is fruit taget","ftage",t.fTarget)
+			}else{
+				targetS = "0x"+zore+tem3
+			}
+
+
+		}else{
+			// block and fruit
+			if !t.iMinedFruit{
+				if t.fTarget.Cmp(Starget)<0{
+					targetS = "0x"+tem3+ft
+				}else{
+					targetS = "0x"+tem3+tem3
+				}
+			}else{
+				targetS = "0x"+tem3+zore
+			}
+
+		}
+	}
+
+	log.Println("---work the len is","ft",len(ft),"tem3",len(tem3),"zore",len(zore),"tagrgets",len(targetS))
+
+	return []string{t.Header, t.Seed, targetS}, nil
 }
 
 // Stratum
@@ -63,13 +139,14 @@ func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []st
 		return false, &ErrorReply{Code: -1, Message: "Invalid params"}
 	}
 
+	/*
 	if !noncePattern.MatchString(params[0]) || !hashPattern.MatchString(params[1]) || !hashPattern.MatchString(params[2]) {
 		s.policy.ApplyMalformedPolicy(cs.ip)
 		log.Printf("Malformed PoW result from %s@%s %v", login, cs.ip, params)
 		return false, &ErrorReply{Code: -1, Message: "Malformed PoW result"}
-	}
+	}*/
 	t := s.currentBlockTemplate()
-	exist, validShare := s.processShare(login, id, cs.ip, t, params)
+	exist, validShare := s.processShare(login, cs.worker, cs.ip, t, params)
 	ok := s.policy.ApplySharePolicy(cs.ip, !exist && validShare)
 
 	if exist {
@@ -85,12 +162,18 @@ func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []st
 		}
 		return false, nil
 	}
-	log.Printf("Valid share from %s@%s", login, cs.ip)
+//	log.Printf("Valid share from %s@%s", login, cs.ip)
 
 	if !ok {
 		return true, &ErrorReply{Code: -1, Message: "High rate of invalid shares"}
 	}
 	return true, nil
+}
+
+func (s *ProxyServer) handleGetHashRateRPC(cs *Session, params string){
+	log.Println("-----hash","rate is",params)
+	cs.hashrate , _ = strconv.ParseFloat(params,64)
+	log.Println("-----hash2","rate is",cs.hashrate)
 }
 
 func (s *ProxyServer) handleGetBlockByNumberRPC() *rpc.GetBlockReplyPart {

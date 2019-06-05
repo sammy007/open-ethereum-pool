@@ -1,0 +1,144 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "JKelegLFMndQuJq8ryKOhI/7dw4=",
+			"path": "github.com/ethereum/go-ethereum",
+			"revision": "1e67410e88d2685bc54611a7c9f75c327b553ccc",
+			"revisionTime": "2018-02-19T09:35:31Z"
+		},
+		{
+			"checksumSHA1": "tW97TpZQZqNFg6eX+4Sy6q3qhx4=",
+			"path": "github.com/ethereum/go-ethereum/common",
+			"revision": "1e67410e88d2685bc54611a7c9f75c327b553ccc",
+			"revisionTime": "2018-02-19T09:35:31Z"
+		},
+		{
+			"checksumSHA1": "tMtGtURWx29lWZYsLtLOQaPvGqs=",
+			"path": "github.com/ethereum/go-ethereum/common/hexutil",
+			"revision": "1e67410e88d2685bc54611a7c9f75c327b553ccc",
+			"revisionTime": "2018-02-19T09:35:31Z"
+		},
+		{
+			"checksumSHA1": "Hd1Y5DkzYULQzJlSgYv2w5SiEAo=",
+			"path": "github.com/ethereum/go-ethereum/common/math",
+			"revision": "1e67410e88d2685bc54611a7c9f75c327b553ccc",
+			"revisionTime": "2018-02-19T09:35:31Z"
+		},
+		{
+			"checksumSHA1": "PHB7umOzjEjzoTOd+8hHrR5zyN8=",
+			"path": "github.com/ethereum/go-ethereum/crypto",
+			"revision": "494f5d448a1685d5de4cb1524b863cd1fc9a13b0",
+			"revisionTime": "2019-05-10T11:09:01Z"
+		},
+		{
+			"checksumSHA1": "xEDvtd3T5340DoStkd0Clj1v8+g=",
+			"path": "github.com/ethereum/go-ethereum/crypto/sha3",
+			"revision": "1e67410e88d2685bc54611a7c9f75c327b553ccc",
+			"revisionTime": "2018-02-19T09:35:31Z"
+		},
+		{
+			"checksumSHA1": "jYu7qwMf5Hc47JdZFx9aZPg9x3A=",
+			"path": "github.com/ethereum/go-ethereum/log",
+			"revision": "1e67410e88d2685bc54611a7c9f75c327b553ccc",
+			"revisionTime": "2018-02-19T09:35:31Z"
+		},
+		{
+			"checksumSHA1": "f2Asra5yXCMDxwx/TF6m4h3ZqOw=",
+			"path": "github.com/ethereum/go-ethereum/rlp",
+			"revision": "1e67410e88d2685bc54611a7c9f75c327b553ccc",
+			"revisionTime": "2018-02-19T09:35:31Z"
+		},
+		{
+			"checksumSHA1": "H8wo+NR5z+VRl0wqPYpVQfC06ks=",
+			"path": "github.com/go-stack/stack",
+			"revision": "2fee6af1a9795aafbe0253a0cfbdf668e1fb8a9a",
+			"revisionTime": "2018-08-26T13:48:48Z"
+		},
+		{
+			"checksumSHA1": "9YQYg2PkA7lkFuUyCQGUv0vX5zA=",
+			"path": "github.com/gorilla/mux",
+			"revision": "8559a4f775fc329165fe32bd4c2543de8ada8fce",
+			"revisionTime": "2019-02-17T15:38:49Z"
+		},
+		{
+			"checksumSHA1": "odfuEY+ZGEh8i9oFZOeVTY2iyC4=",
+			"path": "github.com/hashicorp/golang-lru/simplelru",
+			"revision": "ff8f6c969d733ea46290f5efc44a6b86da64e5d1",
+			"revisionTime": "2019-05-07T12:02:21Z"
+		},
+		{
+			"checksumSHA1": "suL7yZNBxN847Lmrt2bMIIwtJ4g=",
+			"path": "github.com/yvasiyarov/go-metrics",
+			"revision": "c25f46c4b94079672242ec48a545e7ca9ebe3aec",
+			"revisionTime": "2015-01-12T13:29:44Z"
+		},
+		{
+			"checksumSHA1": "1VhTgADT1kTDVl1t3Tmzsj++jHI=",
+			"path": "github.com/yvasiyarov/gorelic",
+			"revision": "635ca6035f2355e29fc558effa613d0d5867aac8",
+			"revisionTime": "2018-08-09T11:26:00Z"
+		},
+		{
+			"checksumSHA1": "/9VouHqPf0ad+TcMGqhPssfoLb0=",
+			"path": "github.com/yvasiyarov/newrelic_platform_go",
+			"revision": "9c099fbc30e90de5bb5c5f94aa5fd08f2daeaacd",
+			"revisionTime": "2016-06-01T14:19:57Z"
+		},
+		{
+			"checksumSHA1": "asZBHvcTKF5gVlI7AYnMlLXRYys=",
+			"path": "golang.org/x/crypto/sha3",
+			"revision": "b7391e95e576cacdcdd422573063bc057239113d",
+			"revisionTime": "2019-03-19T22:29:04Z"
+		},
+		{
+			"checksumSHA1": "+4r0PnLwwyhO5/jvU5R/TEJb4kA=",
+			"path": "gopkg.in/bsm/ratelimit.v1",
+			"revision": "db14e161995a5177acef654cb0dd785e8ee8bc22",
+			"revisionTime": "2016-02-20T15:49:07Z"
+		},
+		{
+			"checksumSHA1": "DQXNV0EivoHm4q+bkdahYXrjjfE=",
+			"path": "gopkg.in/karalabe/cookiejar.v2/collections/prque",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "/EL/UuzIPObHgESjkBMaD4gaXOw=",
+			"path": "gopkg.in/redis.v3",
+			"revision": "b5e368500d0a508ef8f16e9c2d4025a8a46bcc29",
+			"revisionTime": "2016-06-27T09:56:34Z"
+		},
+		{
+			"checksumSHA1": "b4Z72l8sq4xuWhR+nM5vbLQIv+o=",
+			"path": "gopkg.in/redis.v3/internal",
+			"revision": "b5e368500d0a508ef8f16e9c2d4025a8a46bcc29",
+			"revisionTime": "2016-06-27T09:56:34Z"
+		},
+		{
+			"checksumSHA1": "tNI/mAuqqQqfYU4vuJghUroIts4=",
+			"path": "gopkg.in/redis.v3/internal/consistenthash",
+			"revision": "b5e368500d0a508ef8f16e9c2d4025a8a46bcc29",
+			"revisionTime": "2016-06-27T09:56:34Z"
+		},
+		{
+			"checksumSHA1": "JvqkSear94dc+NgofRqBAUmLcN0=",
+			"path": "gopkg.in/redis.v3/internal/hashtag",
+			"revision": "b5e368500d0a508ef8f16e9c2d4025a8a46bcc29",
+			"revisionTime": "2016-06-27T09:56:34Z"
+		},
+		{
+			"checksumSHA1": "ROpD4/McQLnnxpPenjA0mEZfTL8=",
+			"path": "gopkg.in/redis.v3/internal/pool",
+			"revision": "b5e368500d0a508ef8f16e9c2d4025a8a46bcc29",
+			"revisionTime": "2016-06-27T09:56:34Z"
+		},
+		{
+			"checksumSHA1": "ZSWoOPUNRr5+3dhkLK3C4cZAQPk=",
+			"path": "gopkg.in/yaml.v2",
+			"revision": "5420a8b6744d3b0345ab293f6fcba19c978f1183",
+			"revisionTime": "2018-03-28T19:50:20Z"
+		}
+	],
+	"rootPath": "github.com/truechain/open-truechain-pool"
+}

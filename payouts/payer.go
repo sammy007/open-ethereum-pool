@@ -10,9 +10,9 @@ import (
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 
-	"github.com/sammy007/open-ethereum-pool/rpc"
-	"github.com/sammy007/open-ethereum-pool/storage"
-	"github.com/sammy007/open-ethereum-pool/util"
+	"github.com/truechain/open-truechain-pool/rpc"
+	"github.com/truechain/open-truechain-pool/storage"
+	"github.com/truechain/open-truechain-pool/util"
 )
 
 const txCheckInterval = 5 * time.Second
@@ -117,7 +117,9 @@ func (u *PayoutsProcessor) process() {
 	}
 
 	for _, login := range payees {
+
 		amount, _ := u.backend.GetBalance(login)
+		log.Println("------amount","is",amount)
 		amountInShannon := big.NewInt(amount)
 
 		// Shannon^2 = Wei

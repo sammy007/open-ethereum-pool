@@ -13,10 +13,11 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/sammy007/open-ethereum-pool/policy"
-	"github.com/sammy007/open-ethereum-pool/rpc"
-	"github.com/sammy007/open-ethereum-pool/storage"
-	"github.com/sammy007/open-ethereum-pool/util"
+	"github.com/truechain/open-truechain-pool/policy"
+	"github.com/truechain/open-truechain-pool/rpc"
+	"github.com/truechain/open-truechain-pool/storage"
+	"github.com/truechain/open-truechain-pool/util"
+	"math/big"
 )
 
 type ProxyServer struct {
@@ -34,6 +35,14 @@ type ProxyServer struct {
 	sessionsMu sync.RWMutex
 	sessions   map[*Session]struct{}
 	timeout    time.Duration
+
+	//is fruit
+	isFruit bool
+
+	// for dataset header
+	datasets *lru
+	seedHashEpoch0  string
+
 }
 
 type Session struct {
@@ -44,16 +53,34 @@ type Session struct {
 	sync.Mutex
 	conn  *net.TCPConn
 	login string
+	worker string
+	hashrate float64
+	time  int64
 }
 
 func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
+
 	if len(cfg.Name) == 0 {
 		log.Fatal("You must set instance name")
 	}
+
 	policy := policy.Start(&cfg.Proxy.Policy, backend)
 
 	proxy := &ProxyServer{config: cfg, backend: backend, policy: policy}
 	proxy.diff = util.GetTargetHex(cfg.Proxy.Difficulty)
+
+	//dataset
+	proxy.datasets = newlru("dataset", 5, NewDatasetHeader)
+	// get epoch 0
+	proxy.seedHashEpoch0 = proxy.getEpoch0SeedHash()
+	//read local dataset
+
+
+	//cale share tagert
+	var maxUint128 = new(big.Int).Exp(big.NewInt(2), big.NewInt(128), big.NewInt(0))
+	blockDiffBig := big.NewInt(cfg.Proxy.Difficulty)
+	Starget      = new(big.Int).Div(maxUint128, blockDiffBig)
+
 
 	proxy.upstreams = make([]*rpc.RPCClient, len(cfg.Upstream))
 	for i, v := range cfg.Upstream {
@@ -80,6 +107,10 @@ func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
 
 	stateUpdateIntv := util.MustParseDuration(cfg.Proxy.StateUpdateInterval)
 	stateUpdateTimer := time.NewTimer(stateUpdateIntv)
+
+	//
+	refreshHashRateIntv := util.MustParseDuration("10s")
+	refreshHashRateTimer := time.NewTimer(refreshHashRateIntv)
 
 	go func() {
 		for {
@@ -119,6 +150,19 @@ func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
 			}
 		}
 	}()
+
+	//getHash Rate
+	go func() {
+		for {
+			select {
+			case <-refreshHashRateTimer.C:
+				//proxy.getHashRate()
+
+				refreshHashRateTimer.Reset(stateUpdateIntv)
+			}
+		}
+	}()
+
 
 	return proxy
 }
@@ -231,14 +275,14 @@ func (cs *Session) handleMessage(s *ProxyServer, r *http.Request, req *JSONRpcRe
 
 	// Handle RPC methods
 	switch req.Method {
-	case "eth_getWork":
+	case "etrue_getWork":
 		reply, errReply := s.handleGetWorkRPC(cs)
 		if errReply != nil {
 			cs.sendError(req.Id, errReply)
 			break
 		}
 		cs.sendResult(req.Id, &reply)
-	case "eth_submitWork":
+	case "etrue_submitWork":
 		if req.Params != nil {
 			var params []string
 			err := json.Unmarshal(req.Params, &params)
@@ -258,10 +302,10 @@ func (cs *Session) handleMessage(s *ProxyServer, r *http.Request, req *JSONRpcRe
 			errReply := &ErrorReply{Code: -1, Message: "Malformed request"}
 			cs.sendError(req.Id, errReply)
 		}
-	case "eth_getBlockByNumber":
+	case "etrue_getBlockByNumber":
 		reply := s.handleGetBlockByNumberRPC()
 		cs.sendResult(req.Id, reply)
-	case "eth_submitHashrate":
+	case "etrue_submitHashrate":
 		cs.sendResult(req.Id, true)
 	default:
 		errReply := s.handleUnknownRPC(cs, req.Method)

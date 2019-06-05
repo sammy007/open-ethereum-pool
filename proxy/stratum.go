@@ -9,7 +9,11 @@ import (
 	"net"
 	"time"
 
-	"github.com/sammy007/open-ethereum-pool/util"
+	"github.com/truechain/open-truechain-pool/util"
+	"encoding/hex"
+	//"encoding/binary"
+	//"golang.org/x/crypto/sha3"
+	"strings"
 )
 
 const (
@@ -82,6 +86,8 @@ func (s *ProxyServer) handleTCPClient(cs *Session) error {
 			return err
 		}
 
+		//log.Println("data","string:",string(data))
+
 		if len(data) > 1 {
 			var req StratumReq
 			err = json.Unmarshal(data, &req)
@@ -102,8 +108,9 @@ func (s *ProxyServer) handleTCPClient(cs *Session) error {
 
 func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 	// Handle RPC methods
+	log.Println("---get --","req.Method",req.Method,"-----------worker:",cs.worker)
 	switch req.Method {
-	case "eth_submitLogin":
+	case "etrue_submitLogin":
 		var params []string
 		err := json.Unmarshal(req.Params, &params)
 		if err != nil {
@@ -112,40 +119,129 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 		}
 		reply, errReply := s.handleLoginRPC(cs, params, req.Worker)
 		if errReply != nil {
-			return cs.sendTCPError(req.Id, errReply)
+			return cs.sendTCPError(req.Id, req.Method,errReply)
 		}
-		return cs.sendTCPResult(req.Id, reply)
-	case "eth_getWork":
+		return cs.sendTCPResult(req.Id, "etrue_submitLogin",reply)
+	case "etrue_getWork":
+
+		cs.time = util.MakeTimestamp() / 1000
+		log.Println("------etrue_getWork----","-----------worker:",cs.worker,"cs.time",cs.time)
 		reply, errReply := s.handleGetWorkRPC(cs)
+		log.Println(reply)
 		if errReply != nil {
-			return cs.sendTCPError(req.Id, errReply)
+			return cs.sendTCPError(req.Id, req.Method,errReply)
 		}
-		return cs.sendTCPResult(req.Id, &reply)
-	case "eth_submitWork":
+		return cs.sendTCPResult(req.Id,"etrue_getWork", &reply)
+	case "etrue_seedhash" :
+
+		var  p [1]string
+
+		err := json.Unmarshal(req.Params, &p)
+		if err != nil {
+			log.Println("Unable to parse params")
+			return err
+		}
+
+		log.Println("the miner need ","seed",p[0])
+		var r1 []string
+		var r2 []interface{}
+
+		if strings.Compare(p[0],s.seedHashEpoch0) == 0{
+			// not need get the dataset
+			return cs.sendTCPError(req.Id, req.Method,&ErrorReply{Code: 0, Message: "epoch zeor dataset not need get"})
+
+		}else{
+			var datasetall [10240] string
+			datasetall = s.GetDatasetHeader(p[0]).datasetHeader
+
+			if len(datasetall[0]) ==0{
+
+				//to get the dataset
+				rpc := s.rpc()
+				datasss,err :=rpc.GetDatasetBySeedHash(p[0])
+				if err !=nil{
+					return cs.sendTCPError(req.Id, req.Method,&ErrorReply{Code: 0, Message: "can not get the dataset header"})
+				}
+				datasetall = datasss
+			}
+			for i:=0;i<10240;i++{
+				r1 =append(r1, datasetall[i])
+			}
+		}
+
+
+		/*log.Println("DataSet[0]",":",DataSet[0])
+		log.Println("DataSet[1000]",":",DataSet[1000])
+		log.Println("DataSet[10240-1]",":",DataSet[10239])
+		log.Println("r1[0]",":",r1[0])
+		log.Println("r1[1000]",":",r1[1000])
+		log.Println("r1[10240-1]",":",r1[10239])*/
+		//result := []interface{}{[]interface{}{"mining.notify","ae6812eb4cd7735a302a8a9dd95cf71f","TrueStratum/1.0.0"},"080c",4}
+		//var map1 map[string]string
+		//map1:= make(map[string]string)
+
+		/*var datas11 []byte
+		tmp := make([]byte, 8)
+		for _, v := range DataSet {
+			binary.LittleEndian.PutUint64(tmp, v)
+			datas11 = append(datas11, tmp...)
+		}
+		sha512 := makeHasher(sha3.New256())
+		output5 := make([]byte, 32)
+		sha512(output5, DataSet[:])
+		log.Println("-----hard hash is ","is",output5)*/
+
+
+		t := s.currentBlockTemplate()
+		//map1["seedhash"]=t.Seed
+		//log.Println("------t.seed",",",t.Seed)
+		r2 =append(r2, r1)
+		//log.Println(r1)
+		result := []interface{}{r1,t.Seed}
+
+		return cs.sendTCPResult(req.Id,"etrue_seedhash", result)
+	case "etrue_submitWork":
 		var params []string
+
+
 		err := json.Unmarshal(req.Params, &params)
 		if err != nil {
 			log.Println("Malformed stratum request params from", cs.ip)
 			return err
 		}
-		reply, errReply := s.handleTCPSubmitRPC(cs, req.Worker, params)
+		t:=util.MakeTimestamp() / 1000
+		log.Println("------etrue_submitWork----","-----------worker:",cs.worker,"time",t-cs.time)
+		cs.time = 0
+		reply, errReply := s.handleTCPSubmitRPC(cs, cs.worker, params)
 		if errReply != nil {
-			return cs.sendTCPError(req.Id, errReply)
+			//log.Println("-------------fuck","l",errReply)
+			return cs.sendTCPError(req.Id,"etrue_submitWork", errReply)
 		}
-		return cs.sendTCPResult(req.Id, &reply)
-	case "eth_submitHashrate":
-		return cs.sendTCPResult(req.Id, true)
+		//s.broadcastNewJobs()
+
+		return cs.sendTCPResult(req.Id, "etrue_submitWork",&reply)
+	case "etrue_submitHashrate":
+		return cs.sendTCPResult(req.Id, "etrue_submitHashrate",true)
+
+	case "etrue_get_hashrate":
+		var params string
+		err := json.Unmarshal(req.Result, &params)
+		if err != nil {
+			log.Println("Malformed stratum request params from", cs.ip)
+			return err
+		}
+		s.handleGetHashRateRPC(cs,params)
+		return nil
 	default:
 		errReply := s.handleUnknownRPC(cs, req.Method)
-		return cs.sendTCPError(req.Id, errReply)
+		return cs.sendTCPError(req.Id, "nil",errReply)
 	}
 }
 
-func (cs *Session) sendTCPResult(id json.RawMessage, result interface{}) error {
+func (cs *Session) sendTCPResult(id json.RawMessage,method string, result interface{}) error {
 	cs.Lock()
 	defer cs.Unlock()
-
-	message := JSONRpcResp{Id: id, Version: "2.0", Error: nil, Result: result}
+	message := JSONRpcResp{Id: id, Version: "2.0", Method:method,Error: nil, Result: result}
 	return cs.enc.Encode(&message)
 }
 
@@ -153,15 +249,26 @@ func (cs *Session) pushNewJob(result interface{}) error {
 	cs.Lock()
 	defer cs.Unlock()
 	// FIXME: Temporarily add ID for Claymore compliance
-	message := JSONPushMessage{Version: "2.0", Result: result, Id: 0}
+
+	message := JSONPushNotfyMessage{Version: "2.0", Params: result,Method:"etrue_notify", Id: 0}
 	return cs.enc.Encode(&message)
 }
 
-func (cs *Session) sendTCPError(id json.RawMessage, reply *ErrorReply) error {
+func (cs *Session) getHashRate(result interface{},method string) error {
+	log.Println("------hashrate")
 	cs.Lock()
 	defer cs.Unlock()
+	// FIXME: Temporarily add ID for Claymore compliance
+	message := JSONPushGetHashMessage{Version: "2.0", Method:method, Id: 6}
+	log.Println("------hashrate",":",message)
+	return cs.enc.Encode(&message)
+}
 
-	message := JSONRpcResp{Id: id, Version: "2.0", Error: reply}
+func (cs *Session) sendTCPError(id json.RawMessage, method string,reply *ErrorReply) error {
+	cs.Lock()
+	defer cs.Unlock()
+	log.Println(reply)
+	message := JSONRpcResp{Id: id, Version: "2.0",Method:method ,Error: reply}
 	err := cs.enc.Encode(&message)
 	if err != nil {
 		return err
@@ -186,11 +293,73 @@ func (s *ProxyServer) removeSession(cs *Session) {
 }
 
 func (s *ProxyServer) broadcastNewJobs() {
+	var targetS string
+	var Zeor []byte
+	var ZeorTarge []byte
+	var ft string
+
 	t := s.currentBlockTemplate()
 	if t == nil || len(t.Header) == 0 || s.isSick() {
 		return
 	}
-	reply := []string{t.Header, t.Seed, s.diff}
+
+	tarS := hex.EncodeToString(Starget.Bytes())
+
+	for i:=0;i<32-len(tarS);i++{
+		Zeor = append(Zeor,'0')
+	}
+	ztem := Zeor[:]
+	tem3:= string(ztem)+tarS
+
+
+	// if fruit tar less then starget so need use fruit tar to mine fruit
+	if t.fTarget.Cmp(Starget)>0{
+		var Zeor2 []byte
+		for i:=0;i<32-len(hex.EncodeToString(t.fTarget.Bytes()));i++{
+			Zeor2 = append(Zeor2,'0')
+		}
+
+		ft = string(Zeor2[:])+hex.EncodeToString(t.fTarget.Bytes())
+	}
+
+	for i:=0;i<32;i++{
+		ZeorTarge = append(ZeorTarge,'0')
+	}
+	zore:=string(ZeorTarge[:])
+
+	// 32(block)+32(fruit) Valid share from
+	// 32(block)+32(fruit) Valid share from
+	if t.fTarget.Uint64()== uint64(0){
+		//block only
+		targetS = "0x"+tem3+zore
+	}else{
+		if t.bTarget.Uint64()== uint64(0){
+			//fruit only
+			if t.fTarget.Cmp(Starget)<0{
+				targetS = "0x"+zore+ft
+				log.Println("----the is fruit taget","ftage",t.fTarget)
+			}else{
+				targetS = "0x"+zore+tem3
+			}
+
+
+		}else{
+			// block and fruit
+			if !t.iMinedFruit{
+				if t.fTarget.Cmp(Starget)<0{
+					targetS = "0x"+tem3+ft
+				}else{
+					targetS = "0x"+tem3+tem3
+				}
+			}else{
+				targetS = "0x"+tem3+zore
+			}
+
+		}
+	}
+	log.Println("--- notify work the len is","ft",len(ft),"tem3",len(tem3),"zore",len(zore),"tagrgets",len(targetS))
+
+	reply := []string{t.Header, t.Seed, targetS}
 
 	s.sessionsMu.RLock()
 	defer s.sessionsMu.RUnlock()
@@ -218,4 +387,36 @@ func (s *ProxyServer) broadcastNewJobs() {
 		}(m)
 	}
 	log.Printf("Jobs broadcast finished %s", time.Since(start))
+}
+
+
+
+func (s *ProxyServer) getHashRate() {
+
+	s.sessionsMu.RLock()
+	defer s.sessionsMu.RUnlock()
+
+	count := len(s.sessions)
+	log.Printf("Broadcasting new job to %v stratum miners", count)
+
+	start := time.Now()
+	bcast := make(chan int, 1024)
+	n := 0
+
+	for m, _ := range s.sessions {
+		n++
+		bcast <- n
+
+		go func(cs *Session) {
+			err := cs.getHashRate("","etrue_get_hashrate")
+			<-bcast
+			if err != nil {
+				log.Printf("Job transmit error to %v@%v: %v", cs.login, cs.ip, err)
+				s.removeSession(cs)
+			} else {
+				s.setDeadline(cs.conn)
+			}
+		}(m)
+	}
+	log.Printf("HashRate finished %s", time.Since(start))
 }
