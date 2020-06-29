@@ -1,12 +1,14 @@
-import Ember from 'ember';
+import Controller from '@ember/controller';
+import { inject } from '@ember/controller';
+import { computed } from '@ember/object';
 
-export default Ember.Controller.extend({
-  applicationController: Ember.inject.controller('application'),
-  stats: Ember.computed.reads('applicationController.model.stats'),
+export default Controller.extend({
+  applicationController: inject('application'),
+  stats: computed.reads('applicationController.model.stats'),
 
-  roundPercent: Ember.computed('stats', 'model', {
+  roundPercent: computed('stats', 'model', {
     get() {
-      var percent = this.get('model.roundShares') / this.get('stats.roundShares');
+      let percent = this.get('model.roundShares') / this.get('stats.roundShares');
       if (!percent) {
         return 0;
       }

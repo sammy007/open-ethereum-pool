@@ -15,13 +15,17 @@
 		"hashrateExpiration": "3h",
 
 		"healthCheck": true,
+		"debug": false,
 		"maxFails": 100,
 
 		"stratum": {
 			"enabled": true,
 			"listen": "0.0.0.0:8008",
 			"timeout": "120s",
-			"maxConn": 8192
+			"maxConn": 8192,
+			"tls": false,
+			"certFile": "/path/to/cert.pem",
+			"keyFile": "/path/to/key.pem"
 		},
 
 		"policy": {

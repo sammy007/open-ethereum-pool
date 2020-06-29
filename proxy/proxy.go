@@ -26,6 +26,7 @@ type ProxyServer struct {
 	upstreams          []*rpc.RPCClient
 	backend            *storage.RedisClient
 	diff               string
+	algorithm          string
 	policy             *policy.PolicyServer
 	hashrateExpiration time.Duration
 	failsCount         int64
@@ -34,6 +35,21 @@ type ProxyServer struct {
 	sessionsMu sync.RWMutex
 	sessions   map[*Session]struct{}
 	timeout    time.Duration
+	// Extranonce
+	Extranonces map[string]bool
+}
+
+type jobDetails struct {
+	JobID      string
+	SeedHash   string
+	HeaderHash string
+	Height     string
+	Epoch      int64
+}
+
+type staleJob struct {
+	SeedHash   string
+	HeaderHash string
 }
 
 type Session struct {
@@ -42,8 +58,17 @@ type Session struct {
 
 	// Stratum
 	sync.Mutex
-	conn  *net.TCPConn
+	conn  net.Conn
 	login string
+
+	stratum        int
+	algorithm      string
+	subscriptionID string
+	Extranonce     string
+	ExtranonceSub  bool
+	JobDetails     jobDetails
+	staleJobs      map[string]staleJob
+	staleJobIDs    []string
 }
 
 func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
@@ -55,6 +80,16 @@ func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
 	proxy := &ProxyServer{config: cfg, backend: backend, policy: policy}
 	proxy.diff = util.GetTargetHex(cfg.Proxy.Difficulty)
 
+	// set default Algorithm
+	switch cfg.Proxy.Algorithm {
+	case "progpow":
+		proxy.algorithm = "progpow"
+		break
+	default:
+		proxy.algorithm = "ethash"
+		break
+	}
+
 	proxy.upstreams = make([]*rpc.RPCClient, len(cfg.Upstream))
 	for i, v := range cfg.Upstream {
 		proxy.upstreams[i] = rpc.NewRPCClient(v.Name, v.Url, v.Timeout)
@@ -64,6 +99,7 @@ func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
 
 	if cfg.Proxy.Stratum.Enabled {
 		proxy.sessions = make(map[*Session]struct{})
+		proxy.Extranonces = make(map[string]bool)
 		go proxy.ListenTCP()
 	}
 
