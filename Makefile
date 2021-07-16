@@ -6,6 +6,8 @@
 
 GOBIN = build/bin
 
+export GO111MODULE=auto
+
 all:
 	build/env.sh go get -v ./...
 
