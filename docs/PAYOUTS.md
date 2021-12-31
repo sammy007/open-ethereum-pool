@@ -18,7 +18,7 @@ If any of checks fails, module will not even try to continue.
 * Check if we have enough money for payout (should not happen under normal circumstances)
 * Lock payments
 
-If payments can't be locked (another lock exist, usually after a failure) module will halt payouts.
+If payments can't be locked (another lock exists, usually after a failure) module will halt payouts.
 
 * Deduct balance of a miner and log pending payment
 * Submit a transaction to a node via `eth_sendTransaction`
