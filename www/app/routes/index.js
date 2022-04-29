@@ -1,9 +1,10 @@
-import Ember from 'ember';
+import Route from '@ember/routing/route';
+import { isEmpty } from '@ember/utils';
 
-export default Ember.Route.extend({
+export default Route.extend({
   actions: {
     lookup(login) {
-      if (!Ember.isEmpty(login)) {
+      if (!isEmpty(login)) {
         return this.transitionTo('account', login);
       }
     }

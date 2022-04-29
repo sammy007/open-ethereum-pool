@@ -6,11 +6,13 @@
 
 ### Features
 
-**This pool is being further developed to provide an easy to use pool for Ethereum miners. This software is functional however an optimised release of the pool is expected soon. Testing and bug submissions are welcome!**
+**This pool is no longer supported, expect only casual fixes.**
+
+**Parity client is MANDATORY. Geth is no longer supported.**
 
 * Support for HTTP and Stratum mining
 * Detailed block stats with luck percentage and full reward
-* Failover geth instances: geth high availability built in
+* Parity nodes rpc failover built in
 * Modern beautiful Ember.js frontend
 * Separate stats for workers: can highlight timed-out workers so miners can perform maintenance of rigs
 * JSON-API for stats
@@ -25,7 +27,7 @@
 Dependencies:
 
   * go >= 1.9
-  * geth or parity
+  * parity (will not work with geth)
   * redis-server >= 2.8.0
   * nodejs >= 4 LTS
   * nginx
@@ -131,10 +133,13 @@ otherwise you will get errors on start because of JSON comments.**
       // Bind stratum mining socket to this IP:PORT
       "listen": "0.0.0.0:8008",
       "timeout": "120s",
-      "maxConn": 8192
+      "maxConn": 8192,
+      "tls": false,
+      "certFile": "/path/to/cert.pem",
+      "keyFile": "/path/to/key.pem"
     },
 
-    // Try to get new job from geth in this interval
+    // Try to get new job from node in this interval
     "blockRefreshInterval": "120ms",
     "stateUpdateInterval": "3s",
     // Require this share difficulty from miners
@@ -208,10 +213,10 @@ otherwise you will get errors on start because of JSON comments.**
     "purgeOnly": false
   },
 
-  // Check health of each geth node in this interval
+  // Check health of each node in this interval
   "upstreamCheckInterval": "5s",
 
-  /* List of geth nodes to poll for new jobs. Pool will try to get work from
+  /* List of parity nodes to poll for new jobs. Pool will try to get work from
     first alive one and check in background for failed to back up.
     Current block template of the pool is always cached in RAM indeed.
   */
@@ -254,9 +259,9 @@ otherwise you will get errors on start because of JSON comments.**
     "keepTxFees": false,
     // Run unlocker in this interval
     "interval": "10m",
-    // Geth instance node rpc endpoint for unlocking blocks
+    // Parity node rpc endpoint for unlocking blocks
     "daemon": "http://127.0.0.1:8545",
-    // Rise error if can't reach geth in this amount of time
+    // Rise error if can't reach parity
     "timeout": "10s"
   },
 
@@ -267,13 +272,13 @@ otherwise you will get errors on start because of JSON comments.**
     "requirePeers": 25,
     // Run payouts in this interval
     "interval": "12h",
-    // Geth instance node rpc endpoint for payouts processing
+    // Parity node rpc endpoint for payouts processing
     "daemon": "http://127.0.0.1:8545",
-    // Rise error if can't reach geth in this amount of time
+    // Rise error if can't reach parity
     "timeout": "10s",
     // Address with pool balance
     "address": "0x0",
-    // Let geth to determine gas and gasPrice
+    // Let parity to determine gas and gasPrice
     "autoGas": true,
     // Gas amount and price for payout tx (advanced users only)
     "gas": "21000",
@@ -302,10 +307,6 @@ I recommend this deployment strategy:
 * You must restart module if you see errors with the word *suspended*.
 * Don't run payouts and unlocker modules as part of mining node. Create separate configs for both, launch independently and make sure you have a single instance of each module running.
 * If `poolFeeAddress` is not specified all pool profit will remain on coinbase address. If it specified, make sure to periodically send some dust back required for payments.
-
-### Alternative Ethereum Implementations
-
-This pool is tested to work with [Ethcore's Parity](https://github.com/ethcore/parity). Mining and block unlocking works, but I am not sure about payouts and suggest to run *official* geth node for payments.
 
 ### Credits
 

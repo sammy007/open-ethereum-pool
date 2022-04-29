@@ -79,3 +79,13 @@ func String2Big(num string) *big.Int {
 	n.SetString(num, 0)
 	return n
 }
+
+func DiffFloatToInt(diffFloat float64) (diffInt int64) {
+	diffInt = int64(diffFloat * float64(1<<48) / float64(0xffff)) // 48 = 256 - 26*8
+	return
+}
+
+func DiffIntToFloat(diffInt int64) (diffFloat float64) {
+	diffFloat = float64(diffInt*0xffff) / float64(1<<48) // 48 = 256 - 26*8
+	return
+}

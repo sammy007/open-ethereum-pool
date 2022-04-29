@@ -1,7 +1,7 @@
-import Ember from 'ember';
+import { helper as buildHelper } from '@ember/component/helper';
 
 export function secondsToMs(value) {
-	return value * 1000;
+  return value * 1000;
 }
 
-export default Ember.Helper.helper(secondsToMs);
+export default buildHelper(secondsToMs);
