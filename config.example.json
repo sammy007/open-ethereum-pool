@@ -99,16 +99,17 @@
 
 	"payouts": {
 		"enabled": false,
-		"requirePeers": 25,
+		"requirePeers": 5,
 		"interval": "120m",
 		"daemon": "http://127.0.0.1:8545",
 		"timeout": "10s",
-		"address": "0x0",
-		"gas": "21000",
+		"address": "0x00000000",
+		"gas": "31000",
 		"gasPrice": "50000000000",
 		"autoGas": true,
 		"threshold": 500000000,
-		"bgsave": false
+		"bgsave": false,
+		"concurrentTx": 5
 	},
 
 	"newrelicEnabled": false,
