@@ -4,7 +4,7 @@ import (
 	"log"
 	"regexp"
 	"strings"
-
+	"errors"
 	"github.com/sammy007/open-ethereum-pool/rpc"
 	"github.com/sammy007/open-ethereum-pool/util"
 )
@@ -77,34 +77,34 @@ func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []st
 		log.Printf("Malformed PoW result from %s@%s %v", login, cs.ip, params)
 		return false, &ErrorReply{Code: -1, Message: "Malformed PoW result"}
 	}
-	t := s.currentBlockTemplate()
-	exist, validShare := s.processShare(login, id, cs.ip, t, params, cs.algorithm, stratumMode != EthProxy)
-	ok := s.policy.ApplySharePolicy(cs.ip, !exist && validShare)
 
-	if exist {
-		log.Printf("Duplicate share from %s@%s %v", login, cs.ip, params)
-		// see https://github.com/sammy007/open-ethereum-pool/compare/master...nicehashdev:patch-1
-		if !ok {
-			return false, &ErrorReply{Code: 23, Message: "Invalid share"}
-		}
-		return false, nil
-	}
+	go func(s *ProxyServer, cs *Session, login, id string, params []string) {
+		t := s.currentBlockTemplate()
+		exist, validShare := s.processShare(login, id, cs.ip, t, params)
+		ok := s.policy.ApplySharePolicy(cs.ip, !exist && validShare)
 
-	if !validShare {
-		log.Printf("Invalid share from %s@%s", login, cs.ip)
-		// Bad shares limit reached, return error and close
-		if !ok {
-			return false, &ErrorReply{Code: 23, Message: "Invalid share"}
+		if exist {
+			log.Printf("Duplicate share from %s@%s %v", login, cs.ip, params)
+			cs.lastErr = errors.New("Duplicate share")
 		}
-		return false, nil
-	}
-	if s.config.Proxy.Debug {
+
+		if !validShare {
+			log.Printf("Invalid share from %s@%s", login, cs.ip)
+			// Bad shares limit reached, return error and close
+			if !ok {
+				cs.lastErr = errors.New("Invalid share")
+			}
+		}
+		if s.config.Proxy.Debug {
 		log.Printf("Valid share from %s@%s", login, cs.ip)
-	}
+		}
 
-	if !ok {
-		return true, &ErrorReply{Code: -1, Message: "High rate of invalid shares"}
-	}
+
+		if !ok {
+			cs.lastErr = errors.New("High rate of invalid shares")
+		}
+	}(s, cs, login, id, params)
+
 	return true, nil
 }
 
