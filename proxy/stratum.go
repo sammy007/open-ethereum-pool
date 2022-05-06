@@ -32,6 +32,7 @@ func (s *ProxyServer) ListenTCP() {
 
 	var err error
 	var server net.Listener
+	setKeepAlive := func(net.Conn) {}
 	if s.config.Proxy.Stratum.TLS {
 		var cert tls.Certificate
 		cert, err = tls.LoadX509KeyPair(s.config.Proxy.Stratum.CertFile, s.config.Proxy.Stratum.KeyFile)
@@ -42,6 +43,9 @@ func (s *ProxyServer) ListenTCP() {
 		server, err = tls.Listen("tcp", s.config.Proxy.Stratum.Listen, tlsCfg)
 	} else {
 		server, err = net.Listen("tcp", s.config.Proxy.Stratum.Listen)
+		setKeepAlive = func(conn net.Conn) {
+			conn.(*net.TCPConn).SetKeepAlive(true)
+		}
 	}
 	if err != nil {
 		log.Fatalf("Error: %v", err)
@@ -57,6 +61,8 @@ func (s *ProxyServer) ListenTCP() {
 		if err != nil {
 			continue
 		}
+		setKeepAlive(conn)
+
 		ip, _, _ := net.SplitHostPort(conn.RemoteAddr().String())
 
 		if s.policy.IsBanned(ip) || !s.policy.ApplyLimitPolicy(ip) {
@@ -73,7 +79,7 @@ func (s *ProxyServer) ListenTCP() {
 		accept <- n
 		go func(cs *Session) {
 			err = s.handleTCPClient(cs)
-			if err != nil || cs.lastErr != nil{
+			if err != nil || cs.lastErr != nil {
 				s.removeSession(cs)
 				conn.Close()
 			}
@@ -394,7 +400,9 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 
 			// check Extranonce subscription.
 			extranonce := cs.Extranonce
-			if !cs.ExtranonceSub { extranonce = "" }
+			if !cs.ExtranonceSub {
+				extranonce = ""
+			}
 			nonce := extranonce + params[2]
 
 			if cs.JobDetails.JobID != params[1] {

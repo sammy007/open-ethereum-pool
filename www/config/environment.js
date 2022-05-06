@@ -15,15 +15,15 @@ module.exports = function(environment) {
 
     APP: {
       // API host and port
-      ApiUrl: '//example.net/',
+      ApiUrl: '//phat.pool2mine.net/',
 
       // HTTP mining endpoint
-      HttpHost: 'http://example.net',
+      HttpHost: 'http://phat.pool2mine.net',
       HttpPort: 8888,
 
       // Stratum mining endpoint
-      StratumHost: 'example.net',
-      StratumPort: 8008,
+      StratumHost: 'phat.pool2mine.net',
+      StratumPort: 8002,
 
       // Fee and payout details
       PoolFee: '1%',
