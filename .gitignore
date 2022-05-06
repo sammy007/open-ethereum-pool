@@ -1,6 +1,10 @@
 .DS_Store
 config.json
-testnet.json
-
+testnet
+.vscode/*
+.vscode/launch.json
+/build/env.bat
+config.unlock.json
+www/config/environment.js
 /build/_workspace/
 /build/bin/
