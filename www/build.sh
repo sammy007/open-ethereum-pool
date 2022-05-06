@@ -6,3 +6,4 @@
 
 #Build.
 ./node_modules/.bin/ember build --environment production
+rsync -avh dist/ /var/www/html/

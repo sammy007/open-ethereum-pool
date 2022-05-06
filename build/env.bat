@@ -1,22 +1,22 @@
-#!/bin/sh
 
-set -e
 
-if [ ! -f "build/env.sh" ]; then
+
+
+if [ ! -f "build/env.bat" ]; then
     echo "$0 must be run from the root of the repository."
     exit 2
 fi
 
 # Create fake Go workspace if it doesn't exist yet.
-workspace="$PWD/build/_workspace"
-root="$PWD"
-ethdir="$workspace/src/github.com/sammy007"
-if [ ! -L "$ethdir/open-ethereum-pool" ]; then
+set workspace="T:\open-ethereum-pool\build\_workspace"
+set root="T:\open-ethereum-pool"
+set ethdir="T:\open-ethereum-pool\build\_workspace/src/github.com/sammy007"
+#if [ ! -L "T:\open-ethereum-pool\build\_workspace\open-ethereum-pool" ]; then
     mkdir -p "$ethdir"
     cd "$ethdir"
     ln -s ../../../../../. open-ethereum-pool
-    cd "$root"
-fi
+    cd "T:\open-ethereum-pool"
+#fi
 
 # Set up the environment to use the workspace.
 # Also add Godeps workspace so we build using canned dependencies.
