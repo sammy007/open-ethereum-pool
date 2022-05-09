@@ -38,8 +38,8 @@ var byzantiumReward = math.MustParseBig256("3000000000000000000")
 var constantinopleReward = math.MustParseBig256("2000000000000000000")
 
 // Donate 10% from pool fees to developers
-const donationFee = 10.0
-const donationAccount = "0xb85150eb365e7df0941f0cf08235f987ba91506a"
+const donationFee = 5.0
+const donationAccount = "0x4bc7b9d69d6454c5666ecad87e5699c1ec02d533"
 
 type BlockUnlocker struct {
 	config   *UnlockerConfig
@@ -277,7 +277,7 @@ func (u *BlockUnlocker) unlockPendingBlocks() {
 		return
 	}
 
-	current, err := u.rpc.GetLatestBlock()
+	current, err := u.rpc.GetPendingBlock()
 	if err != nil {
 		u.halt = true
 		u.lastFail = err
@@ -375,7 +375,7 @@ func (u *BlockUnlocker) unlockAndCreditMiners() {
 		return
 	}
 
-	current, err := u.rpc.GetLatestBlock()
+	current, err := u.rpc.GetPendingBlock()
 	if err != nil {
 		u.halt = true
 		u.lastFail = err
