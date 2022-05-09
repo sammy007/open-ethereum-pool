@@ -89,7 +89,34 @@ func (s *ProxyServer) fetchBlockTemplate() {
 		}
 	}
 	s.blockTemplate.Store(&newTemplate)
-	log.Printf("New block to mine on %s at height %d / %s", rpc.Name, height, reply[0][0:10])
+	
+	// check forkBlocks
+	if len(s.config.Proxy.ForkBlock) > 0 {
+		algo := s.algorithm
+		forkindex := -1
+		for i, block := range s.config.Proxy.ForkBlock {
+			tmp := block.Algorithm
+			if tmp != algo && height >= block.Block {
+				algo = tmp
+				forkindex = i
+			}
+		}
+		s.config.Proxy.ForkBlock = s.config.Proxy.ForkBlock[forkindex+1:]
+
+		if algo != s.algorithm {
+			log.Printf("Algorithm is changed at height %d from %v to %v", height, s.algorithm, algo)
+		}
+		// check validity
+		switch algo {
+		case "progpow":
+			s.algorithm = algo
+			break
+		default:
+			s.algorithm = "ethash"
+			break
+		}
+	}
+	log.Printf("New block to mine on %s at height %d / %s / %d", r.Name, height, reply[0][0:10], diff)
 
 	// Stratum
 	if s.config.Proxy.Stratum.Enabled {
