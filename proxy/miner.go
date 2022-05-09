@@ -5,16 +5,13 @@ import (
 	"math/big"
 	"strconv"
 	"strings"
-
+	
+	"github.com/ethereum/ethash"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/hackmod/ethereum-ethash"
 )
 
 var hasher = ethash.New()
 
-var (
-	maxUint256 = new(big.Int).Exp(big.NewInt(2), big.NewInt(256), big.NewInt(0))
-)
 func (s *ProxyServer) processShare(login, id, ip string, t *BlockTemplate, params []string) (bool, bool) {
 	// Now, the function received some work with login id and worker name and all information, ready to be processed
 	// and checked if it is a valid work or not, and if it is a block or not and write to db accordingly
