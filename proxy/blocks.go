@@ -59,12 +59,10 @@ func (s *ProxyServer) fetchBlockTemplate() {
 		log.Printf("Error while refreshing block template on %s: %s", rpc.Name, err)
 		return
 	}
-	}
 	// No need to update, we have fresh job
 	if t != nil && t.Header == reply[0] {
 		return
 	}
-	
 	pendingReply.Difficulty = util.ToHex(s.config.Proxy.Difficulty)
 
 	newTemplate := BlockTemplate{
@@ -89,7 +87,6 @@ func (s *ProxyServer) fetchBlockTemplate() {
 		}
 	}
 	s.blockTemplate.Store(&newTemplate)
-	
 	// check forkBlocks
 	if len(s.config.Proxy.ForkBlock) > 0 {
 		algo := s.algorithm
@@ -116,7 +113,7 @@ func (s *ProxyServer) fetchBlockTemplate() {
 			break
 		}
 	}
-	log.Printf("New block to mine on %s at height %d / %s / %d", r.Name, height, reply[0][0:10], diff)
+	log.Printf("New block to mine on %s at height %d / %s / %d", rpc.Name, height, reply[0][0:10], diff)
 
 	// Stratum
 	if s.config.Proxy.Stratum.Enabled {

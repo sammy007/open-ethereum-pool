@@ -2,6 +2,7 @@ package storage
 
 import (
 	"fmt"
+	"math"
 	"math/big"
 	"strconv"
 	"strings"
@@ -125,12 +126,11 @@ func NewRedisClient(cfg *Config, prefix string) *RedisClient {
 		DB:       cfg.Database,
 		PoolSize: cfg.PoolSize,
 	}
-	return &RedisClient{client: client, prefix: prefix}
 	if cfg.Endpoint[0:1] == "/" {
 		options.Network = "unix"
 	}
 	client := redis.NewClient(&options)
-	return &RedisClient{client: client, prefix: prefix, pplns: pplns}
+	return &RedisClient{client: client, prefix: prefix}
 }
 
 func (r *RedisClient) Client() *redis.Client {
