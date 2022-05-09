@@ -47,42 +47,38 @@ func (b Block) MixDigest() common.Hash   { return b.mixDigest }
 func (b Block) NumberU64() uint64        { return b.number }
 
 func (s *ProxyServer) fetchBlockTemplate() {
-	r := s.rpc()
+	rpc := s.rpc()
 	t := s.currentBlockTemplate()
-	reply, err := r.GetWork()
+	pendingReply, height, diff, err := s.fetchPendingBlock()
 	if err != nil {
-		log.Printf("Error while refreshing block template on %s: %s", r.Name, err)
+		log.Printf("Error while refreshing block template on %s: %s", rpc.Name, err)
 		return
 	}
+	reply, err := rpc.GetWork()
+	if err != nil {
+		log.Printf("Error while refreshing block template on %s: %s", rpc.Name, err)
+		return
+	}
+	}
 	// No need to update, we have fresh job
-	if t != nil {
-		if t.Header == reply[0] {
-			return
-		}
-		if _, ok := t.headers[reply[0]]; ok {
-			return
-		}
+	if t != nil && t.Header == reply[0] {
+		return
 	}
-	diff := util.TargetHexToDiff(reply[2])
-	height, err := strconv.ParseUint(strings.Replace(reply[3], "0x", "", -1), 16, 64)
-
-	pendingReply := &rpc.GetBlockReplyPart{
-		Difficulty: util.ToHex(s.config.Proxy.Difficulty),
-		Number:     reply[3],
-	}
+	
+	pendingReply.Difficulty = util.ToHex(s.config.Proxy.Difficulty)
 
 	newTemplate := BlockTemplate{
 		Header:               reply[0],
 		Seed:                 reply[1],
 		Target:               reply[2],
 		Height:               height,
-		Difficulty:           diff,
+		Difficulty:           big.NewInt(diff),
 		GetPendingBlockCache: pendingReply,
 		headers:              make(map[string]heightDiffPair),
 	}
 	// Copy job backlog and add current one
 	newTemplate.headers[reply[0]] = heightDiffPair{
-		diff:   diff,
+		diff: util.TargetHexToDiff(reply[2]),
 		height: height,
 	}
 	if t != nil {
@@ -93,37 +89,30 @@ func (s *ProxyServer) fetchBlockTemplate() {
 		}
 	}
 	s.blockTemplate.Store(&newTemplate)
-
-	// check forkBlocks
-	if len(s.config.Proxy.ForkBlock) > 0 {
-		algo := s.algorithm
-		forkindex := -1
-		for i, block := range s.config.Proxy.ForkBlock {
-			tmp := block.Algorithm
-			if tmp != algo && height >= block.Block {
-				algo = tmp
-				forkindex = i
-			}
-		}
-		s.config.Proxy.ForkBlock = s.config.Proxy.ForkBlock[forkindex+1:]
-
-		if algo != s.algorithm {
-			log.Printf("Algorithm is changed at height %d from %v to %v", height, s.algorithm, algo)
-		}
-		// check validity
-		switch algo {
-		case "progpow":
-			s.algorithm = algo
-			break
-		default:
-			s.algorithm = "ethash"
-			break
-		}
-	}
-	log.Printf("New block to mine on %s at height %d / %s / %d", r.Name, height, reply[0][0:10], diff)
+	log.Printf("New block to mine on %s at height %d / %s", rpc.Name, height, reply[0][0:10])
 
 	// Stratum
 	if s.config.Proxy.Stratum.Enabled {
 		go s.broadcastNewJobs()
 	}
+}
+
+func (s *ProxyServer) fetchPendingBlock() (*rpc.GetBlockReplyPart, uint64, int64, error) {
+	rpc := s.rpc()
+	reply, err := rpc.GetPendingBlock()
+	if err != nil {
+		log.Printf("Error while refreshing pending block on %s: %s", rpc.Name, err)
+		return nil, 0, 0, err
+	}
+	blockNumber, err := strconv.ParseUint(strings.Replace(reply.Number, "0x", "", -1), 16, 64)
+	if err != nil {
+		log.Println("Can't parse pending block number")
+		return nil, 0, 0, err
+	}
+	blockDiff, err := strconv.ParseInt(strings.Replace(reply.Difficulty, "0x", "", -1), 16, 64)
+	if err != nil {
+		log.Println("Can't parse pending block difficulty")
+		return nil, 0, 0, err
+	}
+	return reply, blockNumber, blockDiff, nil
 }
