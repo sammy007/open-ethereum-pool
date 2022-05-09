@@ -19,6 +19,7 @@ Router.map(function() {
   this.route('help');
   this.route('payments');
   this.route('miners');
+  this.route('finders');
   this.route('about');
 });
 
