@@ -35,6 +35,7 @@ type GetBlockReply struct {
 	Difficulty   string   `json:"difficulty"`
 	GasLimit     string   `json:"gasLimit"`
 	GasUsed      string   `json:"gasUsed"`
+	BaseFeePerGas string `json:"baseFeePerGas"`
 	Transactions []Tx     `json:"transactions"`
 	Uncles       []string `json:"uncles"`
 	// https://github.com/ethereum/EIPs/issues/95
