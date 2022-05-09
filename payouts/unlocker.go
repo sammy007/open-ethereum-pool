@@ -225,6 +225,26 @@ func (u *BlockUnlocker) handleBlock(block *rpc.GetBlockReply, candidate *storage
 		reward.Add(reward, extraTxReward)
 	}
 
+
+	// Remove Burnt Fees, post London (Base Fee Per Gas * Gas Used)
+        baseFeePerGas := new(big.Int)
+	bigBaseFeePerGas := util.DecodeValueHex(block.BaseFeePerGas)
+        baseFeePerGas.SetString(bigBaseFeePerGas, 10)
+	log.Println("baseFeePerGas: ", baseFeePerGas)
+	log.Println("block.BaseFeePerGas: ", block.BaseFeePerGas)
+
+	//gasUsed := big.NewInt(int64(block.GasUsed))
+        gasUsed := new(big.Int)
+	bigGasUsed := util.DecodeValueHex(block.GasUsed)
+        gasUsed.SetString(bigGasUsed, 10)
+	log.Println("gasUsed: ", gasUsed)
+
+	burntFees := new(big.Int).Mul(baseFeePerGas, gasUsed)
+	log.Println("BurntFees: ", burntFees)
+	reward.Sub(reward, burntFees)
+
+
+
 	// Add reward for including uncles
 	uncleReward := getRewardForUncle(candidate.Height)
 	rewardForUncles := big.NewInt(0).Mul(uncleReward, big.NewInt(int64(len(block.Uncles))))
