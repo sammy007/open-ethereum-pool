@@ -1,7 +1,7 @@
-import { helper as buildHelper } from '@ember/component/helper';
+import Ember from 'ember';
 
 export function stringToInt(value) {
-  return parseInt(value);
+	return parseInt(value);
 }
 
-export default buildHelper(stringToInt);
+export default Ember.Helper.helper(stringToInt);

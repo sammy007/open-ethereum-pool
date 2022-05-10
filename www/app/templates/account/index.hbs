@@ -1,22 +1,27 @@
 <div class="container">
+{{high-charts mode=chartMode chartOptions=chartOptions content=chartData}}
   {{#if model.workers}}
-  <h4>Your Workers</h4>
+  <h4>{{t "account.your_workers"}}</h4>
   <div class="table-responsive">
     <table class="table table-condensed table-striped">
       <thead>
         <tr>
           <th>ID</th>
-          <th>Hashrate (rough, short average)</th>
-          <th>Hashrate (accurate, long average)</th>
-          <th>Last Share</th>
+          <th>{{t "account.hashrate"}} ({{t "account.short_average_abbrv"}} / {{t "account.short_average_abbrv"}})</th>
+          <th>{{t "account.earnings.worker"}}</th>
+          <th>{{t "account.difficulty"}}</th>
+          <th>{{t "account.server"}}</th>
+          <th>{{t "account.last_share"}}</th>
         </tr>
       </thead>
       <tbody>
         {{#each-in model.workers as |k v|}}
-          <tr class="{{if v.offline "warning" "success"}}">
+          <tr class="worker-class {{if v.offline "warning" "success"}} {{worker-colorizer v.lastBeat}}">
             <td>{{k}}</td>
-            <td>{{format-hashrate v.hr}}</td>
-            <td>{{format-hashrate v.hr2}}</td>
+            <td>{{format-hashrate v.hr}} / {{format-hashrate v.hr2}}</td>
+            <td>{{format-number (worker-earnperday v.hr netstats.hashrate)}} {{config.Unit}}</td>
+            <td>{{format-difficulty v.difficulty}}</td>
+            <td>{{v.hostname}}</td>
             <td>{{format-relative (seconds-to-ms v.lastBeat)}}</td>
           </tr>
         {{/each-in}}
@@ -24,16 +29,13 @@
     </table>
   </div>
   {{else}}
-    <h3>No workers online</h3>
+    <h3>{{t "account.no_workers_online"}}</h3>
   {{/if}}
   <div class="alert alert-info" role="alert">
-    <span class="sr-only">Notice:</span>
-    Your average hashrate will be smoothly adjusted until you have shares to fullfill estimation window.<br/>
-    There are two windows, long and short, first is equal to about 30 minutes and long window is usually equal to 3 hours.<br/>
-    Dead (sick) workers will be highlighted in a table of workers if they didn't submit a share for 1/2 of short window,
-    so you can perform maintenance of your rigs.
+    <span class="sr-only">{{t "account.notice"}}:</span>
+    {{format-html-message "account.notice_html"}}
   </div>
   <div class="alert alert-info" role="alert">
-    <strong>Your bulk stats JSON API URL:</strong> <a href="/api/accounts/{{model.login}}">/api/accounts/{{model.login}}</a>
+    <strong>{{t "account.json_api_url"}}:</strong> <a href="{{config.ApiUrl}}api/accounts/{{model.login}}">/api/accounts/{{model.login}}</a>
   </div>
 </div>

@@ -404,6 +404,7 @@ func (r *RedisClient) writeShare(tx *redis.Multi, ms, ts int64, login, id string
 	// Will delete hashrates for miners that gone
 	tx.Expire(r.formatKey("hashrate", login), expire)
 	tx.HSet(r.formatKey("miners", login), "lastShare", strconv.FormatInt(ts, 10))
+	//fmt.Printf("writing share values %v, %v, %v, %v, %v, %v", diff, login, id, ms, diff, hostname )
 }
 
 func (r *RedisClient) formatKey(args ...interface{}) string {
@@ -891,6 +892,7 @@ func (r *RedisClient) CollectStats(smallWindow time.Duration, maxBlocks, maxPaym
 		tx.HGet(r.formatKey("paymentsTotal"), "all")
 		tx.ZRevRangeWithScores(r.formatKey("payments", "all"), 0, maxPayments-1)
 		tx.ZRevRangeWithScores(r.formatKey("finders"), 0, -1)
+		tx.ZCard(r.formatKey("stats", "roundShares"))
 		return nil
 	})
 
@@ -899,6 +901,7 @@ func (r *RedisClient) CollectStats(smallWindow time.Duration, maxBlocks, maxPaym
 	}
 
 	result, _ := cmds[2].(*redis.StringStringMapCmd).Result()
+	result["nShares"] = strconv.FormatInt(cmds[12].(*redis.IntCmd).Val(), 10)
 	stats["stats"] = convertStringMap(result)
 	candidates := convertCandidateResults(cmds[3].(*redis.ZSliceCmd))
 	stats["candidates"] = candidates

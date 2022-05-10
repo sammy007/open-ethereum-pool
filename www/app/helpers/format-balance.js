@@ -1,8 +1,8 @@
-import { helper as buildHelper } from '@ember/component/helper';
+import Ember from 'ember';
 
 export function formatBalance(value) {
-  value = value * 0.000000001;
-  return value.toFixed(8);
+	value = value * 0.000000001;
+	return value.toFixed(8);
 }
 
-export default buildHelper(formatBalance);
+export default Ember.Helper.helper(formatBalance);

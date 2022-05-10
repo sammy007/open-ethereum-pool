@@ -1,15 +1,15 @@
 {{#if model.immature}}
-<h4>Immature Blocks</h4>
+<h3>{{t "block.immature_blocks"}}</h3>
 
 <div class="table-responsive">
   <table class="table table-condensed table-striped">
     <thead>
       <tr>
-        <th>Height</th>
-        <th>Block Hash</th>
-        <th>Time Found</th>
-        <th>Variance</th>
-        <th>Reward</th>
+        <th>{{t "block.height"}}</th>
+        <th>{{t "block.hash"}}</th>
+        <th>{{t "block.time_found"}}</th>
+        <th>{{t "block.variance"}}</th>
+        <th>{{t "block.reward"}}</th>
       </tr>
     </thead>
     <tbody>
@@ -20,5 +20,5 @@
   </table>
 </div>
 {{else}}
-<h3>No immature blocks yet</h3>
+<h3>{{t "block.no_immature_blocks_yet"}}</h3>
 {{/if}}

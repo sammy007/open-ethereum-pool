@@ -1,8 +1,6 @@
-import Controller from '@ember/controller';
-import { inject } from '@ember/controller';
-import { computed } from '@ember/object';
+import Ember from 'ember';
 
-export default Controller.extend({
-  applicationController: inject('application'),
-  config: computed.reads('applicationController.config')
+export default Ember.Controller.extend({
+  applicationController: Ember.inject.controller('application'),
+  config: Ember.computed.reads('applicationController.config')
 });

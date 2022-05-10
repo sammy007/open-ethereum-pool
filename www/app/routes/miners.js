@@ -1,12 +1,10 @@
-import Route from '@ember/routing/route';
-import { later } from '@ember/runloop';
-import $ from 'jquery';
+import Ember from 'ember';
 import config from '../config/environment';
 
-export default Route.extend({
+export default Ember.Route.extend({
   model: function() {
-    let url = config.APP.ApiUrl + 'api/miners';
-    return $.getJSON(url).then(function(data) {
+    var url = config.APP.ApiUrl + 'api/miners';
+    return Ember.$.getJSON(url).then(function(data) {
       if (data.miners) {
         // Convert map to array
         data.miners = Object.keys(data.miners).map((value) => {
@@ -31,6 +29,6 @@ export default Route.extend({
 
   setupController: function(controller, model) {
     this._super(controller, model);
-    later(this, this.refresh, 5000);
+    Ember.run.later(this, this.refresh, 5000);
   }
 });

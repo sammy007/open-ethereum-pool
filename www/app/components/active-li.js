@@ -1,17 +1,17 @@
-import { getOwner } from '@ember/application';
-import Component from '@ember/component';
-import { computed } from '@ember/object';
+import Ember from 'ember';
 
-export default Component.extend({
+const { getOwner } = Ember;
+
+export default Ember.Component.extend({
   tagName: 'li',
   classNameBindings: ['isActive:active:inactive'],
 
-  router: computed(function() {
+  router: function(){
     return getOwner(this).lookup('router:main');
-  }),
+  }.property(),
 
-  isActive: computed('router.url', 'currentWhen', function() {
-    let currentWhen = this.get('currentWhen');
+  isActive: function(){
+    var currentWhen = this.get('currentWhen');
     return this.get('router').isActive(currentWhen);
-  })
+  }.property('router.url', 'currentWhen')
 });

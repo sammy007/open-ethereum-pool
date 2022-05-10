@@ -1,0 +1,40 @@
+<div class="container">
+  {{#if model.rewards}}
+  <h4>Your Latest Rewards</h4>
+  <table class="table table-condensed table-striped">
+  {{#each model.sumrewards as |sumreward|}}
+  <tr>
+    <td>{{sumreward.name}}</td>
+    <td>{{format-balance sumreward.reward}}</td>
+  </tr>
+  {{/each}}
+   </table>
+   <span class="label label-default">Immature</span> <span class="label label-success">Matured</span>
+  <table class="table table-condensed table-striped">
+    <thead>
+      <tr>
+        <th>Block Height</th>
+        <th>Reward</th>
+        <th>Round Share</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each model.rewards as |tx|}}
+        <tr>
+          <td>{{format-number  tx.blockheight}}</td>
+          <td>
+		{{#if tx.immature}}
+                        <span class="label label-default">{{format-balance tx.reward}}</span>
+                {{else}}
+                        <span class="label label-success">{{format-balance tx.reward}}</span>
+                {{/if}}
+	  </td>
+          <td>{{format-number tx.percent style='percent' maximumFractionDigits='6'}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  {{else}}
+  <h3>No rewards yet</h3>
+  {{/if}}
+</div>

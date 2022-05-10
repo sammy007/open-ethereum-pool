@@ -1,7 +1,7 @@
-'use strict';
+/* jshint node: true */
 
 module.exports = function(environment) {
-  let ENV = {
+  var ENV = {
     modulePrefix: 'open-ethereum-pool',
     environment: environment,
     rootURL: '/',
@@ -16,21 +16,26 @@ module.exports = function(environment) {
     APP: {
       // API host and port
       ApiUrl: '//phat.pool2mine.net/',
-
+      PoolName: 'ETH Pool',
+      CompanyName: 'phat.pool2mine.net',
       // HTTP mining endpoint
       HttpHost: 'http://phat.pool2mine.net',
-      HttpPort: 8888,
+      HttpPort: 8882,
 
       // Stratum mining endpoint
-      StratumHost: 'phat.pool2mine.net',
+      StratumHost: 'phat.pool2mine.net:',
       StratumPort: 8002,
 
       // Fee and payout details
-      PoolFee: '1%',
-      PayoutThreshold: '0.5 Ether',
+      PoolFee: '0.1%',
+      PayoutThreshold: '0.1',
+      PayoutInterval: '3h',
 
       // For network hashrate (change for your favourite fork)
-      BlockTime: 14.4
+      BlockTime: 13.3,
+      BlockReward: 2.0,
+      Unit: 'ETH',
+
     }
   };
 
@@ -38,7 +43,7 @@ module.exports = function(environment) {
     /* Override ApiUrl just for development, while you are customizing
       frontend markup and css theme on your workstation.
     */
-    ENV.APP.ApiUrl = 'http://localhost:8081/'
+    ENV.APP.ApiUrl = 'http://localhost:8080/'
     // ENV.APP.LOG_RESOLVER = true;
     // ENV.APP.LOG_ACTIVE_GENERATION = true;
     // ENV.APP.LOG_TRANSITIONS = true;

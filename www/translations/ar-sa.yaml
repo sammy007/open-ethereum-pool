@@ -1,0 +1,159 @@
+general:
+  direction: rtl
+calculator:
+  title: كم ممكن تربح?
+  close: سكر الباب وراك
+menu:
+  home: الرئيسية
+  help: مساعدة
+  calculator: الحاسبة
+  pool_blocks: حزم المجمع
+  payments: المدفوعات
+  miners: المعدنين
+  about: حول
+  i18n:
+    about: about
+    help: help
+  language: اللغة
+
+lang:
+  arabic: عربي
+  english: English
+
+home:
+  min_payout_threshold: الحد الأدنى للدفع
+  payouts_run: كل {interval}.
+  payout_scheme_detail: دفع فوري بنظام PROP.
+  miners_online: معدنين متصلين
+  pool_hashrate: سرعة معالجة المجمع
+  pool_fee: رسوم المجمع
+  last_block_found: آخر حزمة تم إيجادها
+  network_difficulty: صعوبة الشبكة
+  network_hashrate: سرعة معالجة الشبكة
+  blockchain_height: إرتفاع سلسلة الحزم
+  current_round_variance: تباين الجولة الحالية
+  query_history: إحصائياتك وسجل مدفوعاتك
+  input:
+    enter_your_wallet_address: أدخل رقم محفظتك
+  button:
+    lookup: بحث
+  help:
+    minimal: help-minimal
+  settings:
+    difficulty: (الصعوبة {diff} بليون)
+    help: إضغط للمساعدة
+    title: جهاز {hashes} MH/s
+    stratum_mining: رابط الـStratum
+    commands:
+      windows: Windows
+      smos: SimpleMining
+      windows_instruction: أضف هذا لملف الـbat الخاص بك
+      smos_instruction: أضف هذه الإعدادات لـ Rig Group
+
+account:
+  immature:
+    balance: الرصيد الغير جاهز
+    description: رصيد مبدئي بإنتظار تأكيد الحزمة
+  pending:
+    balance: الرصيد المعلق
+    description: رصيد بإنتظار عملية الدفع.
+  current: الدفع الحالي
+  last_share_submitted: آخر حصة مرسلة
+  online: أجهزة متصلة
+  hashrate: سرعة المعالجة
+  earnings:
+    miner: الأرباح اليومية (3h معدل)
+    worker: أرباح / يوم (معدل قصير)
+  blocks:
+    found: الحزم المعدنة
+  total:
+    payments: إجمالي المدفوعات
+    paid: إجمالي ماتم دفعه
+  round_share: حصتك في الجولة
+  round_share_description: نسبة مشاركتك في مجمع التعدين.
+  epoch_switch: تبديل العهد
+  workers: أجهزة
+  payouts: مدفوعات
+
+  your_workers: الأجهزة
+  server: الخادم
+  difficulty: الصعوبة
+  last_share: آخر ظهور
+  short_average: غير دقيق, معدل قصير
+  short_average_abbrv: 30m
+  long_average: دقيق, معدل طويل
+  long_average_abbrv: 3h
+  no_workers_online: لايوجد أجهزة متصلة
+  notice: تنويه
+  notice_html: سيتم إعادة ضبط سرعة معالجتك بسلاسة إلى أن يكون لديك حصص كافية لتدقيق الحساب.<br/>هناك فترتين حساب, قصيرة, وطويلة, القصيرة مدتها 30 دقيقة تقريبا, والطويلة 3 ساعات.<br/>الأجهزة الميتة (الغير متصلة) سيتم تمييزها في الجدول إذا لم تقم بإرسال حصص خلال نصف وقت المدة القصيرة, أي  15 دقيقة, لتسهل عليك صيانتها
+  json_api_url: رابط إحصائياتك بصيغة JSON
+
+payout:
+  latest_payouts: آخر مدفوعاتك
+  time: الوقت
+  txid: رقم العملية
+  amount: القيمة
+  no_payouts_yet: لايوجد مدفوعات حتى الآن
+
+block:
+  pool_rewards: يقوم المجمع دائماً بدفع مكافأة الحزمة كاملة شاملة رسوم الحوالة ومكافأة uncle
+  pool_notice:
+    html: يتطلب تأكيد الحزمة<em style="text-decoration:underline">حتى</em> <span class="label label-success">{success}</span> حزمة. وبالعادة أقل من ذلك.
+  blocks: الحزم
+  immature: غير مؤكدة
+  new: الحزم الجديدة
+  orphan: غير محسوبة
+  no_matured_blocks_yet: لايوجد حزم مؤكدة حتى الآن
+  reward: المكافأة
+  height: الإرتفاع
+  hash: هاش
+  time_found: وقت الإيجاد
+  variance: تباين الحصص (حصة/صعوبة)
+  matured: حزم مؤكدة
+  immature_blocks: حزم غير مؤكدة
+  no_immature_blocks_yet: لايوجد حزم غير مؤكدة حتى الآن
+  no_new_blocks_yet: لايوجد حزم حتى الآن
+  recently_found_blocks: الحزم التي تم إيجادها مؤخراً
+
+luck:
+  blocks: الحزم
+  shares_diff: الحصة/الصعوبة
+  uncle_rate: معدل Uncle
+  orphan_rate: معدل الغير محسوب
+
+payments:
+  pay_tx: يقوم المجمع بدفع رسوم الحوالة من رصيده الخاص.
+  total_payments_sent: إجمالي المدفوعات المرسلة
+  latest_payouts: آخر المدفوعات
+  time: الوقت
+  amount: المبلغ
+  address: العنوان
+  txid: رقم الحوالة
+  no_payouts_yet: لايوجد مدفوعات حتى الآن
+
+miners:
+  total_hashrate: إجمالي سرعة معالجة المجمع
+  total_miners: إجمالي المعدنين
+  login: العنوان
+  hashrate: سرعة المعالجة
+  last_beat: آخر ظهور
+  no_miners: لايوجد معدنين
+  miners: المعدنين
+
+wallet:
+  dapp_html: <a href="https://ethereum.org/">https://ethereum.org/</a>
+  online_html: <a href="https://www.myetherwallet.com/">https://www.myetherwallet.com</a> Online wallet at myetherwallet.com
+
+errors:
+  header: الموقع متوقف مؤقتاً
+  message: بالعادة هذه مشكلة مؤقتة والتعدين لا يتأثر.
+
+links:
+  blockExplorerLink: 'https://cloexplorer.org/'
+  blockExplorerLink_tx: 'https://cloexplorer.org/tx/'
+  blockExplorerLink_uncle: 'https://cloexplorer.org/uncle'
+  blockExplorerLink_block: 'https://cloexplorer.org/block/'
+  blockExplorerLink_address: 'https://cloexplorer.org/addr/'
+
+footer:
+  copyrights: '&copy;'
