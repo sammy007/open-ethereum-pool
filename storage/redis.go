@@ -810,7 +810,7 @@ func (r *RedisClient) GetMinerStats(login string, maxPayments int64) (map[string
 		stats["stats"] = convertStringMap(result)
 		payments := convertPaymentsResults(cmds[1].(*redis.ZSliceCmd))
 		stats["payments"] = payments
-		stats["paymentsTotal"] = cmds[2].(*redis.IntCmd).Val()
+		stats["paymentsTotal"], _ = cmds[2].(*redis.StringCmd).Int64()
 		roundShares, _ := cmds[3].(*redis.StringCmd).Int64()
 		stats["roundShares"] = roundShares
 	}
@@ -914,7 +914,7 @@ func (r *RedisClient) CollectStats(smallWindow time.Duration, maxBlocks, maxPaym
 
 	payments := convertPaymentsResults(cmds[10].(*redis.ZSliceCmd))
 	stats["payments"] = payments
-	stats["paymentsTotal"] = cmds[9].(*redis.IntCmd).Val()
+	stats["paymentsTotal"], _ = cmds[9].(*redis.StringCmd).Int64()
 
 	finders := convertFindersResults(cmds[11].(*redis.ZSliceCmd))
 	stats["finders"] = finders
@@ -939,6 +939,8 @@ func (r *RedisClient) CollectWorkersStats(sWindow, lWindow time.Duration, login 
 	cmds, err := tx.Exec(func() error {
 		tx.ZRemRangeByScore(r.formatKey("hashrate", login), "-inf", fmt.Sprint("(", now-largeWindow))
 		tx.ZRangeWithScores(r.formatKey("hashrate", login), 0, -1)
+		tx.ZRevRangeWithScores(r.formatKey("rewards", login), 0, 39)
+		tx.ZRevRangeWithScores(r.formatKey("rewards", login), 0, -1)
 		return nil
 	})
 
