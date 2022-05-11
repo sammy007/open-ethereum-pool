@@ -145,7 +145,7 @@ func NewProxy(cfg *Config, backend *storage.RedisClient) *ProxyServer {
 			case <-stateUpdateTimer.C:
 				t := proxy.currentBlockTemplate()
 				if t != nil {
-					err := backend.WriteNodeState(cfg.Name, t.Height, t.Difficulty)
+					err := backend.WriteNodeState(cfg.Name, t.Height, t.Difficulty, cfg.AvgBlockTime)
 					if err != nil {
 						log.Printf("Failed to write node state to backend: %v", err)
 						proxy.markSick()

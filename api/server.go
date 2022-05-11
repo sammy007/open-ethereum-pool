@@ -24,6 +24,11 @@ type ApiConfig struct {
 	PoolChartsNum        int64  `json:"poolChartsNum"`
 	MinerChartsNum       int64  `json:"minerChartsNum"`
 	MinerCharts          string `json:"minerCharts"`
+	NetChartsNum         int64  `json:"netChartsNum"`
+	ClientCharts         string `json:"clientCharts"`
+	ClientChartsNum      int64  `json:"clientChartsNum"`
+	WorkerCharts         string `json:"workerCharts"`
+	WorkerChartsNum      int64  `json:"workerChartsNum"`
 	StatsCollectInterval string `json:"statsCollectInterval"`
 	HashrateWindow       string `json:"hashrateWindow"`
 	HashrateLargeWindow  string `json:"hashrateLargeWindow"`
@@ -119,7 +124,7 @@ func (s *ApiServer) Start() {
 				log.Println("Get all miners account error: ", err)
 			}
 			for _, login := range miners {
-				miner, _ := s.backend.CollectWorkersStats(s.hashrateWindow, s.hashrateLargeWindow, login)
+				miner, _ := s.backend.CollectWorkersStats(s.hashrateWindow, s.hashrateLargeWindow, login, 0)
 				s.collectMinerCharts(login, miner["currentHashrate"].(int64), miner["hashrate"].(int64), miner["workersOnline"].(int64))
 			}
 		})
@@ -208,8 +213,17 @@ func (s *ApiServer) collectStats() {
 			log.Printf("Failed to fetch luck stats from backend: %v", err)
 			return
 		}
+		stats["luckCharts"], err = s.backend.CollectLuckCharts(s.config.LuckWindow[0])
+		if err != nil {
+                        log.Printf("Failed to fetch luck Charts from backend: %v", err)
+                        return
+                }
 	}
 	stats["poolCharts"], err = s.backend.GetPoolCharts(s.config.PoolChartsNum)
+	stats["netCharts"], err = s.backend.GetNetCharts(s.config.NetChartsNum)
+	stats["clientCharts"], err = s.backend.GetClientCharts(s.config.ClientChartsNum)
+	stats["workerCharts"], err = s.backend.GetWorkerCharts(s.config.WorkerChartsNum)
+	stats["totalWorkers"] = s.getWorkersNumber()
 	s.stats.Store(stats)
 	log.Printf("Stats collection finished %s", time.Since(start))
 }
@@ -251,8 +265,12 @@ func (s *ApiServer) StatsIndex(w http.ResponseWriter, r *http.Request) {
 		reply["now"] = util.MakeTimestamp()
 		reply["stats"] = stats["stats"]
 		reply["poolCharts"] = stats["poolCharts"]
+		reply["netCharts"] = stats["netCharts"]
+		reply["clientCharts"] = stats["clientCharts"]
+		reply["workerCharts"] = stats["workerCharts"]
 		reply["hashrate"] = stats["hashrate"]
 		reply["minersTotal"] = stats["minersTotal"]
+		reply["totalWorkers"] = stats["totalWorkers"]
 		reply["maturedTotal"] = stats["maturedTotal"]
 		reply["immatureTotal"] = stats["immatureTotal"]
 		reply["candidatesTotal"] = stats["candidatesTotal"]
@@ -262,6 +280,19 @@ func (s *ApiServer) StatsIndex(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Error serializing API response: ", err)
 	}
+}
+
+func (s *ApiServer) getWorkersNumber() (int64){
+	numberofWorker := int64(0)
+	miners, err := s.backend.GetAllMinerAccount()
+	if err != nil {
+		log.Println("Get all miners account error: ", err)
+	}
+	for _, login := range miners {
+		miner, _ := s.backend.CollectWorkersStats(s.hashrateWindow, s.hashrateLargeWindow, login, 0)
+		numberofWorker += miner["workersOnline"].(int64)
+	}
+	return numberofWorker
 }
 
 func (s *ApiServer) MinersIndex(w http.ResponseWriter, r *http.Request) {
@@ -360,7 +391,7 @@ func (s *ApiServer) AccountIndex(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Failed to fetch stats from backend: %v", err)
 			return
 		}
-		workers, err := s.backend.CollectWorkersStats(s.hashrateWindow, s.hashrateLargeWindow, login)
+		workers, err := s.backend.CollectWorkersStats(s.hashrateWindow, s.hashrateLargeWindow, login, 0)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			log.Printf("Failed to fetch stats from backend: %v", err)
