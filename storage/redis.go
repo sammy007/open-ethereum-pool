@@ -212,6 +212,24 @@ func (r *RedisClient) WriteMinerCharts(time1 int64, time2, k string, hash, large
 	return cmd.Err()
 }
 
+func (r *RedisClient) WriteDiffCharts(time1 int64, time2 string, netHash string) error {
+	s := join(time1, time2, netHash)
+	cmd := r.client.ZAdd(r.formatKey("charts", "difficulty"), redis.Z{Score: float64(time1), Member: s})
+	return cmd.Err()
+}
+
+func (r *RedisClient) WriteClientCharts(time1 int64, time2 string, clientTot string) error {
+	s := join(time1, time2, clientTot)
+	cmd := r.client.ZAdd(r.formatKey("charts", "client"), redis.Z{Score: float64(time1), Member: s})
+	return cmd.Err()
+}
+
+func (r *RedisClient) WriteWorkerCharts(time1 int64, time2 string, workerTot string) error {
+	s := join(time1, time2, workerTot)
+	cmd := r.client.ZAdd(r.formatKey("charts", "worker"), redis.Z{Score: float64(time1), Member: s})
+	return cmd.Err()
+}
+
 func (r *RedisClient) GetPoolCharts(poolHashLen int64) (stats []*PoolCharts, err error) {
 
 	tx := r.client.Multi()

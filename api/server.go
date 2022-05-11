@@ -24,6 +24,7 @@ type ApiConfig struct {
 	PoolChartsNum        int64  `json:"poolChartsNum"`
 	MinerChartsNum       int64  `json:"minerChartsNum"`
 	MinerCharts          string `json:"minerCharts"`
+	NetCharts            string `json:"netCharts"`
 	NetChartsNum         int64  `json:"netChartsNum"`
 	ClientCharts         string `json:"clientCharts"`
 	ClientChartsNum      int64  `json:"clientChartsNum"`
@@ -115,6 +116,24 @@ func (s *ApiServer) Start() {
 			s.collectPoolCharts()
 		})
 
+		netCharts := s.config.NetCharts
+		log.Printf("Net charts config is :%v", netCharts)
+		c.AddFunc(netCharts, func() {
+			s.collectnetCharts()
+		})
+
+		clientCharts := s.config.ClientCharts
+		log.Printf("Client charts config is :%v", clientCharts)
+		c.AddFunc(clientCharts, func() {
+			s.collectclientCharts()
+		})
+		
+		workerCharts := s.config.WorkerCharts
+		log.Printf("Worker charts config is :%v", workerCharts)
+		c.AddFunc(workerCharts, func() {
+			s.collectworkerCharts()
+		})
+
 		minerCharts := s.config.MinerCharts
 		log.Printf("miner charts config is :%v", minerCharts)
 		c.AddFunc(minerCharts, func() {
@@ -153,6 +172,59 @@ func (s *ApiServer) collectPoolCharts() {
 		return
 	}
 }
+
+func (s *ApiServer) collectclientCharts() {
+	ts := util.MakeTimestamp() / 1000
+	now := time.Now()
+	year, month, day := now.Date()
+	hour, min, _ := now.Clock()
+	t2 := fmt.Sprintf("%d-%02d-%02d %02d_%02d", year, month, day, hour, min)
+	stats := s.getStats()
+	client := fmt.Sprint(stats["minersTotal"])
+	log.Println("Client Count is ", ts, t2, client)
+	err := s.backend.WriteClientCharts(ts, t2, client)
+	if err != nil {
+		log.Printf("Failed to fetch client charts from backend: %v", err)
+		return
+	}
+}
+
+func (s *ApiServer) collectworkerCharts() {
+	ts := util.MakeTimestamp() / 1000
+	now := time.Now()
+	year, month, day := now.Date()
+	hour, min, _ := now.Clock()
+	t2 := fmt.Sprintf("%d-%02d-%02d %02d_%02d", year, month, day, hour, min)
+	stats := s.getStats()
+	client := fmt.Sprint(stats["totalWorkers"])
+	log.Println("Worker Count is ", ts, t2, client)
+	err := s.backend.WriteWorkerCharts(ts, t2, client)
+	if err != nil {
+		log.Printf("Failed to fetch worker charts from backend: %v", err)
+		return
+	}
+}
+
+func (s *ApiServer) collectnetCharts() {
+	ts := util.MakeTimestamp() / 1000
+	now := time.Now()
+	year, month, day := now.Date()
+	hour, min, _ := now.Clock()
+	t2 := fmt.Sprintf("%d-%02d-%02d %02d_%02d", year, month, day, hour, min)
+	nodes, erro := s.backend.GetNodeStates()
+	if erro != nil {
+		log.Printf("Failed to fetch Diff charts from backend: %v", erro)
+		return
+	}
+	diff := fmt.Sprint(nodes[0]["difficulty"])
+	log.Println("Difficulty Hash is ", ts, t2, diff)
+	err := s.backend.WriteDiffCharts(ts, t2, diff)
+	if err != nil {
+		log.Printf("Failed to fetch Diff charts from backend: %v", err)
+		return
+	}
+}
+
 
 func (s *ApiServer) collectMinerCharts(login string, hash int64, largeHash int64, workerOnline int64) {
 	ts := util.MakeTimestamp() / 1000
