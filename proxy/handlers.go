@@ -4,7 +4,7 @@ import (
 	"log"
 	"regexp"
 	"strings"
-	"errors"
+//	"errors"
 	"github.com/sammy007/open-ethereum-pool/rpc"
 	"github.com/sammy007/open-ethereum-pool/util"
 )
@@ -38,7 +38,7 @@ func (s *ProxyServer) handleGetWorkRPC(cs *Session) ([]string, *ErrorReply) {
 	if t == nil || len(t.Header) == 0 || s.isSick() {
 		return nil, &ErrorReply{Code: 0, Message: "Work not ready"}
 	}
-	return []string{t.Header, t.Seed, s.diff}, nil
+	return []string{t.Header, t.Seed, s.diff, util.ToHex(int64(t.Height))}, nil
 }
 
 // Stratum
@@ -78,44 +78,34 @@ func (s *ProxyServer) handleSubmitRPC(cs *Session, login, id string, params []st
 		return false, &ErrorReply{Code: -1, Message: "Malformed PoW result"}
 	}
 
-	go func(s *ProxyServer, cs *Session, login, id string, params []string) {
-		t := s.currentBlockTemplate()
-		//INFO: 	This function (s.processShare) will process a share as per hasher.Verify function of github.com/ethereum/ethash
-		//	output of this function is either:
-		//		true,true   	(Exists) which means share already exists and it is validShare
-		//		true,false		(Exists & invalid)which means share already exists and it is invalidShare or it is a block <-- should not ever happen
-		//		false,false		(stale/invalid)which means share is new, and it is not a block, might be a stale share or invalidShare
-		//		false,true		(valid)which means share is new, and it is a block or accepted share
-		//	When this function finishes, the results is already recorded in the db for valid shares or blocks.
-		exist, validShare := s.processShare(login, id, cs.ip, t, params)
-		ok := s.policy.ApplySharePolicy(cs.ip, !exist && validShare)
+	t := s.currentBlockTemplate()
+	exist, validShare := s.processShare(login, id, cs.ip, t, params, cs.algorithm, stratumMode != EthProxy)
+	ok := s.policy.ApplySharePolicy(cs.ip, !exist && validShare)
 
-		// if true,true or true,false
-		if exist {
-			log.Printf("Duplicate share from %s@%s %v", login, cs.ip, params)
-			cs.lastErr = errors.New("Duplicate share")
-		}
-
-		if !validShare {
-			//INFO: here we have an invalid share
-			log.Printf("Invalid share from %s@%s", login, cs.ip)
-			// Bad shares limit reached, return error and close
-			if !ok {
-				cs.lastErr = errors.New("Invalid share")
-			}
-		}
-		if s.config.Proxy.Debug {
-		//INFO: Here we have a valid share and it is already recorded in DB by miner.go
-		// if false, true
-		log.Printf("Valid share from %s@%s", login, cs.ip)
-		}
-
-
+	if exist {
+		log.Printf("Duplicate share from %s@%s %v", login, cs.ip, params)
+		// see https://github.com/sammy007/open-ethereum-pool/compare/master...nicehashdev:patch-1
 		if !ok {
-			cs.lastErr = errors.New("High rate of invalid shares")
+			return false, &ErrorReply{Code: 23, Message: "Invalid share"}
 		}
-	}(s, cs, login, id, params)
+		return false, nil
+	}
 
+	if !validShare {
+		log.Printf("Invalid share from %s@%s", login, cs.ip)
+		// Bad shares limit reached, return error and close
+		if !ok {
+			return false, &ErrorReply{Code: 23, Message: "Invalid share"}
+		}
+		return false, nil
+	}
+	if s.config.Proxy.Debug {
+		log.Printf("Valid share from %s@%s", login, cs.ip)
+	}
+
+	if !ok {
+		return true, &ErrorReply{Code: -1, Message: "High rate of invalid shares"}
+	}
 	return true, nil
 }
 

@@ -6,13 +6,14 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"fmt"
 	"log"
 	"math/rand"
 	"net"
 	"strconv"
 	"strings"
 	"time"
-
+//	"github.com/sammy007/open-ethereum-pool/rpc"
 	"github.com/sammy007/open-ethereum-pool/util"
 )
 
@@ -238,11 +239,13 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 		case "mining.authorize":
 			var params []string
 			err := json.Unmarshal(req.Params, &params)
+			fmt.Printf("stratum 2 request mining.authorize, values \n\t1:%v\n\t2:%v\n", params[0], params[1])
 			if err != nil || len(params) < 1 {
 				return errors.New("invalid params")
 			}
 			splitData := strings.Split(params[0], ".")
 			params[0] = splitData[0]
+			//fmt.Printf("1:%v, 2:%v, 3:%v\n", splitData[0], splitData[1], splitData[2])
 			_, errReply := s.handleLoginRPC(cs, params, req.Worker)
 			if errReply != nil {
 				return cs.sendStratumError(req.Id, []string{
@@ -253,6 +256,7 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 
 			// send worker
 			if err := cs.sendStratumResult(req.Id, splitData[1]); err != nil {
+				log.Println("mining.authorize 2.0.0 wallet not in 0x00.name format")
 				return err
 			}
 
@@ -674,7 +678,10 @@ func (cs *Session) sendJob(s *ProxyServer, id json.RawMessage, newjob bool) erro
 				errReply.Message,
 			})
 		}
-
+		//fmt.Printf("----sendjob, values \n\t1:%v\n\t2:%v\n\t3:%v", reply[0], reply[1], reply[2])
+		//height, err := r.GetBlockByHeight(nil)
+		//block, err := rpc.GetBlockByHeight(0)
+		//fmt.Printf("---height is %v\n", block)
 		cs.JobDetails = jobDetails{
 			JobID:      randomHex(8),
 			SeedHash:   reply[1],
