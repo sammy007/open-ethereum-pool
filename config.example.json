@@ -2,7 +2,7 @@
 	"threads": 2,
 	"coin": "eth",
 	"name": "main",
-
+	"avgBlockTime": 14.4,
 	"proxy": {
 		"enabled": true,
 		"listen": "0.0.0.0:8888",
@@ -13,14 +13,14 @@
 		"stateUpdateInterval": "3s",
 		"difficulty": 2000000000,
 		"hashrateExpiration": "3h",
-
+		"stratumHostname": "teststratrum:8002",
 		"healthCheck": true,
 		"debug": false,
 		"maxFails": 100,
 
 		"stratum": {
 			"enabled": true,
-			"listen": "0.0.0.0:8008",
+			"listen": "0.0.0.0:8002",
 			"timeout": "120s",
 			"maxConn": 8192,
 			"tls": false,
@@ -60,7 +60,17 @@
 		"hashrateLargeWindow": "3h",
 		"luckWindow": [64, 128, 256],
 		"payments": 30,
-		"blocks": 50
+		"blocks": 50,
+		"poolCharts":"*/10 * * * *",
+		"poolChartsNum":100,
+		"minerCharts":"*/15 * * * *",
+		"minerChartsNum":74,
+		"netCharts":"*/15 * * * *",
+		"netChartsNum":72,
+		"clientCharts":"*/15 * * * *",
+		"clientChartsNum":72,
+		"workerCharts":"*/15 * * * *",
+		"workerChartsNum":72
 	},
 
 	"upstreamCheckInterval": "5s",
@@ -72,7 +82,7 @@
 		},
 		{
 			"name": "backup",
-			"url": "http://127.0.0.2:8545",
+			"url": "http://127.0.2:8545",
 			"timeout": "10s"
 		}
 	],
@@ -85,30 +95,30 @@
 	},
 
 	"unlocker": {
-		"enabled": false,
+		"enabled": true,
 		"poolFee": 1.0,
-		"poolFeeAddress": "",
-		"donate": true,
-		"depth": 120,
-		"immatureDepth": 20,
-		"keepTxFees": false,
+		"poolFeeAddress": "0xyourpoolwallethere",
+		"donate": false,
+		"depth": 32,
+		"immatureDepth": 16,
+		"keepTxFees": true,
 		"interval": "10m",
-		"daemon": "http://127.0.0.1:8545",
-		"timeout": "10s"
+		"daemon": "http://127.0.2:8545",
+		"timeout": "30s"
 	},
 
 	"payouts": {
-		"enabled": false,
+		"enabled": true,
 		"requirePeers": 5,
 		"interval": "120m",
-		"daemon": "http://127.0.0.1:8545",
+		"daemon": "http://127.0.2:8545",
 		"timeout": "10s",
-		"address": "0x00000000",
-		"gas": "31000",
+		"address": "0x000yourwallethere",
+		"gas": "21000",
 		"gasPrice": "50000000000",
 		"autoGas": true,
 		"threshold": 500000000,
-		"bgsave": false,
+		"bgsave": true,
 		"concurrentTx": 5
 	},
 
