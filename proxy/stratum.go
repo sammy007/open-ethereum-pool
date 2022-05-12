@@ -235,17 +235,18 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 		switch req.Method {
 		case "mining.noop":
 			return nil
-
+		case "mining.hashrate":
+			return nil
 		case "mining.authorize":
 			var params []string
 			err := json.Unmarshal(req.Params, &params)
-			fmt.Printf("stratum 2 request mining.authorize, values \n\t1:%v\n\t2:%v\n", params[0], params[1])
+			fmt.Printf("stratum 2 request mining.authorize, miner: %v\n", params[0])
 			if err != nil || len(params) < 1 {
 				return errors.New("invalid params")
 			}
 			splitData := strings.Split(params[0], ".")
+
 			params[0] = splitData[0]
-			//fmt.Printf("1:%v, 2:%v, 3:%v\n", splitData[0], splitData[1], splitData[2])
 			_, errReply := s.handleLoginRPC(cs, params, req.Worker)
 			if errReply != nil {
 				return cs.sendStratumError(req.Id, []string{
@@ -255,8 +256,15 @@ func (cs *Session) handleTCPMessage(s *ProxyServer, req *StratumReq) error {
 			}
 
 			// send worker
+			// stratum2 wallet should be in format "0x4bc7b9d69d6454c5666ecad87e5699c1ec02d531.testrig"
+                        sz := len(splitData)
+                        if sz != 2 {
+				fmt.Printf("incorrectly defined wallet: %v adding workername as \"missing\"\n", splitData[0])
+				var missingname = "missing"
+				splitData = append(splitData, missingname)
+                        }
+
 			if err := cs.sendStratumResult(req.Id, splitData[1]); err != nil {
-				log.Println("mining.authorize 2.0.0 wallet not in 0x00.name format")
 				return err
 			}
 
