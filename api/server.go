@@ -13,6 +13,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/robfig/cron"
+	"github.com/sammy007/open-ethereum-pool/rpc"
 	"github.com/sammy007/open-ethereum-pool/storage"
 	"github.com/sammy007/open-ethereum-pool/util"
 )
@@ -43,12 +44,15 @@ type ApiConfig struct {
 type ApiServer struct {
 	config              *ApiConfig
 	backend             *storage.RedisClient
+	genesisHash         string
 	hashrateWindow      time.Duration
 	hashrateLargeWindow time.Duration
 	stats               atomic.Value
 	miners              map[string]*Entry
 	minersMu            sync.RWMutex
+	rpc                 *rpc.RPCClient
 	statsIntv           time.Duration
+	settings            map[string]interface{}
 }
 
 type Entry struct {
@@ -56,15 +60,25 @@ type Entry struct {
 	updatedAt int64
 }
 
-func NewApiServer(cfg *ApiConfig, backend *storage.RedisClient) *ApiServer {
+func NewApiServer(cfg *ApiConfig, settings map[string]interface{}, backend *storage.RedisClient) *ApiServer {
+	rpcDaemon := settings["BlockUnlocker"].(map[string]interface{})["Daemon"].(string)
+	rpcTimeout := settings["BlockUnlocker"].(map[string]interface{})["Timeout"].(string)
+	rpc := rpc.NewRPCClient("BlockUnlocker", rpcDaemon, rpcTimeout)
+	block, err := rpc.GetBlockByHeight(0)
+	if err != nil || block == nil {
+		log.Fatalf("Error while retrieving genesis block from node: %v", err)
+	}
 	hashrateWindow := util.MustParseDuration(cfg.HashrateWindow)
 	hashrateLargeWindow := util.MustParseDuration(cfg.HashrateLargeWindow)
 	return &ApiServer{
 		config:              cfg,
 		backend:             backend,
+		genesisHash:         block.Hash,
 		hashrateWindow:      hashrateWindow,
 		hashrateLargeWindow: hashrateLargeWindow,
 		miners:              make(map[string]*Entry),
+		rpc:                 rpc,
+		settings:            settings,
 	}
 }
 
@@ -247,6 +261,7 @@ func (s *ApiServer) listen() {
 	r.HandleFunc("/api/miners", s.MinersIndex)
 	r.HandleFunc("/api/blocks", s.BlocksIndex)
 	r.HandleFunc("/api/payments", s.PaymentsIndex)
+	r.HandleFunc("/api/settings", s.Settings)
 	r.HandleFunc("/api/accounts/{login:0x[0-9a-fA-F]{40}}", s.AccountIndex)
 	r.NotFoundHandler = http.HandlerFunc(notFound)
 	err := http.ListenAndServe(s.config.Listen, r)
@@ -485,6 +500,33 @@ func (s *ApiServer) AccountIndex(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error serializing API response: ", err)
 	}
 }
+
+func (s *ApiServer) Settings(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Cache-Control", "max-age=600")
+	w.WriteHeader(http.StatusOK)
+
+	reply := make(map[string]interface{})
+	reply["Difficulty"] = s.settings["Proxy"].(map[string]interface{})["Difficulty"]
+	reply["PoolFee"] = s.settings["BlockUnlocker"].(map[string]interface{})["PoolFee"]
+	reply["PoolFeeAddress"] = s.settings["BlockUnlocker"].(map[string]interface{})["PoolFeeAddress"]
+	reply["KeyTxFees"] = s.settings["BlockUnlocker"].(map[string]interface{})["KeepTxFees"]
+	reply["BlockUnlockDepth"] = s.settings["BlockUnlocker"].(map[string]interface{})["Depth"]
+	reply["EthProxy"] = s.settings["Proxy"].(map[string]interface{})["Enabled"]
+	reply["EthProxyPool"] = s.settings["Proxy"].(map[string]interface{})["Listen"]
+	reply["Stratum"] = s.settings["Proxy"].(map[string]interface{})["Stratum"].(map[string]interface{})["Enabled"]
+	reply["StratumPool"] = s.settings["Proxy"].(map[string]interface{})["Stratum"].(map[string]interface{})["Listen"]
+	reply["PayoutThreshold"] = s.settings["Payouts"].(map[string]interface{})["Threshold"]
+	reply["PayoutInterval"] = s.settings["Payouts"].(map[string]interface{})["Interval"]
+	reply["GenesisHash"] = s.genesisHash
+
+	err := json.NewEncoder(w).Encode(reply)
+	if err != nil {
+		log.Println("Error serializing API response: ", err)
+	}
+}
+
 
 func (s *ApiServer) getStats() map[string]interface{} {
 	stats := s.stats.Load()

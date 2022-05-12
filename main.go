@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/yvasiyarov/gorelic"
-
+	"github.com/fatih/structs"
 	"github.com/sammy007/open-ethereum-pool/api"
 	"github.com/sammy007/open-ethereum-pool/payouts"
 	"github.com/sammy007/open-ethereum-pool/proxy"
@@ -28,7 +28,8 @@ func startProxy() {
 }
 
 func startApi() {
-	s := api.NewApiServer(&cfg.Api, backend)
+	settings := structs.Map(&cfg)
+	s := api.NewApiServer(&cfg.Api, settings, backend)
 	s.Start()
 }
 
