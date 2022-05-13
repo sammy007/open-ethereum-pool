@@ -1,0 +1,23 @@
+{{#if model.matured}}
+<h3>{{t "block.matured"}}</h3>
+<div class="table-responsive">
+  <table class="table table-condensed table-striped">
+    <thead>
+      <tr>
+        <th>{{t "block.height"}}</th>
+        <th>{{t "block.hash"}}</th>
+        <th>{{t "block.time_found"}}</th>
+        <th>{{t "block.variance"}}</th>
+        <th>{{t "block.reward"}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each model.matured as |block|}}
+        {{partial "blocks/block"}}
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+{{else}}
+<h3>{{t "block.no_matured_blocks_yet"}}</h3>
+{{/if}}

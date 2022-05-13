@@ -1,0 +1,364 @@
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  background: url('/bg.png');
+}
+
+caption, th {
+    text-align: inherit;
+}
+
+
+/* Custom page CSS
+-------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+
+body {
+  padding-top: 20px;
+  padding-bottom: 0px;
+  color: #ddd;
+}
+
+body > .container {
+  padding: 0px 15px 0;
+}
+.container .text-muted {
+  margin: 20px 0;
+}
+
+/* doesn't work -------- */
+#coin_calculator iframe form{
+  border:none !important;
+  border-radius: 0px !important;
+  background-color: transparent !important;
+}
+
+/* Menu CSS Stuff */
+
+.navbar-fixed-bottom .navbar-collapse, .navbar-fixed-top .navbar-collapse {
+    max-height: unset;
+}
+
+.navbar-collapse.in{
+  overflow: visible;
+}
+
+
+
+h1 {
+    font-size: 36px;
+    line-height: 42px;
+}
+
+h2 {
+    font-size: 24px;
+    line-height: 32px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #fff;
+    margin: 0px 0px 15px 0px;
+    font-weight: 400;
+    font-family: 'Poppins', sans-serif;
+}
+
+.modal-title{
+  color:#333;
+}
+
+.space-medium {
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+.jumbotron {
+	margin: 0;
+	padding: 40px 0 15px 0;
+	margin-bottom: 15px;
+}
+
+
+code {
+  font-size: 80%;
+}
+
+.navbar-default {
+	background-color: #060820;
+	border-color: transparent;
+}
+.navbar-default .navbar-brand {
+	color: #dadada;
+}
+.navbar-default .navbar-brand:hover, .navbar-default .navbar-brand:focus {
+	color: #ffffff;
+}
+.navbar-default .navbar-text {
+	color: #dadada;
+}
+.navbar-default .navbar-nav > li > a {
+	color: #dadada;
+}
+.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+	color: #ffffff;
+}
+.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
+	color: #ffffff;
+	background-color: #0a6c9d;
+}
+.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
+	color: #ffffff;
+	background-color: #69102b;
+}
+.navbar-default .navbar-toggle {
+	border-color: #0a6c9d;
+}
+.navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
+	background-color: #0a6c9d;
+}
+.navbar-default .navbar-toggle .icon-bar {
+	background-color: #dadada;
+}
+.navbar-default .navbar-collapse,
+.navbar-default .navbar-form {
+	border-color: #00ff58;
+}
+.navbar-default .navbar-link {
+	color: #dadada;
+}
+.navbar-default .navbar-link:hover {
+	color: #ffffff;
+}
+
+@media (max-width: 767px) {
+	.navbar-default .navbar-nav .open .dropdown-menu > li > a {
+		color: #dadada;
+	}
+	.navbar-default .navbar-nav .open .dropdown-menu > li > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+		color: #ffffff;
+	}
+	.navbar-default .navbar-nav .open .dropdown-menu > .active > a, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+		color: #ffffff;
+		background-color: #0a6c9d;
+	}
+}
+
+span.logo-1 {
+	font-weight: 700;
+	color: #53ad2d;
+}
+
+span.logo-2 {
+	font-weight: 500;
+  font-size:smaller;
+	color: #FFF;
+}
+
+span.logo-3 {
+	color: #FFF;
+	font-weight: 100;
+}
+
+.navbar-collapse {
+	font-size: 14px;
+	font-weight: 200;
+  background-color: rgb(0, 12, 34);
+}
+
+.note {
+	margin: 0 0 20px 0;
+	padding: 15px 30px 15px 15px;
+	border-left: 5px solid #eee;
+	border-radius: 15px;
+}
+
+.note-info {
+	background-color: #E8F6FC;
+	border-color: #57b5e3;
+  color: #333333;
+}
+
+.note-danger {
+	background-color: #ff9999;
+	border-color: #ff0000;
+}
+
+h4.note {
+	margin-top: 0;
+	font-weight: 300 !important;
+}
+
+.hash {
+	font-family: 'Inconsolata', monospace;
+}
+
+/* Stats */
+
+.stats-box {
+    padding: 24px 30px;
+    background: #0e102f;
+    border-radius: 15px;
+    margin-bottom: 6px;
+}
+
+
+
+
+.stats-box > h3 > i {
+	width: 21px;
+}
+
+.stats-box > div > .fa {
+	width: 25px;
+}
+.stats-box > div > span:first-of-type{
+	font-weight: bold;
+}
+
+.bg-dark {
+    background-image: linear-gradient(to bottom, #0b0c22 0%, #0e122f 70%);
+}
+
+.worker-class.warning.offline-1 > td{
+  background-color: #ffd1d1;
+}
+
+.worker-class.warning.offline-2 > td{
+  background-color: #f99393;
+}
+
+.worker-class.warning.offline-3 > td{
+  background-color: #ff5959;
+  color:#ffffff;
+}
+
+.worker-class.warning.offline-4 > td{
+  background-color: #ff3e3e;
+  color:#ffffff;
+}
+
+.worker-class.warning.offline-5 > td{
+  background-color: #ff1e1e;
+  color:#ffffff;
+}
+
+
+.jumbotron{
+  background: transparent;
+  color:#bbbbbb;
+}
+
+.jumbotron small{
+  color:#919191;
+  margin-left:30px;
+}
+
+.alert{
+  border-radius:20px;
+}
+.nav-tabs{
+  margin-bottom:20px;
+}
+.nav-tabs>li>a {
+    border-radius: 15px 15px 0 0;
+}
+
+a {
+    color: #5ea2ff;
+}
+
+.table-striped>tbody>tr:nth-of-type(odd) {
+    background-color: rgba(0,0,0,0.5);
+}
+.table {
+    margin-bottom: 0px;
+}
+.table-responsive {
+    color: #444;
+    background-color: rgba(255,255,255,0.9);
+    padding: 5px 5px 0px;
+    border-radius: 20px 20px 0px 0px;
+    margin-bottom:20px;
+}
+.table-responsive a {
+    color: #004bb1;
+}
+
+.table-striped>tbody>tr:nth-of-type(odd) {
+    background-color: rgba(0,0,0,.2);
+}
+
+.highcharts-wrapper{
+  margin-bottom:20px;
+}
+
+
+.command_lines{
+  margin: 15px 0;
+}
+
+.command_lines ul{
+  margin-bottom:0px;
+}
+
+.command_lines h5{
+  color: #333;
+}
+.command_lines .tab-content {
+  background-color: #E8F6FC;
+  border-left: 5px solid #eee;
+  border-color: #57b5e3;
+  color: #ddd;
+  border-radius: 0 0 15px 15px;
+}
+
+
+
+.command_lines .nav-tabs {
+     border-bottom: 0;
+}
+
+.command_lines .nav-tabs>li.active>a,
+.command_lines .nav-tabs>li.active>a:focus,
+.command_lines .nav-tabs>li.active>a:hover {
+  border-left: 5px solid #eee;
+  border-color: #57b5e3;
+  border-bottom: 0px;
+}
+
+
+.command_lines .panel-group .panel+.panel {
+    margin-top: 0px;
+}
+
+.command_lines .panel-group .panel {
+    margin-bottom: 0;
+    border-radius: 0;
+}
+
+.command_lines .panel-default>.panel-heading {
+    color: #dddddd;
+    background-color: #0e102f;
+    border: 0px;
+}
+
+.command_lines .panel-default {
+    border: 0px;
+}
+
+.join_telegram{
+  border-radius: 5px;
+  font-size: x-large;
+}
+
+
+.footer {  background: #020207;}
+.footer-section { text-align: center; }
+.footer-title { margin-bottom: 40px; }
+.footer > .container {
+  padding-right: 15px;
+  padding-left: 15px;
+}

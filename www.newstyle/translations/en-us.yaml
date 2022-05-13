@@ -1,0 +1,160 @@
+general:
+  direction: ltr
+calculator:
+  title: How much are you gonna earn?
+  close: Close this window
+menu:
+  motd: Welcome to the pool!
+  home: Home
+  help: Help
+  pool_blocks: Blocks
+  calculator: Calculator
+  payments: Payments
+  miners: Miners
+  about: About
+  i18n:
+    about: about
+    help: help
+  language: language
+
+lang:
+  arabic: عربي
+  english: English
+
+home:
+  min_payout_threshold: Min. payout threshold
+  payouts_run: every {interval}.
+  payout_scheme_detail: PROP payout scheme.
+  miners_online: Miners Online
+  pool_hashrate: Pool Hash Rate
+  pool_fee: Pool Fee
+  last_block_found: Last Block Found
+  network_difficulty: Network Difficulty
+  network_hashrate: Network Hash Rate
+  blockchain_height: Blockchain Height
+  current_round_variance: Current Round Variance
+  query_history: Your Stats and Payment History
+  input:
+    enter_your_wallet_address: Enter Your Wallet Address
+  button:
+    lookup: Lookup
+  help:
+    minimal: help-minimal
+  settings:
+    difficulty: (difficulty {diff} billion)
+    help: CLICK FOR HELP
+    title: WORKER {hashes} MH/s
+    stratum_mining: Stratum Mining
+    commands:
+      windows: Windows
+      smos: SimpleMining
+      windows_instruction: Add this to your bat file
+      smos_instruction: Add this into your new Rig Group
+
+account:
+  immature:
+    balance: Immature Balance
+    description: Preliminary balance awaiting blocks to mature.
+  pending:
+    balance: Pending Balance
+    description: Credited coins awaiting payout.
+  current: Current Payment
+  last_share_submitted: Last Share Submitted
+  online: Workers Online
+  hashrate: Hashrate
+  earnings:
+    miner: Earnings per day (3h avg)
+    worker: Earnings / day (short avg)
+  blocks:
+    found: Blocks Found
+  total:
+    payments: Total Payments
+    paid: Total Paid
+  round_share: Your Round Share
+  round_share_description: Percent of your contribution to current round.
+  epoch_switch: Epoch Switch
+  workers: Workers
+  payouts: Payouts
+
+  your_workers: Workers
+  server: Server
+  difficulty: Difficulty
+  last_share: Last Seen
+  short_average: rough, short average
+  short_average_abbrv: 30m
+  long_average: accurate, long average
+  long_average_abbrv: 3h
+  no_workers_online: No workers online
+  notice: Notice
+  notice_html: Your average hashrate will be smoothly adjusted until you have shares to fullfill estimation window.<br/>There are two windows, long and short, first is equal to about 30 minutes and long window is usually equal to 3 hours.<br/>Dead (sick) workers will be highlighted in a table of workers if they didn't submit a share for 1/2 of short window, so you can perform maintenance of your rigs.
+  json_api_url: Your bulk stats JSON API URL
+
+payout:
+  latest_payouts: Your Latest Payouts
+  time: Time
+  txid: Tx ID
+  amount: Amount
+  no_payouts_yet: No payouts yet
+
+block:
+  pool_rewards: Pool always pay full block reward including TX fees and uncle rewards.
+  pool_notice:
+    html: Block maturity requires <em style="text-decoration:underline">up to</em> <span class="label label-success">{success}</span> blocks. Usually it's less indeed.
+  blocks: Blocks
+  immature: Immature
+  new: New Blocks
+  orphan: Orphan
+  no_matured_blocks_yet: No matured blocks yet
+  reward: Reward
+  height: Height
+  hash: Hash
+  time_found: Time Found
+  variance: Share Variance (Shares/Diff)
+  matured: Matured Blocks
+  immature_blocks: Immature Blocks
+  no_immature_blocks_yet: No immature blocks yet
+  no_new_blocks_yet: No new blocks yet
+  recently_found_blocks: Recently Found Blocks
+
+luck:
+  blocks: Blocks
+  shares_diff: Shares/Diff
+  uncle_rate: Uncle Rate
+  orphan_rate: Orphan Rate
+
+payments:
+  pay_tx: Pool always pay tx fees from it's own pocket for now.
+  total_payments_sent: Total payments sent
+  latest_payouts: Latest Payouts
+  time: Time
+  amount: Amount
+  address: Address
+  txid: Tx ID
+  no_payouts_yet: No payouts yet
+
+miners:
+  total_hashrate: Total pool hashrate
+  total_miners: Total miners
+  login: Login
+  hashrate: Hashrate
+  last_beat: Last beat
+  no_miners: No miners
+  miners: Miners
+
+wallet:
+  dapp_html: <a href="https://ethereum.org/">https://ethereum.org/</a>
+  online_html: <a href="https://www.myetherwallet.com/">https://www.myetherwallet.com</a> Online wallet at myetherwallet.com
+
+errors:
+  header: Stats API Temporarily Down
+  message: Usually it's just a temporal issue and mining is not affected.
+
+links:
+  blockExplorerLink: 'https://ropsten.etherscan.io/'
+  blockExplorerLink_tx: 'https://ropsten.etherscan.io/tx/'
+  blockExplorerLink_uncle: 'https://ropsten.etherscan.io/uncle'
+  blockExplorerLink_block: 'https://ropsten.etherscan.io/block/'
+  blockExplorerLink_address: 'https://ropsten.etherscan.io/address/'
+
+footer:
+  copyrights: '&copy;'

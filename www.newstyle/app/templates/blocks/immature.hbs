@@ -1,0 +1,24 @@
+{{#if model.immature}}
+<h3>{{t "block.immature_blocks"}}</h3>
+
+<div class="table-responsive">
+  <table class="table table-condensed table-striped">
+    <thead>
+      <tr>
+        <th>{{t "block.height"}}</th>
+        <th>{{t "block.hash"}}</th>
+        <th>{{t "block.time_found"}}</th>
+        <th>{{t "block.variance"}}</th>
+        <th>{{t "block.reward"}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each model.immature as |block|}}
+        {{partial "blocks/block"}}
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+{{else}}
+<h3>{{t "block.no_immature_blocks_yet"}}</h3>
+{{/if}}

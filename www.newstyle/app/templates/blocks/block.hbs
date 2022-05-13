@@ -1,0 +1,33 @@
+<tr>
+  <td>
+    {{#if block.uncle}}
+      <a href="{{t "links.blockExplorerLink_uncle"}}{{block.height}}" rel="nofollow" target="_blank">{{format-number block.height}}</a>
+    {{else}}
+      <a href="{{t "links.blockExplorerLink_block"}}{{block.height}}" rel="nofollow" target="_blank">{{format-number block.height}}</a>
+    {{/if}}
+  </td>
+  <td>
+    {{#if block.uncle}}
+      <a href="{{t "links.blockExplorerLink_uncle"}}{{block.hash}}" class="hash" rel="nofollow" target="_blank">{{block.hash}}</a>
+    {{else if block.orphan}}
+      <span class="label label-danger">{{t "block.orphan"}}</span>
+    {{else}}
+      <a href="{{t "links.blockExplorerLink_block"}}{{block.hash}}" class="hash" rel="nofollow" target="_blank">{{block.hash}}</a>
+    {{/if}}
+  </td>
+  <td>{{format-date-locale block.timestamp}}</td>
+  <td>
+    {{#if block.isLucky}}
+      <span class="label label-success">{{format-number block.variance style='percent'}}</span>
+    {{else}}
+      <span class="label label-info">{{format-number block.variance style='percent'}}</span>
+    {{/if}}
+  </td>
+  <td>
+    {{#if block.uncle}}
+    <span class="label label-default">{{block.formatReward}}</span>
+    {{else if block.isOk}}
+    <span class="label label-primary">{{block.formatReward}}</span>
+    {{/if}}
+  </td>
+</tr>

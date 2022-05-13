@@ -1,0 +1,95 @@
+<div class="container">
+  <div class="page-header">
+    <h2>Getting Started with {{config.PoolName}} mining</h2>
+  </div>
+
+  <div class="stats-box">
+    <h3>GPU Miner Softwares</h3>
+
+    <p>Download one of the following GPU miners.
+    <ul>
+      <li>Claymore Dual Miner (AMD/NVIDIA) : <a href="https://bitcointalk.org/index.php?topic=1433925.0">[ANN] Bitcointalk.org</a></li>
+      <li>Ethminer (AMD/NVIDIA): <a href="https://github.com/ethereum-mining/ethminer/releasesi/latest">Ethminer source/binary at Github</a></li>
+    </ul>
+    </p>
+  </div>
+
+  <div class="stats-box">
+    <h3>Prepare Wallet Address</h3>
+    <div>
+      <h4>Using geth</h4>
+      <ul>
+        <li>Unix/Linux shell <code>$ geth account new</code></li>
+        <li>Windows command line using cmd.exe (command shell) <code>&gt; geth account new</code></li>
+      </ul>
+
+      <h4>Using online wallet</h4>
+      <ul>
+        <li>{{format-html-message "wallet.online_html"}}</li>
+      </ul>
+
+      <h4>Wallet Dapp (aka. Mist)</h4>
+      <ul>
+        <li>Wallet dapp: {{format-html-message "wallet.dapp_html"}}</li>
+      </ul>
+    </div>
+  </div>
+
+
+
+
+  <h3>Usage examples</h3>
+  <dl class="dl-horizontal">
+    <dt><em>0x0000000000000000000000000000000000000000</em></dt>
+    <dd>This is your address for payouts<br/>
+      <strong>Example:</strong> <code>0x8b92c50e1c39466f900a578edb20a49356c4fe24</code>.
+    </dd>
+    <dt><em>your-worker-1</em><br /><em>your-worker-2</em></dt>
+    <dd>
+      ID of your PC/mining-rig to distinguish it from your other rigs. If you have just one rig, feel free to omit this param.<br />
+      This param must be short alphanumeric string with optional dashes and underscores.<br/>
+      <strong>Example:</strong> <code>worker-1</code>
+    </dd>
+  </dl>
+
+      <h4>Claymore Example</h4>
+      <p><strong>Download Claymore Dual Miner (AMD/NVIDIA)</strong>: <a href="https://bitcointalk.org/index.php?topic=1433925.0">[ANN] Bitcointalk.org</a></p>
+      <p>
+        <code><em>EthDcrMiner64</em> -epool <em>{{config.StratumHost}}</em>:<em>{{config.StratumPort}}</em> <em>-esm 0</em> -ewal <em>0x0000000000000000000000000000000000000000</em> -eworker <em>your-worker-1</em> -allcoins 1 -allpools 1</code>
+      </p>
+      <ul>
+        <li><code><em>EthDcrMiner64</em></code> - executable name under Windows. use <code><em>./ethdcrminer64</em></code> under Linux/Ubuntu</li>
+        <li><code><em>{{config.StratumHost}}</em></code> - Stratum Server name</li>
+        <li>use <code><em>-esm 0</em></code> and <code><em>{{config.StratumPort}}</em></code> port number for Stratum Server.</li>
+        <li><code><em>0x0000000000000000000000000000000000000000</em></code> - Your wallet address</li>
+        <li><code><em>your-worker-1</em></code> - Your worker name</li>
+      </ul>
+
+      <h4>Ethminer Examples</h4>
+      <p>
+        <strong>Download Ethminer (AMD/NVIDIA)</strong>: <a href="https://github.com/ethereum-mining/ethminer/releasesi/latest">Ethminer source/binary at Github</a>
+      </p>
+      <h5>Stratum method</h5>
+      <p>
+        <code>ethminer -SP 1 <em>-U</em> -S <em>{{config.StratumHost}}</em>:<em>{{config.StratumPort}}</em> -O <em>0x0000000000000000000000000000000000000000</em>.<em>your-worker-1</em> <em>--farm-recheck 2000</em></code>
+      </p>
+      <ul>
+        <li><code>-SP 1</code> - option for Stratum server</li>
+        <li><code><em>-U</em></code> - NVIDIA GPU or <code><em>-G</em></code> for AMD GPU</li>
+        <li><code>-S <em>{{config.StratumHost}}</em>:<em>{{config.StratumPort}}</em></code> - stratum_server_name:stratum_port_number</li>
+        <li><code>-O <em>0x0000000000000000000000000000000000000000</em>.<em>your-worker-1</em></code> - your_wallet_address.your_worker_name</li>
+        <li><code><em>--farm-recheck 2000</em></code> - Leave 2000 ms between checks for changed work (default 500ms. use higher value to use stratum for stability)</li>
+      </ul>
+      <h5>Legacy HTTP method</h5>
+      <p>
+        <code>ethminer <em>-U</em> -F <em>{{config.HttpHost}}</em>:<em>{{config.HttpPort}}</em>/<em>0x0000000000000000000000000000000000000000</em>/<em>your-worker-1</em> <em>--farm-recheck 200</em></code>
+      </p>
+      <ul>
+        <li><code><em>-U</em></code> - NVIDIA GPU or <code><em>-G</em></code> for AMD GPU</li>
+        <li><code>-F <em>{{config.HttpHost}}</em>:<em>{{config.HttpPort}}</em>/<em>0x0000000000000000000000000000000000000000</em>/<em>your-worker-1</em></code>
+          <ul><li>Legacy HTTP method. <em>http_server_name</em>:<em>http_port_number</em></li>
+          <li><code><em>0x0000000000000000000000000000000000000000</em>/<em>your-worker-1</em></code> - <em>your_wallet_address</em>.<em>your_worker_name</em></li>
+          </ul>
+        </li>
+      </ul>
+</div>

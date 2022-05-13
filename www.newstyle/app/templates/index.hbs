@@ -1,0 +1,171 @@
+<div class="jumbotron">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div  class="alert alert-info text-center">{{t "menu.motd"}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+        <strong>{{t "home.min_payout_threshold"}}: {{config.PayoutThreshold}} {{config.Unit}}</strong> / {{t "home.payouts_run" interval=config.PayoutInterval}}<br/>
+        <span class="label label-success">PROP</span> {{t "home.payout_scheme_detail"}}
+      </div>
+      <div class="col-md-4 stats">
+        <div class="stats-box">
+          <div><i class="fa fa-users"></i> {{t "home.miners_online"}}: <span id="poolHashrate">{{format-number stats.model.minersTotal}}</span></div>
+          <div><i class="fa fa-tachometer"></i> {{t "home.pool_hashrate"}}: <span id="poolHashrate">{{format-hashrate stats.model.hashrate}}</span></div>
+          <div><i class="fa fa-money"></i> {{t "home.pool_fee"}}: <span id="poolFee" class="label label-success">{{config.PoolFee}}</span></div>
+          {{#if stats.model.stats.lastBlockFound}}
+          <div><i class="fa fa-clock-o"></i> {{t "home.last_block_found"}}: <span>{{format-relative (seconds-to-ms stats.model.stats.lastBlockFound)}}</span></div>
+          {{/if}}
+        </div>
+    </div>
+
+      <div class="col-md-4 stats">
+        <div class="stats-box">
+          <div><i class="fa fa-unlock-alt"></i> {{t "home.network_difficulty"}}: <span>{{with-metric-prefix stats.difficulty}}</span></div>
+          <div><i class="fa fa-tachometer"></i> {{t "home.network_hashrate"}}: <span>{{format-hashrate stats.hashrate}}</span></div>
+          <div><i class="fa fa-bars"></i> {{t "home.blockchain_height"}}: <span>{{format-number stats.height}}</span></div>
+          <div><i class="fa fa-clock-o"></i> {{t "home.current_round_variance"}}: <span>{{format-number stats.roundVariance style='percent'}}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div>
+  {{high-charts mode=chartMode chartOptions=chartOptions content=chartData}}
+  </div>
+  <div class="stats">
+    <h3>{{t "home.query_history"}}</h3>
+    <div class="input-group">
+      {{input value=cachedLogin class="form-control" placeholder=(t "home.input.enter_your_wallet_address")}}
+      <span class="input-group-btn">
+        <button class="btn btn-primary" type="button" {{action 'lookup' cachedLogin}}>
+          <span style="display: inline;"><i class="fa fa-search"></i> {{t "home.button.lookup"}}</span>
+        </button>
+      </span>
+    </div>
+  </div>
+  <div>
+    <hr/>
+    <div class="row">
+      <div class="col-md-4 col-sm-12">
+        <h5 class="note note-info text-center">
+          <span class="label label-success">2b</span>&nbsp;<a href="./#/help" title={{t "home.settings.help"}}><b>{{t "home.settings.title" hashes="< 150"}}</b></a>
+          <br>
+          {{t "home.settings.difficulty" diff="2"}}
+
+          <br><br>
+          <b>{{t "home.settings.stratum_mining"}}:</b>
+          <br><br>
+          <code>stratum+tcp://{{config.StratumHost}}:8002</code>
+        </h5>
+      </div>
+      <div class="col-md-4 col-sm-12">
+        <h5 class="note note-info text-center">
+          <span class="label label-success">4b</span>&nbsp;<a href="./#/help" title={{t "home.settings.help"}}><b>{{t "home.settings.title" hashes="150 - 800"}}</b></a>
+          <br>
+          {{t "home.settings.difficulty" diff="4"}}
+          <br><br>
+          <b>{{t "home.settings.stratum_mining"}}:</b>
+          <br><br>
+          <code>stratum+tcp://{{config.StratumHost}}:8004</code>
+        </h5>
+
+      </div>
+      <div class="col-md-4 col-sm-12">
+        <h5 class="note note-info text-center">
+          <span class="label label-success">9b</span>&nbsp;<a href="./#/help" title={{t "home.settings.help"}}><b>{{t "home.settings.title" hashes="> 800"}} & NiceHash</b></a>
+          <br>
+          {{t "home.settings.difficulty" diff="9"}}
+          <br><br>
+          <b>{{t "home.settings.stratum_mining"}}:</b>
+          <br><br>
+          <code>stratum+tcp://{{config.StratumHost}}:8009</code>
+        </h5>
+      </div>
+    </div>
+    <div class="row command_lines">
+      <!-- Nav tabs -->
+      <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#windows_settings" aria-controls="home" role="tab" data-toggle="tab">{{t "home.settings.commands.windows"}}</a></li>
+        <li role="presentation"><a href="#smos_settings" aria-controls="profile" role="tab" data-toggle="tab">{{t "home.settings.commands.smos"}}</a></li>
+      </ul>
+      <!-- Tab panes -->
+      <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="windows_settings">
+          <div style="padding:15px;">
+            <h5>{{t "home.settings.commands.windows_instruction"}}</h5>
+            <div class="panel-group" id="windows_settings_windows_tab" role="tablist" aria-multiselectable="true">
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab" id="win_headingOne">
+                <h4 class="panel-title">
+                  <a role="button" data-toggle="collapse" data-parent="#windows_settings_windows_tab" href="#win_collapseOne" aria-expanded="true" aria-controls="win_collapseOne">
+                    Claymore
+                  </a>
+                </h4>
+              </div>
+              <div id="win_collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                <div class="panel-body">
+                      <input type="text" class="form-control" value="EthDcrMiner64.exe -epool stratum+tcp://changeme.yourstratum.net:8002 -esm 0 -ewal &lt;address&gt; -eworker &lt;worker&gt; -allcoins 1 -allpools 1">
+                </div>
+              </div>
+            </div>
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab" id="win_headingTwo">
+                <h4 class="panel-title">
+                  <a class="collapsed" role="button" data-toggle="collapse" data-parent="#windows_settings_windows_tab" href="#win_collapseTwo" aria-expanded="false" aria-controls="win_collapseTwo">
+                    Ethminer 0.14
+                  </a>
+                </h4>
+              </div>
+              <div id="win_collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                <div class="panel-body">
+                      <input type="text" class="form-control" value="ethminer.exe -U -SP 1 -S changeme.yourstratum.net::8004 -O &lt;address&gt;.&lt;worker&gt; --farm-recheck 1000 -v 2">
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="smos_settings">
+          <div style="padding:15px;">
+            <h5>{{t "home.settings.commands.windows_instruction"}}</h5>
+            <div class="panel-group" id="smos_settings_smos_tab" role="tablist" aria-multiselectable="true">
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab" id="smos_headingOne">
+                <h4 class="panel-title">
+                  <a role="button" data-toggle="collapse" data-parent="#smos_settings_smos_tab" href="#smos_collapseOne" aria-expanded="true" aria-controls="smos_collapseOne">
+                    Claymore
+                  </a>
+                </h4>
+              </div>
+              <div id="smos_collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                <div class="panel-body">
+                      <input type="text" class="form-control" value="-wd 1 -r 1 -epool stratum+tcp://changeme.yourstratum.net::8002 -ewal &lt;address&gt; -eworker $rigName -esm 0 -epsw x -allpools 1 -asm 1 -mode 1">
+                </div>
+              </div>
+            </div>
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab" id="smos_headingTwo">
+                <h4 class="panel-title">
+                  <a class="collapsed" role="button" data-toggle="collapse" data-parent="#smos_settings_smos_tab" href="#smos_collapseTwo" aria-expanded="false" aria-controls="smos_collapseTwo">
+                    Ethminer 0.14
+                  </a>
+                </h4>
+              </div>
+              <div id="smos_collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                <div class="panel-body">
+                      <input type="text" class="form-control" value="-U -P stratum1+tcp://&lt;address&gt;.$rigNamechangeme.yourstratum.net:8002 --farm-recheck 200 --api-port -3333">
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

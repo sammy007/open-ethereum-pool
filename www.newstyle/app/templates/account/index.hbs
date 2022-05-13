@@ -1,0 +1,41 @@
+<div class="container">
+{{high-charts mode=chartMode chartOptions=chartOptions content=chartData}}
+  {{#if model.workers}}
+  <h4>{{t "account.your_workers"}}</h4>
+  <div class="table-responsive">
+    <table class="table table-condensed table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>{{t "account.hashrate"}} ({{t "account.short_average_abbrv"}} / {{t "account.long_average_abbrv"}})</th>
+          <th>{{t "account.earnings.worker"}}</th>
+          <th>{{t "account.difficulty"}}</th>
+          <th>{{t "account.server"}}</th>
+          <th>{{t "account.last_share"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each-in model.workers as |k v|}}
+          <tr class="worker-class {{if v.offline "warning" "success"}} {{worker-colorizer v.lastBeat}}">
+            <td>{{k}}</td>
+            <td>{{format-hashrate v.hr}} / {{format-hashrate v.hr2}}</td>
+            <td>{{format-number (worker-earnperday v.hr netstats.hashrate)}} {{config.Unit}}</td>
+            <td>{{format-difficulty v.difficulty}}</td>
+            <td>{{v.hostname}}</td>
+            <td>{{format-relative (seconds-to-ms v.lastBeat)}}</td>
+          </tr>
+        {{/each-in}}
+      </tbody>
+    </table>
+  </div>
+  {{else}}
+    <h3>{{t "account.no_workers_online"}}</h3>
+  {{/if}}
+  <div class="alert alert-info" role="alert">
+    <span class="sr-only">{{t "account.notice"}}:</span>
+    {{format-html-message "account.notice_html"}}
+  </div>
+  <div class="alert alert-info" role="alert">
+    <strong>{{t "account.json_api_url"}}:</strong> <a href="{{config.ApiUrl}}api/accounts/{{model.login}}">/api/accounts/{{model.login}}</a>
+  </div>
+</div>

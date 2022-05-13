@@ -1,0 +1,79 @@
+<!-- Fixed navbar -->
+<!-- Modal -->
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="{{config.HttpHost}}"><span class="logo-1">{{config.PoolName}}</span><span class="logo-2"> @ {{config.CompanyName}}</span></a>
+    </div>
+    <div class="collapse navbar-collapse">
+      <ul class="nav navbar-nav text-center pull-right">
+        {{#active-li currentWhen='blocks'}}
+          {{#link-to 'blocks'}}
+            <i class="fa fa-cubes"></i> {{t 'menu.pool_blocks'}}
+            {{#if immatureTotal}}
+              <span class="badge alert-success">{{immatureTotal}}</span>
+            {{/if}}
+          {{/link-to}}
+        {{/active-li}}
+        {{#active-li currentWhen='payments'}}
+          {{#link-to 'payments'}}
+            <i class="fa fa-paper-plane-o"></i> {{t 'menu.payments'}}
+          {{/link-to}}
+        {{/active-li}}
+        {{#active-li currentWhen='miners'}}
+          {{#link-to 'miners'}}
+            <i class="fa fa-users"></i> {{t 'menu.miners'}}
+          {{/link-to}}
+        {{/active-li}}
+        {{#active-li currentWhen='finders'}}
+          {{#link-to 'finders'}}
+            <i class="fa fa-diamond"></i> Finders
+          {{/link-to}}
+        {{/active-li}}
+        {{#active-li currentWhen='about'}}
+          {{#link-to (t 'menu.i18n.about')}}
+            <i class="fa fa-comments"></i> {{t 'menu.about'}}
+          {{/link-to}}
+        {{/active-li}}
+        {{#active-li currentWhen='help'}}
+          {{#link-to (t 'menu.i18n.help')}}
+            <i class="fa fa-rocket"></i> {{t 'menu.help'}}
+          {{/link-to}}
+        {{/active-li}}
+        <li>
+          <ul class="nav navbar-nav navbar-right">
+            <li>
+              <a class="nav-item nav-link dropdown-toggle" data-toggle="dropdown" id="selectedLanguage">
+                {{selectedLanguage}}
+                <b class="caret"></b>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-right">
+                {{#each languages as |lang|}}
+                <li><a href="#" {{action 'selectLanguage' lang.value on='click'}}>{{lang.name}}</a></li>
+                {{/each}}
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+
+    </div>
+  </div>
+</div>
+<div dir="{{t "general.direction"}}">
+
+
+{{outlet}}
+
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="text-muted text-center">{{format-html-message "footer.copyrights"}}</p>
+  </div>
+</footer>

@@ -1,14 +1,13 @@
 <div class="container">
-  {{high-charts mode=chartMode chartOptions=chartPayment content=chartData}}
   {{#if model.payments}}
-  <h3>{{t "payout.latest_payouts"}}</h3>
+  <h4>Your Latest Payouts</h4>
   <div class="table-responsive">
     <table class="table table-condensed table-striped">
       <thead>
         <tr>
-          <th>{{t "payout.time"}}</th>
-          <th>{{t "payout.txid"}}</th>
-          <th>{{t "payout.amount"}} {{config.Unit}}</th>
+          <th>Time</th>
+          <th>Tx ID</th>
+          <th>Amount</th>
         </tr>
       </thead>
       <tbody>
@@ -16,7 +15,7 @@
           <tr>
             <td>{{format-date-locale tx.timestamp}}</td>
             <td>
-              <a href="{{t "links.blockExplorerLink_tx"}}{{tx.tx}}" class="hash" rel="nofollow" target="_blank">{{tx.tx}}</a>
+              <a href="https://etherscan.io/tx/{{tx.tx}}" class="hash" rel="nofollow" target="_blank">{{tx.tx}}</a>
             </td>
             <td>{{format-balance tx.amount}}</td>
           </tr>
@@ -25,6 +24,6 @@
     </table>
   </div>
   {{else}}
-  <h3>{{t "payout.no_payouts_yet"}}</h3>
+  <h3>No payouts yet</h3>
   {{/if}}
 </div>
