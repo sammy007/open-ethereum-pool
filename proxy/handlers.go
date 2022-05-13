@@ -12,7 +12,7 @@ import (
 // Allow only lowercase hexadecimal with 0x prefix
 var noncePattern = regexp.MustCompile("^0x[0-9a-f]{16}$")
 var hashPattern = regexp.MustCompile("^0x[0-9a-f]{64}$")
-var workerPattern = regexp.MustCompile("^[0-9a-zA-Z-_]{1,8}$")
+var workerPattern = regexp.MustCompile("^[0-9a-zA-Z-_]{1,20}$")
 
 // Stratum
 func (s *ProxyServer) handleLoginRPC(cs *Session, params []string, id string) (bool, *ErrorReply) {
