@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "ember build",
-    "start": "ember server",
+    "start": "ember server --port 8082 --environment development",
     "test": "ember test"
   },
   "repository": "",

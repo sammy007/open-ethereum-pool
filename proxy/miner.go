@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ethereum/ethash"
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/FranckStone/ethash"
+	"github.com/ethereumfair/go-ethereum/common"
 )
 
 var hasher = ethash.New()

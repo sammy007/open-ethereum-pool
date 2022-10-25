@@ -1,6 +1,9 @@
 .DS_Store
 config.json
 testnet.json
+payouts.json
 
+
+.idea
 /build/_workspace/
 /build/bin/
