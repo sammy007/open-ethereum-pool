@@ -1,16 +1,23 @@
 package payouts
 
 import (
+	"context"
+	"crypto/ecdsa"
 	"fmt"
+	"github.com/ethereumfair/go-ethereum/accounts/keystore"
+	"github.com/ethereumfair/go-ethereum/common"
+	"github.com/ethereumfair/go-ethereum/common/hexutil"
+	"github.com/ethereumfair/go-ethereum/console/prompt"
+	"github.com/ethereumfair/go-ethereum/core/types"
+	"github.com/ethereumfair/go-ethereum/crypto"
+	"github.com/ethereumfair/go-ethereum/ethclient"
+	"io/ioutil"
 	"log"
 	"math/big"
 	"os"
 	"strconv"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
-
-	"github.com/sammy007/open-ethereum-pool/rpc"
 	"github.com/sammy007/open-ethereum-pool/storage"
 	"github.com/sammy007/open-ethereum-pool/util"
 )
@@ -27,6 +34,8 @@ type PayoutsConfig struct {
 	Gas          string `json:"gas"`
 	GasPrice     string `json:"gasPrice"`
 	AutoGas      bool   `json:"autoGas"`
+	KeyPath      string `json:"keyPath"`
+
 	// In Shannon
 	Threshold int64 `json:"threshold"`
 	BgSave    bool  `json:"bgsave"`
@@ -43,28 +52,44 @@ func (self PayoutsConfig) GasPriceHex() string {
 }
 
 type PayoutsProcessor struct {
-	config   *PayoutsConfig
-	backend  *storage.RedisClient
-	rpc      *rpc.RPCClient
-	halt     bool
-	lastFail error
+	config     *PayoutsConfig
+	backend    *storage.RedisClient
+	privateKey *ecdsa.PrivateKey
+	rpc        *ethclient.Client
+	halt       bool
+	lastFail   error
 }
 
 func NewPayoutsProcessor(cfg *PayoutsConfig, backend *storage.RedisClient) *PayoutsProcessor {
 	u := &PayoutsProcessor{config: cfg, backend: backend}
-	u.rpc = rpc.NewRPCClient("PayoutsProcessor", cfg.Daemon, cfg.Timeout)
+	u.rpc, _ = ethclient.Dial(cfg.Daemon)
 	return u
 }
 
 func (u *PayoutsProcessor) Start() {
 	log.Println("Starting payouts")
 
-	if u.mustResolvePayout() {
-		log.Println("Running with env RESOLVE_PAYOUT=1, now trying to resolve locked payouts")
-		u.resolvePayouts()
-		log.Println("Now you have to restart payouts module with RESOLVE_PAYOUT=0 for normal run")
+	//if u.mustResolvePayout() {
+	//	log.Println("Running with env RESOLVE_PAYOUT=1, now trying to resolve locked payouts")
+	//	u.resolvePayouts()
+	//	log.Println("Now you have to restart payouts module with RESOLVE_PAYOUT=0 for normal run")
+	//	return
+	//}
+
+	password, _ := prompt.Stdin.PromptPassword("Please enter the password :")
+	keyjson, err := ioutil.ReadFile(u.config.KeyPath)
+	if err != nil {
+		log.Println("failed to read the keyfile at", "keyfile", u.config.KeyPath, "err", err)
 		return
 	}
+
+	key, err := keystore.DecryptKey(keyjson, password)
+	if err != nil {
+		log.Println("error decrypting ", "err", err)
+		return
+	}
+
+	u.privateKey = key.PrivateKey
 
 	intv := util.MustParseDuration(u.config.Interval)
 	timer := time.NewTimer(intv)
@@ -132,13 +157,9 @@ func (u *PayoutsProcessor) process() {
 		if !u.checkPeers() {
 			break
 		}
-		// Require unlocked account
-		if !u.isUnlockedAccount() {
-			break
-		}
 
 		// Check if we have enough funds
-		poolBalance, err := u.rpc.GetBalance(u.config.Address)
+		poolBalance, err := u.rpc.BalanceAt(context.TODO(), common.HexToAddress(u.config.Address), nil)
 		if err != nil {
 			u.halt = true
 			u.lastFail = err
@@ -171,8 +192,52 @@ func (u *PayoutsProcessor) process() {
 			break
 		}
 
-		value := hexutil.EncodeBig(amountInWei)
-		txHash, err := u.rpc.SendTransaction(u.config.Address, login, u.config.GasHex(), u.config.GasPriceHex(), value, u.config.AutoGas)
+		publicKey := u.privateKey.Public()
+		publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+		if !ok {
+			log.Printf("publicKey")
+			u.halt = true
+			u.lastFail = err
+			break
+		}
+
+		fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
+		nonce, err := u.rpc.NonceAt(context.TODO(), fromAddress, nil)
+		if err != nil {
+			log.Printf("NonceAt")
+			u.halt = true
+			u.lastFail = err
+			break
+		}
+
+		gasLimit := uint64(21000) // in units
+		gasPrice, err := u.rpc.SuggestGasPrice(context.Background())
+		if err != nil {
+			log.Printf("SuggestGasPrice")
+			u.halt = true
+			u.lastFail = err
+			break
+		}
+
+		var data []byte
+		tx := types.NewTransaction(nonce, common.HexToAddress(login), amountInWei, gasLimit, gasPrice, data)
+		signedTx, err := types.SignTx(tx, types.NewEIP155Signer(big.NewInt(1337)), u.privateKey)
+		if err != nil {
+			log.Printf("SignTx")
+			u.halt = true
+			u.lastFail = err
+			break
+		}
+
+		err = u.rpc.SendTransaction(context.Background(), signedTx)
+		if err != nil {
+			log.Println("SendTransaction", err)
+			u.halt = true
+			u.lastFail = err
+			break
+		}
+
+		//txHash, err := u.rpc.SendTransaction(privateKey, u.config.Address, login, u.config.GasHex(), u.config.GasPriceHex(), value, u.config.AutoGas)
 		if err != nil {
 			log.Printf("Failed to send payment to %s, %v Shannon: %v. Check outgoing tx for %s in block explorer and docs/PAYOUTS.md",
 				login, amount, err, login)
@@ -182,9 +247,9 @@ func (u *PayoutsProcessor) process() {
 		}
 
 		// Log transaction hash
-		err = u.backend.WritePayment(login, txHash, amount)
+		err = u.backend.WritePayment(login, signedTx.Hash().String(), amount)
 		if err != nil {
-			log.Printf("Failed to log payment data for %s, %v Shannon, tx: %s: %v", login, amount, txHash, err)
+			log.Printf("Failed to log payment data for %s, %v Shannon, tx: %s: %v", login, amount, signedTx.Hash().String(), err)
 			u.halt = true
 			u.lastFail = err
 			break
@@ -192,23 +257,23 @@ func (u *PayoutsProcessor) process() {
 
 		minersPaid++
 		totalAmount.Add(totalAmount, big.NewInt(amount))
-		log.Printf("Paid %v Shannon to %v, TxHash: %v", amount, login, txHash)
+		log.Printf("Paid %v Shannon to %v, TxHash: %v", amount, login, signedTx.Hash().String())
 
 		// Wait for TX confirmation before further payouts
 		for {
-			log.Printf("Waiting for tx confirmation: %v", txHash)
+			log.Printf("Waiting for tx confirmation: %v", signedTx.Hash().String())
 			time.Sleep(txCheckInterval)
-			receipt, err := u.rpc.GetTxReceipt(txHash)
+			receipt, err := u.rpc.TransactionReceipt(context.TODO(), common.HexToHash(signedTx.Hash().String()))
 			if err != nil {
-				log.Printf("Failed to get tx receipt for %v: %v", txHash, err)
+				log.Printf("Failed to get tx receipt for %v: %v", signedTx.Hash().String(), err)
 				continue
 			}
 			// Tx has been mined
-			if receipt != nil && receipt.Confirmed() {
-				if receipt.Successful() {
-					log.Printf("Payout tx successful for %s: %s", login, txHash)
+			if receipt != nil && receipt.Status == 1 {
+				if receipt.Status == 1 {
+					log.Printf("Payout tx successful for %s: %s", login, signedTx.Hash().String())
 				} else {
-					log.Printf("Payout tx failed for %s: %s. Address contract throws on incoming tx.", login, txHash)
+					log.Printf("Payout tx failed for %s: %s. Address contract throws on incoming tx.", login, signedTx.Hash().String())
 				}
 				break
 			}
@@ -227,22 +292,22 @@ func (u *PayoutsProcessor) process() {
 	}
 }
 
-func (self PayoutsProcessor) isUnlockedAccount() bool {
-	_, err := self.rpc.Sign(self.config.Address, "0x0")
-	if err != nil {
-		log.Println("Unable to process payouts:", err)
-		return false
-	}
-	return true
-}
+//func (self PayoutsProcessor) isUnlockedAccount() bool {
+//	_, err := self.rpc.Sign(self.config.Address, "0x0")
+//	if err != nil {
+//		log.Println("Unable to process payouts:", err)
+//		return false
+//	}
+//	return true
+//}
 
 func (self PayoutsProcessor) checkPeers() bool {
-	n, err := self.rpc.GetPeerCount()
+	n, err := self.rpc.PeerCount(context.TODO())
 	if err != nil {
 		log.Println("Unable to start payouts, failed to retrieve number of peers from node:", err)
 		return false
 	}
-	if n < self.config.RequirePeers {
+	if int64(n) < self.config.RequirePeers {
 		log.Println("Unable to start payouts, number of peers on a node is less than required", self.config.RequirePeers)
 		return false
 	}
